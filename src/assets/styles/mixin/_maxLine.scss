@@ -1,0 +1,7 @@
+@mixin maxLine($number) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: $number; /* number of lines to show */
+    -webkit-box-orient: vertical;
+}

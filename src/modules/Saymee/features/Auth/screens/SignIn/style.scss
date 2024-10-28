@@ -1,0 +1,13 @@
+.Login__aside_bottom {
+    // background: url("/assets/images/img_world_map.png") no-repeat bottom;
+    background-size: contain;
+    background-position-y: 80%;
+}
+
+.SignIn {
+    &_Aside {
+        // background: url("/assets/images/img_signin_aside_bg.jpg");
+        background-size: cover;
+        background-position: center;
+    }
+}

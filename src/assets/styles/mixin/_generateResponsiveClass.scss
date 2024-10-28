@@ -1,0 +1,31 @@
+@mixin generateResponsiveClass($className) {
+  @media (max-width: 576px) {
+    #{$className}-xs {
+      @content;
+    }
+  }
+
+  @media (min-width: 576px) {
+    #{$className}-sm {
+      @content;
+    }
+  }
+
+  @media (min-width: 768px) {
+    #{$className}-md {
+      @content;
+    }
+  }
+
+  @media (min-width: 992px) {
+    #{$className}-lg {
+      @content;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    #{$className}-xl {
+      @content;
+    }
+  }
+}

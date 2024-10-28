@@ -1,0 +1,9 @@
+@media (min-width: 992px) {
+    .aside-fixed .wrapper {
+        padding-left: 290px !important;
+    }
+
+    .aside-fixed.aside-minimize:not(.aside-minimize-hover) .wrapper {
+        padding-left: 95px !important;
+    }
+}
