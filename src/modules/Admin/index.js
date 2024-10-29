@@ -6,15 +6,15 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import CategoryHomePage from './features/Category/screens/CategoryHomePage';
 import AccountHomePage from './features/Account/screens/AccountHomePage';
 
-function Saymee(props) {
+function Admin(props) {
   // MARK: --- Props ---
   const { t } = useTranslation();
 
   return (
     <KT01BaseLayout>
-      <div id="saymee-container" className="container min-h-100">
+      <div id="admin-container" className="container min-h-100">
         <Routes>
-          <Route path="/" element={<Navigate to="account" />} />
+          <Route path="/" element={<Navigate to="category" />} />
           <Route path="category/*" element={<CategoryHomePage/>} />
           <Route path="account/*" element={<AccountHomePage/>} />
 
@@ -35,4 +35,4 @@ function Saymee(props) {
   );
 }
 
-export default Saymee;
+export default Admin;

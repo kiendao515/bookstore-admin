@@ -25,7 +25,7 @@ function KT01BaseLayout(props) {
             <KT01Content>{props.children}</KT01Content>
 
             {/* Footer */}
-            <KT01Footer />
+            {/* <KT01Footer /> */}
           </div>
         </div>
       </div>

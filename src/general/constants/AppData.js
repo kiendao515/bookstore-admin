@@ -59,9 +59,9 @@ const AppData = {
   ],
 
   packageTypeOptions: [
-    {name: "Gói Saymee 120K", value: 3},
-    {name: "Gói Saymee 90K", value: 2},
-    {name: "Gói Saymee 60K", value: 1},
+    {name: "Gói Admin 120K", value: 3},
+    {name: "Gói Admin 90K", value: 2},
+    {name: "Gói Admin 60K", value: 1},
   ],
   appColor: ''
 };

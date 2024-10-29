@@ -93,13 +93,13 @@ function CategoryHomePage(props) {
           <div className="d-flex align-items-center">
             <KTTooltip text={t('Edit')}>
               <a
-                className="btn btn-icon btn-sm btn-primary btn-hover-primary mr-2"
+                className="btn btn-icon btn-sm btn-primary mr-2"
                 onClick={(e) => {
                   e.preventDefault();
                   handleEditCategory(row);
                 }}
               >
-                <i className="fa-regular fa-user-pen p-0 icon-1x" />
+                <i className="fa-solid fa-pen-to-square p-0 icon-1x"/>
               </a>
             </KTTooltip>
 
@@ -113,7 +113,7 @@ function CategoryHomePage(props) {
                   handleDeleteCategory(row);
                 }}
               >
-                <i className="far fa-trash p-0 icon-1x" />
+                <i className="fa-solid fa-trash p-0 icon-1x" />
               </a>
             </KTTooltip>
           </div>
@@ -272,8 +272,8 @@ function CategoryHomePage(props) {
                 }}
                 className="btn btn-primary font-weight-bold d-flex align-items-center ml-2"
               >
-                <i className="far fa-plus"></i>
-                {t('NewEmployee')}
+                <i className="fa-solid fa-plus"></i>
+                {t('NewCategory')}
               </a>
             </div>
           </div>

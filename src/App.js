@@ -8,7 +8,7 @@ import GuestRoute from 'general/components/AppRoutes/GuestRoute';
 import PrivateRoute from 'general/components/AppRoutes/PrivateRoute';
 import KTPageError01 from 'general/components/OtherKeenComponents/KTPageError01';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import Saymee from 'modules/Saymee';
+import Admin from 'modules/Admin';
 
 // Load BS
 require('bootstrap/dist/js/bootstrap.min');
@@ -48,14 +48,14 @@ function App() {
         {/* Suspense */}
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
-            <Route path="/*" element={<Navigate to="/saymee" />} />
+            <Route path="/*" element={<Navigate to="/admin" />} />
 
             {/* hop dong dien tu */}
             <Route
-              path="/saymee/*"
+              path="/admin/*"
               element={
                 <PrivateRoute>
-                  <Saymee />
+                  <Admin />
                 </PrivateRoute>
               }
             />

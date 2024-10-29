@@ -4,7 +4,7 @@ import KTBSDropdown, {
 import UserHelper from 'general/helpers/UserHelper';
 import useRouter from 'hooks/useRouter';
 import _ from 'lodash';
-import DropdownAccountMenu from 'modules/Saymee/features/Auth/components/DropdownAccountMenu';
+import DropdownAccountMenu from 'modules/Admin/features/Auth/components/DropdownAccountMenu';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';

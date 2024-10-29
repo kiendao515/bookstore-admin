@@ -37,150 +37,14 @@ function KT01Sidebar(props) {
         type: 'item',
         text: t("Collection"),
         icon: 'fas fa-qrcode',
-        path: "",
-        subMenuItems: [
-          {
-            type: 'item',
-            text: t("ConsolidateInformation"),
-            icon: 'fas fa-analytics',
-            path: '/consolidateinfo/detail',
-          },
-          {
-            type: 'item',
-            text: t("PackageInformation"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-          {
-            type: 'item',
-            text: t("CacheChargeTransaction"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-          {
-            type: 'item',
-            text: t("AccountCacheInformation"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-          {
-            type: 'item',
-            text: t("ServiceCacheInformation"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-          {
-            type: 'item',
-            text: t("AutopayRegistrationList"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-        ],
-      }, 
+        path: ""
+      },
       {
         type: 'item',
-        text: t("LookingUp"),
+        text: t("BookInfo"),
         icon: "fal fa-file-search",
-        path: AppConfigs.invoiceUrl,
-        subMenuItems: [
-          {
-            type: 'item',
-            text: t("LookingUpSelectingNumberTransaction"),
-            icon: 'fas fa-analytics',
-            path: '/consolidateinfo/detail',
-          },
-          {
-            type: 'item',
-            text: t("LookingUpInterconnectionTransaction"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-          {
-            type: 'item',
-            text: t("EsimTransaction"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-          {
-            type: 'item',
-            text: t("UpdatingND49Information"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-          {
-            type: 'item',
-            text: t("CheckingNetworkHistory"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-          {
-            type: 'item',
-            text: t("AutopayTransaction"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-          {
-            type: 'item',
-            text: t("LookingUpDataPackageTransaction"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-          {
-            type: 'item',
-            text: t("TTTTTransaction"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-          {
-            type: 'item',
-            text: t("RechargeCardTransaction"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-          {
-            type: 'item',
-            text: t("CancelPackage&Data&ServiceTransaction"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-          {
-            type: 'item',
-            text: t("LoggingSMSSending"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-          {
-            type: 'item',
-            text: t("Feedback"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-          {
-            type: 'item',
-            text: t("ReceivingPushNotification"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-          {
-            type: 'item',
-            text: t("MoneyTransferSubscribers"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-          {
-            type: 'item',
-            text: t("LookingUpEKYCTransaction"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-          {
-            type: 'item',
-            text: t("CkeckingTwoConflictingPackages999"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-        ],
-      }, 
+        path: '/book',
+      },
       { type: 'section', text: t("AccountManagement") },
       {
         type: 'item',
@@ -204,25 +68,25 @@ function KT01Sidebar(props) {
         icon: "fad fa-file-chart-line",
         path: '/order',
       },
-      {
-        type: 'item',
-        text: t("Esim"),
-        icon: "fas fa-sim-card",
-        path: '/e-contract/notifications',
-        subMenuItems: [{
-            type: 'item',
-            text: t("TransactionStatistic"),
-            icon: 'fas fa-analytics',
-            path: '/consolidateinfo/detail',
-          },
-          {
-            type: 'item',
-            text: t("TopError"),
-            icon: 'fas fa-analytics',
-            path: '/subscriber/app-infor',
-          },
-        ]
-      },
+      // {
+      //   type: 'item',
+      //   text: t("Esim"),
+      //   icon: "fas fa-sim-card",
+      //   path: '/e-contract/notifications',
+      //   subMenuItems: [{
+      //       type: 'item',
+      //       text: t("TransactionStatistic"),
+      //       icon: 'fas fa-analytics',
+      //       path: '/consolidateinfo/detail',
+      //     },
+      //     {
+      //       type: 'item',
+      //       text: t("TopError"),
+      //       icon: 'fas fa-analytics',
+      //       path: '/subscriber/app-infor',
+      //     },
+      //   ]
+      // },
     ];
   }, [currentAccount]);
 
@@ -261,6 +125,7 @@ function KT01Sidebar(props) {
             // }}
           />
         </a>
+        <span className = "">Hiệu sách Hộp</span>
         {/* button toggle */}
         <button className="brand-toggle btn btn-sm px-0 border-0" id="kt_aside_toggle">
           <span className="svg-icon svg-icon svg-icon-xl">

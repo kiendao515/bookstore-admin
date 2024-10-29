@@ -94,7 +94,7 @@ function SignInScreen(props) {
                             />
                             <div className='font-size-h2 font-weight-boldest text-center text-white' style={{
                                 width: '80%'
-                            }}>{t('SaymeeText')}</div>
+                            }}>{t('AdminText')}</div>
                         </div>
                     </div>
                 </div>

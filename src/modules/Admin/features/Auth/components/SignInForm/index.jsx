@@ -49,7 +49,7 @@ function SignInForm(props) {
 
                             {/* begin: Title */}
                             <div className="pb-5 pb-lg-15">
-                                <h3 className="font-weight-bolder text-white font-size-h2 font-size-h1-lg">{t('Saymee')}</h3>
+                                <h3 className="font-weight-bolder text-white font-size-h2 font-size-h1-lg">{t('Admin')}</h3>
                                 <div className="text-white-50 font-weight-bold font-size-h5">{`${t('AdminPage')}`}
                                     {/* <a href="#" className="text-primary font-weight-bolder ml-2">{t('Register')}</a> */}
                                 </div>

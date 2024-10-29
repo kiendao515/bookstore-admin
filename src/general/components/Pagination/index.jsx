@@ -46,7 +46,7 @@ function Pagination(props) {
     }
     // console.log(`[Pagination] - first index: ${firstIndex} - last index: ${lastIndex}`);
     for (firstIndex; firstIndex <= lastIndex; firstIndex++) {
-        arrButtons.push(<button key={firstIndex} page={firstIndex + 1} onClick={handlePageChange} className={`btn btn-icon btn-sm border-0 btn-light mr-2 my-1 ${firstIndex === currentPage - 1 ? 'active btn-hover-primary' : ''}`}>{Utils.formatNumber(firstIndex + 1)}</button>);
+        arrButtons.push(<button key={firstIndex} page={firstIndex + 1} onClick={handlePageChange} className={`btn btn-icon btn-sm border-0 btn-light mr-2 my-1 ${firstIndex === currentPage - 1 ? 'active' : ''}`}>{Utils.formatNumber(firstIndex + 1)}</button>);
     }
 
     function handlePageChange(e) {
@@ -107,7 +107,7 @@ function Pagination(props) {
                     >
                         <DropdownToggle
                             caret
-                            className="d-flex align-items-center justify-content-between btn-light btn-hover-primary"
+                            className="d-flex align-items-center justify-content-between btn-light"
                         >
                             {rowsPerPage}
                         </DropdownToggle>

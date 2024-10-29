@@ -1,8 +1,8 @@
 // Import reducers
 import appReducer from './appSlice';
 import authReducer from './authSlice';
-import categoryReducer from '../modules/Saymee/features/Category/categorySlice';
-import accountReducer from '../modules/Saymee/features/Account/accountSlice';
+import categoryReducer from '../modules/Admin/features/Category/categorySlice';
+import accountReducer from '../modules/Admin/features/Account/accountSlice';
 const { configureStore } = require('@reduxjs/toolkit');
 
 // root reducer

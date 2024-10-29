@@ -33376,7 +33376,7 @@ a.text-hover-white,
     transition: fill 0.3s ease; }
 
 .text-primary {
-  color: #FAF8F5 !important; }
+  color: #155EEF !important; }
 
 .text-inverse-primary {
   color: #ffffff !important; }
@@ -37803,7 +37803,7 @@ button {
 
 .btn.btn-primary {
   color: #ffffff;
-  background-color: #FAF8F5;
+  background-color: #155EEF;
   border-color: #FAF8F5; }
   .btn.btn-primary i {
     color: #ffffff; }
