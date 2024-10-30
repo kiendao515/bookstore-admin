@@ -29,7 +29,10 @@ function AccountHomePage(props) {
   const router = useRouter();
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const [filters, setFilters] = useState(Global.gFiltersAccountList);
+  const [filters, setFilters] = useState({
+    ...Global.gFiltersAccountList,
+    role: "USER"
+  });
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const [toggledClearAccounts, setToggledClearAccounts] = useState(true);
   const { account, isGettingAccountList, pagination } = useSelector((state) => state.account);
@@ -47,7 +50,7 @@ function AccountHomePage(props) {
         cell: (row) => {
           return (
             <img
-              src={Utils.getFullUrl(row?.logo)}
+              src={row?.avatar ? Utils.getFullUrl(row?.avatar) : AppResource.images.imgDefaultAvatar}
               style={{
                 aspectRatio: '1/1',
                 objectFit: 'cover',
@@ -74,7 +77,7 @@ function AccountHomePage(props) {
         },
       },
       {
-        name: t('Username'),
+        name: t('IsEnabled'),
         sortable: false,
         // minWidth: '220px',
         cell: (row) => {
@@ -83,7 +86,7 @@ function AccountHomePage(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
             >
-              {row?.username}
+              {row?.enabled}
             </div>
           );
         },
@@ -98,7 +101,7 @@ function AccountHomePage(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-normal m-0 text-maxline-3 mr-4"
             >
-              {row?.fullname}
+              {row?.name}
             </p>
           );
         },
@@ -193,7 +196,7 @@ function AccountHomePage(props) {
 
   // MARK: --- Functions ---
   // Get employee list
-  async function getAccountList() {
+  async function getCustomerAccountList() {
     refLoading.current = true;
     try {
       const res = unwrapResult(await dispatch(thunkGetListAccount(filters)));
@@ -297,10 +300,9 @@ function AccountHomePage(props) {
 
   // MARK: --- Hooks ---
   useEffect(() => {
-    console.log("lok");
-    
+    console.log("lok"); 
     if (!refLoading.current && (needToRefreshData.current || Global.gNeedToRefreshAccountList)) {
-      getAccountList();
+      getCustomerAccountList();
       Global.gNeedToRefreshAccountList = false;
     }
   }, [filters]);
@@ -467,7 +469,7 @@ function AccountHomePage(props) {
         accountItem={selectedAccountItem}
         onRefreshAccountList={() => {
           setSelectedAccountItem(null);
-          getAccountList();
+          getCustomerAccountList();
         }}
       />
     </div>

@@ -15,7 +15,7 @@ const Global = {
   gNeedToRefreshCategoryList: false,
   gFiltersCategoryList: { page: 0, limit: 30, q: '' },
   gNeedToRefreshAccountList: false,
-  gFiltersAccountList: { page: 0, limit: 30, q: '' },
+  gFiltersAccountList: { page: 0, limit: 30,role:'', q: '' },
 };
 
-export default Global;
+export default Global;  

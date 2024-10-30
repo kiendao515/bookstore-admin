@@ -5,8 +5,8 @@ const accountApi = {
     const url = '/accounts';
     return axiosClient.get(url, { params });
   },
-  createCreate: (params) => {
-    const url = '/accounts';
+  createAccountInfo: (params) => {
+    const url = '/customers';
     const formData = new FormData();
     for (const key in params) {
       formData.append(key, params[key]);
@@ -14,8 +14,8 @@ const accountApi = {
 
     return axiosClient.post(url, formData);
   },
-  updateEmployee: (params) => {
-    const url = `/accounts/${params.accountId}`;
+  updateAccountInfo: (params) => {
+    const url = `/customers/${params.accountId}`;
     const formData = new FormData();
     for (const key in params) {
       formData.append(key, params[key]);

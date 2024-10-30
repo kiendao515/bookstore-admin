@@ -14,7 +14,7 @@ function Admin(props) {
     <KT01BaseLayout>
       <div id="admin-container" className="container min-h-100">
         <Routes>
-          <Route path="/" element={<Navigate to="category" />} />
+          <Route path="/" element={<Navigate to="account" />} />
           <Route path="category/*" element={<CategoryHomePage/>} />
           <Route path="account/*" element={<AccountHomePage/>} />
 

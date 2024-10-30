@@ -152,6 +152,7 @@ const AppResource = {
 
         img404: require('assets/images/404.jpg'),
         imgBgAuth: require('assets/images/bg_auth_02.jpg'),
+        imgDefaultAvatar :require('assets/images/img_default_avatar.png'),
 
         // error states
         errorStates: {

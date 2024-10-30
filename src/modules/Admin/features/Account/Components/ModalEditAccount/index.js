@@ -69,7 +69,7 @@ function ModalAccountEdit(props) {
   async function requestCreateAccount(values) {
     try {
       let params = { ...values };
-      params.password = Utils.sha256(params.password);
+      // params.password = Utils.sha256(params.password);
       const res = await accountApi.createAccount(params);
       const { result } = res;
       if (result == 'success') {
@@ -86,9 +86,9 @@ function ModalAccountEdit(props) {
   async function requestUpdateAccount(values) {
     try {
       let params = { ...values };
-      const res = await accountApi.updateAccount(params);
+      const res = await accountApi.updateAccountInfo(params);
       const { result } = res;
-      if (result == 'success') {
+      if (result == true) {
         ToastHelper.showSuccess(t('Success'));
         dispatch(thunkGetListAccount(Global.gFiltersAccountList));
         handleClose();
@@ -102,31 +102,32 @@ function ModalAccountEdit(props) {
     <div>
       <Formik
         initialValues={{
-          accountId: accountItem ? accountItem.accountId : '',
-          username: accountItem ? accountItem.username : '',
-          fullname: accountItem ? accountItem.fullname : '',
+          id: accountItem ? accountItem.id : '',
+          name: accountItem ? accountItem.name : '',
+          isEnabled: accountItem ? accountItem.enabled : '',
           phone: accountItem ? accountItem.phone : '',
           address: accountItem ? accountItem.address : '',
           password: accountItem ? accountItem.password : '',
           avatar: accountItem ? accountItem.avatar : '',
           avatarLink: accountItem
-            ? Utils.getFullUrl(accountItem.logo)
+            ? Utils.getFullUrl(accountItem.avatar)
             : AppResource.images.imgDefaultAvatar,
           email: accountItem ? accountItem.email : '',
         }}
-        validationSchema={Yup.object({
-          username: Yup.string().required(t('Required')),
-          fullname: Yup.string().required(t('Required')),
-          password: isEditMode
-            ? null
-            : Yup.string()
-                .required(t('Required'))
-                .min(6, t('ThePasswordMustContainAtLeast6Characters'))
-                .matches(/^\S*$/, t('ThePasswordMustNotContainWhitespace')),
-          phone: Yup.string().required(t('Required')),
-        })}
+        // validationSchema={Yup.object({
+        //   name: Yup.string().required(t('Required')),
+        //   fullname: Yup.string().required(t('Required')),
+        //   password: isEditMode
+        //     ? null
+        //     : Yup.string()
+        //         .required(t('Required'))
+        //         .min(6, t('ThePasswordMustContainAtLeast6Characters'))
+        //         .matches(/^\S*$/, t('ThePasswordMustNotContainWhitespace')),
+        //   phone: Yup.string().required(t('Required')),
+        // })}
         enableReinitialize
         onSubmit={(values) => {
+          console.log(values);
           if (isEditMode) {
             requestUpdateAccount(values);
           } else {
@@ -211,12 +212,12 @@ function ModalAccountEdit(props) {
                       <KTFormGroup
                         label={
                           <>
-                            {t('Username')} <span className="text-danger">(*)</span>
+                            {t('IsEnabled')} <span className="text-danger">(*)</span>
                           </>
                         }
-                        inputName="username"
+                        inputName="isEnabled"
                         inputElement={
-                          <FastField name="username">
+                          <FastField name="isEnabled">
                             {({ field, form, meta }) => (
                               <KTFormInput
                                 name={field.name}
@@ -286,9 +287,9 @@ function ModalAccountEdit(props) {
                             {t('Avatar')} <span className="text-danger">(*)</span>
                           </>
                         }
-                        inputName="avatarLink"
+                        inputName="avatar"
                         inputElement={
-                          <FastField name="avatarLink">
+                          <FastField name="avatar">
                             {({ field, form, meta }) => (
                               <KTImageInput
                                 name={field.name}
@@ -324,12 +325,12 @@ function ModalAccountEdit(props) {
                       <KTFormGroup
                         label={
                           <>
-                            {t('Fullname')} <span className="text-danger">(*)</span>
+                            {t('name')} <span className="text-danger">(*)</span>
                           </>
                         }
-                        inputName="fullname"
+                        inputName="name"
                         inputElement={
-                          <FastField name="fullname">
+                          <FastField name="name">
                             {({ field, form, meta }) => (
                               <KTFormInput
                                 name={field.name}
@@ -429,6 +430,7 @@ function ModalAccountEdit(props) {
                     className="font-weight-bold flex-grow-1 col mr-3"
                     variant="primary"
                     onClick={() => {
+                      console.log("submit");
                       formikProps.handleSubmit();
                     }}
                   >
