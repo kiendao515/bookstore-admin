@@ -48,11 +48,11 @@ function App() {
         {/* Suspense */}
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
-            <Route path="/*" element={<Navigate to="/admin" />} />
+            {/* <Route path="/*" element={<Navigate to="/admin" />} /> */}
 
             {/* hop dong dien tu */}
             <Route
-              path="/admin/*"
+              path="/*"
               element={
                 <PrivateRoute>
                   <Admin />

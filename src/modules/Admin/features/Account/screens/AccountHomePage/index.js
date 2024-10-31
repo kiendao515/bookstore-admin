@@ -86,7 +86,7 @@ function AccountHomePage(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
             >
-              {row?.enabled}
+              {row?.enabled == 1 ? "Đã kích hoạt" : "Chưa kích hoạt"}
             </div>
           );
         },
@@ -222,8 +222,8 @@ function AccountHomePage(props) {
   }
 
   function handleDeleteMultiAccounts() {
-    const arrIdsToDelete = selectedAccounts.map((item) => item.accountId);
-    console.log(`${sTag} handle delete multi employees: ${arrIdsToDelete}`);
+    const arrIdsToDelete = selectedAccounts.map((item) => item.id);
+    console.log(`${sTag} handle delete multi account customer: ${arrIdsToDelete}`);
 
     Swal.fire({
       title: t('Confirm'),
@@ -242,14 +242,15 @@ function AccountHomePage(props) {
       if (result.value) {
         const accountIds = arrIdsToDelete;
         try {
-          const res = await accountApi.deleteAccount(accountIds);
-          const { result } = res;
-          if (result === 'success') {
-            clearSelectedAccounts();
+          const res = await accountApi.deleteAccountAndInfo(accountIds);
+          const { result,reason } = res;
+          if (result == true) {
             Global.gNeedToRefreshAccountList = true;
             ToastHelper.showSuccess(t('Success'));
-            Global.gFiltersAccountList = { ...filters };
+            Global.gFiltersAccountList = { ...filters, role : "USER" };
             setFilters({ ...filters });
+          }else {
+            ToastHelper.showError(reason)
           }
         } catch (error) {
           console.log(`${sTag} delete faq error: ${error.message}`);
@@ -268,10 +269,10 @@ function AccountHomePage(props) {
     setModalAccountResetPasswordShowing(true);
   }
 
-  function handleDeleteAccount(employee) {
+  function handleDeleteAccount(account) {
     Swal.fire({
       title: t('Confirm'),
-      text: t('MessageConfirmDeleteAccount', { name: account?.fullname }),
+      text: t('MessageConfirmDeleteAccount', { name: account?.name }),
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: t('Yes'),
@@ -283,13 +284,15 @@ function AccountHomePage(props) {
     }).then(async function (result) {
       if (result.value) {
         try {
-          const res = await accountApi.deleteAccount([employee.accountId]);
-          const { result } = res;
-          if (result == 'success') {
+          const res = await accountApi.deleteAccountAndInfo([account.id]);
+          const { result,reason } = res;
+          if (result == true) {
             Global.gNeedToRefreshAccountList = true;
             ToastHelper.showSuccess(t('Success'));
-            Global.gFiltersAccountList = { ...filters };
+            Global.gFiltersAccountList = { ...filters, role : "USER" };
             setFilters({ ...filters });
+          }else {
+            ToastHelper.showError(reason)
           }
         } catch (error) {
           console.log(`Delete Account error: ${error?.message}`);
@@ -430,11 +433,11 @@ function AccountHomePage(props) {
                   needToRefreshData.current = true;
                   Global.gFiltersAccountList = {
                     ...filters,
-                    limit: iNewPerPage,
+                    size: iNewPerPage,
                   };
                   setFilters({
                     ...filters,
-                    limit: iNewPerPage,
+                    size: iNewPerPage,
                     page: 0,
                   });
                 }}
@@ -446,6 +449,7 @@ function AccountHomePage(props) {
 
       <ModalAccountEdit
         show={modalAccountEditShowing}
+        role = "USER"
         onClose={() => {
           setModalAccountEditShowing(false);
         }}

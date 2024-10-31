@@ -9,13 +9,13 @@ const Global = {
   // Filters
   gFiltersPackageList: {
     pageId: 1,
-    limit: 30,
+    size: 30,
     // q: '',
   },
   gNeedToRefreshCategoryList: false,
-  gFiltersCategoryList: { page: 0, limit: 30, q: '' },
+  gFiltersCategoryList: { page: 0, size: 30, q: '' },
   gNeedToRefreshAccountList: false,
-  gFiltersAccountList: { page: 0, limit: 30,role:'', q: '' },
+  gFiltersAccountList: { page: 0, size: 30,role:'', q: '' },
 };
 
 export default Global;  

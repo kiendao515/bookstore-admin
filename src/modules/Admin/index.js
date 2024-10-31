@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import CategoryHomePage from './features/Category/screens/CategoryHomePage';
 import AccountHomePage from './features/Account/screens/AccountHomePage';
+import PartnerHomePage from './features/Account/screens/PartnerHomePage';
 
 function Admin(props) {
   // MARK: --- Props ---
@@ -14,10 +15,10 @@ function Admin(props) {
     <KT01BaseLayout>
       <div id="admin-container" className="container min-h-100">
         <Routes>
-          <Route path="/" element={<Navigate to="account" />} />
+          {/* <Route path="/" element={<Navigate to="account" />} /> */}
           <Route path="category/*" element={<CategoryHomePage/>} />
-          <Route path="account/*" element={<AccountHomePage/>} />
-
+          <Route path="account/customer/*" element={<AccountHomePage/>} />
+          <Route path="account/partner/*" element={<PartnerHomePage/>} />
           <Route
             path="*"
             element={

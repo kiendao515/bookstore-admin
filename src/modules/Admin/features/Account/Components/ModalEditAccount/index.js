@@ -17,6 +17,7 @@ import * as Yup from 'yup';
 import { thunkGetListAccount } from '../../accountSlice';
 import AppResource from 'general/constants/AppResource';
 import accountApi from 'api/accountApi';
+import KTFormSelect from 'general/components/OtherKeenComponents/Forms/KTFormSelect';
 
 ModalAccountEdit.propTypes = {
   show: PropTypes.bool,
@@ -24,6 +25,7 @@ ModalAccountEdit.propTypes = {
   onRefreshAccountList: PropTypes.func,
   accountItem: PropTypes.object,
   onExistDone: PropTypes.func,
+  role: PropTypes.any
 };
 
 ModalAccountEdit.defaultProps = {
@@ -49,7 +51,7 @@ function ModalAccountEdit(props) {
   // MARK: --- Params ---
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { show, onClose, onRefreshAccountList, accountItem, onExistDone } = props;
+  const { show, onClose, role, onRefreshAccountList, accountItem, onExistDone } = props;
   const isEditMode = !_.isNull(accountItem);
 
   // MARK: --- Functions ---
@@ -70,14 +72,26 @@ function ModalAccountEdit(props) {
     try {
       let params = { ...values };
       // params.password = Utils.sha256(params.password);
-      const res = await accountApi.createAccount(params);
-      const { result } = res;
-      if (result == 'success') {
+      let res = null;
+      if(role == "USER"){
+        res = await accountApi.createAccountInfo(params);
+      }else {
+        res = await accountApi.createStoreInfo(params)
+      }
+      const { result, reason } = res;
+      if (result == true) {
         ToastHelper.showSuccess(t('Success'));
-        dispatch(thunkGetListAccount(Global.gFiltersAccountList));
+        let filter = {
+          ...Global.gFiltersAccountList,
+          role: role
+        }
+        dispatch(thunkGetListAccount(filter));
         handleClose();
+      } else {
+        ToastHelper.showError(reason);
       }
     } catch (error) {
+      ToastHelper.showError(t('Error'));
       console.log(error);
     }
   }
@@ -86,12 +100,31 @@ function ModalAccountEdit(props) {
   async function requestUpdateAccount(values) {
     try {
       let params = { ...values };
-      const res = await accountApi.updateAccountInfo(params);
-      const { result } = res;
-      if (result == true) {
-        ToastHelper.showSuccess(t('Success'));
-        dispatch(thunkGetListAccount(Global.gFiltersAccountList));
-        handleClose();
+      if (role == "USER") {
+        const res = await accountApi.updateAccountInfo(params);
+        const { result } = res;
+        if (result == true) {
+          ToastHelper.showSuccess(t('Success'));
+          let filter = {
+            ...Global.gFiltersAccountList,
+            role: role
+          }
+          dispatch(thunkGetListAccount(filter));
+          handleClose();
+        }
+      }
+      if (role == "STORE") {
+        const res = await accountApi.updateStoreInfo(params);
+        const { result } = res;
+        if (result == true) {
+          ToastHelper.showSuccess(t('Success'));
+          let filter = {
+            ...Global.gFiltersAccountList,
+            role: role
+          }
+          dispatch(thunkGetListAccount(filter));
+          handleClose();
+        }
       }
     } catch (error) {
       console.log(error);
@@ -104,7 +137,7 @@ function ModalAccountEdit(props) {
         initialValues={{
           id: accountItem ? accountItem.id : '',
           name: accountItem ? accountItem.name : '',
-          isEnabled: accountItem ? accountItem.enabled : '',
+          enabled: accountItem ? accountItem.enabled : '',
           phone: accountItem ? accountItem.phone : '',
           address: accountItem ? accountItem.address : '',
           password: accountItem ? accountItem.password : '',
@@ -113,6 +146,7 @@ function ModalAccountEdit(props) {
             ? Utils.getFullUrl(accountItem.avatar)
             : AppResource.images.imgDefaultAvatar,
           email: accountItem ? accountItem.email : '',
+          description: accountItem ? accountItem.description : ''
         }}
         // validationSchema={Yup.object({
         //   name: Yup.string().required(t('Required')),
@@ -200,7 +234,7 @@ function ModalAccountEdit(props) {
                                 rows={5}
                                 placeholder={`${_.capitalize(t('Email'))}...`}
                                 type={KTFormInputType.text}
-                                // disabled={!canEdit}
+                              // disabled={!canEdit}
                               />
                             )}
                           </FastField>
@@ -208,18 +242,28 @@ function ModalAccountEdit(props) {
                       />
                     </div>
                     {/* username */}
-                    <div className="col-12">
+                    {isEditMode ? (<div className="col-12">
                       <KTFormGroup
                         label={
                           <>
                             {t('IsEnabled')} <span className="text-danger">(*)</span>
                           </>
                         }
-                        inputName="isEnabled"
+                        inputName="enabled"
                         inputElement={
-                          <FastField name="isEnabled">
+                          <FastField name="enabled">
                             {({ field, form, meta }) => (
-                              <KTFormInput
+                              <KTFormSelect
+                                options={[
+                                  {
+                                    name: "Chưa kích hoạt",
+                                    value: 0
+                                  },
+                                  {
+                                    name: "Đã kích hoạt",
+                                    value: 1
+                                  }
+                                ]}
                                 name={field.name}
                                 value={field.value}
                                 onChange={(value) => {
@@ -233,14 +277,13 @@ function ModalAccountEdit(props) {
                                 isTouched={meta.touched}
                                 feedbackText={meta.error}
                                 rows={5}
-                                placeholder={`${_.capitalize(t('Username'))}...`}
                                 type={KTFormInputType.text}
                               />
                             )}
                           </FastField>
                         }
                       />
-                    </div>
+                    </div>) : null}
 
                     {/* password */}
                     {!isEditMode ? (
@@ -420,6 +463,41 @@ function ModalAccountEdit(props) {
                         }
                       />
                     </div>
+
+                    {/* description for bookstore */}
+                    {
+                      role == "USER" ? null : (
+                        <div className="col-12">
+                          <KTFormGroup
+                            label={<>{t('Description')}</>}
+                            inputName="desription"
+                            inputElement={
+                              <FastField name="description">
+                                {({ field, form, meta }) => (
+                                  <KTFormInput
+                                    name={field.name}
+                                    value={field.value}
+                                    onChange={(value) => {
+                                      form.setFieldValue(field.name, value);
+                                    }}
+                                    onBlur={() => {
+                                      form.setFieldTouched(field.name, true);
+                                    }}
+                                    enableCheckValid
+                                    isValid={_.isEmpty(meta.error)}
+                                    isTouched={meta.touched}
+                                    feedbackText={meta.error}
+                                    rows={5}
+                                    placeholder={`${_.capitalize(t('Description'))}...`}
+                                    type={KTFormInputType.text}
+                                  />
+                                )}
+                              </FastField>
+                            }
+                          />
+                        </div>
+                      )
+                    }
                   </div>
                 </div>
               </Modal.Body>

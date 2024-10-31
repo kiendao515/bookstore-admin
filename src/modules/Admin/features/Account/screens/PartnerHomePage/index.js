@@ -1,4 +1,5 @@
 import { unwrapResult } from '@reduxjs/toolkit';
+import accountApi from 'api/accountApi';
 import customDataTableStyle from 'assets/styles/customDataTableStyle';
 import Empty from 'general/components/Empty';
 import Loading from 'general/components/Loading';
@@ -15,48 +16,53 @@ import DataTable from 'react-data-table-component';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-import ModalEditCategory from '../../Components/ModalEditCategory';
-import { setPaginationPerPage, thunkGetListCategory } from '../../categorySlice';
-import ModalResetPasswordEmployee from '../../Components/ModelResetPasswordEmployee';
-import categoryApi from 'api/categoryApi';
+import ModalAccountEdit from '../../Components/ModalEditAccount';
+import { setPaginationPerPage, thunkGetListAccount } from '../../accountSlice';
+import ModalResetPasswordAccount from '../../Components/ModelResetPasswordAccount';
 
-CategoryHomePage.propTypes = {};
+PartnerHomePage.propTypes = {};
 
-const sTag = '[CategoryHomePage]';
+const sTag = '[PartnerHomePage]';
 
-function CategoryHomePage(props) {
+function PartnerHomePage(props) {
   // MARK: --- Params ---
   const router = useRouter();
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const [filters, setFilters] = useState(Global.gFiltersCategoryList);
-  const [selectedEmployees, setSelectedEmployees] = useState([]);
-  const [toggledClearEmployees, setToggledClearEmployees] = useState(true);
-  const { category, isGettingCategory, pagination } = useSelector((state) => state.category);
-  console.log(category);
+  const [filters, setFilters] = useState({
+    ...Global.gFiltersAccountList,
+    role: "STORE"
+  });
+  const [selectedAccounts, setSelectedAccounts] = useState([]);
+  const [toggledClearAccounts, setToggledClearAccounts] = useState(true);
+  const { account, isGettingAccountList, pagination } = useSelector((state) => state.account);
+  const needToRefreshData = useRef(account?.length === 0);
+  console.log(account);
   
-  const needToRefreshData = useRef(category?.length === 0);
   const refLoading = useRef(false);
   const columns = useMemo(() => {
     return [
       {
-        name: t('Danh mục'),
+        name: t('Thumbnail'),
         sortable: false,
         // minWidth: '100px',
         center: 'true',
         cell: (row) => {
           return (
-            <div
-              data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
-            >
-              {row?.name}
-            </div>
-          )
+            <img
+              src={row?.avatar ? Utils.getFullUrl(row?.avatar) : AppResource.images.imgDefaultAvatar}
+              style={{
+                aspectRatio: '1/1',
+                objectFit: 'cover',
+                height: 50,
+                borderRadius: 10,
+              }}
+            />
+          );
         },
       },
       {
-        name: t('Mô tả'),
+        name: t('Email'),
         sortable: false,
         // minWidth: '220px',
         cell: (row) => {
@@ -65,13 +71,13 @@ function CategoryHomePage(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
             >
-              {row?.description}
+              {row?.email}
             </div>
           );
         },
       },
       {
-        name: t('Số lượng sách'),
+        name: t('IsEnabled'),
         sortable: false,
         // minWidth: '220px',
         cell: (row) => {
@@ -80,8 +86,69 @@ function CategoryHomePage(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
             >
-              {row?.num_of_books}
+              {row?.enabled == 1 ? "Đã kích hoạt" : "Chưa kích hoạt"}
             </div>
+          );
+        },
+      },
+      {
+        name: t('Fullname'),
+        sortable: false,
+        // minWidth: '220px',
+        cell: (row) => {
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-3 mr-4"
+            >
+              {row?.name}
+            </p>
+          );
+        },
+      },
+
+      {
+        name: t('Address'),
+        sortable: false,
+        // minWidth: '80px',
+        cell: (row) => {
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-3 mr-4"
+            >
+              {row?.address}
+            </p>
+          );
+        },
+      },
+      {
+        name: t('Phone'),
+        sortable: false,
+        // minWidth: '80px',
+        cell: (row) => {
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-3 mr-4"
+            >
+              {row?.phone}
+            </p>
+          );
+        },
+      },
+      {
+        name: t('Description'),
+        sortable: false,
+        // minWidth: '80px',
+        cell: (row) => {
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-3 mr-4"
+            >
+              {row?.description}
+            </p>
           );
         },
       },
@@ -93,13 +160,13 @@ function CategoryHomePage(props) {
           <div className="d-flex align-items-center">
             <KTTooltip text={t('Edit')}>
               <a
-                className="btn btn-icon btn-sm btn-primary mr-2"
+                className="btn btn-icon btn-sm btn-primary btn-hover-primary mr-2"
                 onClick={(e) => {
                   e.preventDefault();
-                  handleEditCategory(row);
+                  handleEditAccount(row);
                 }}
               >
-                <i className="fa-solid fa-pen-to-square p-0 icon-1x"/>
+                <i className="fa-regular fa-user-pen p-0 icon-1x" />
               </a>
             </KTTooltip>
 
@@ -108,12 +175,29 @@ function CategoryHomePage(props) {
                 className="btn btn-icon btn-sm btn-danger btn-hover-danger mr-2"
                 onClick={(e) => {
                   e.preventDefault();
-                  console.log(row);
-                  
-                  handleDeleteCategory(row);
+                  handleDeleteAccount(row);
                 }}
               >
-                <i className="fa-solid fa-trash p-0 icon-1x" />
+                <i className="far fa-trash p-0 icon-1x" />
+              </a>
+            </KTTooltip>
+            <KTTooltip text={t('ResetPassword')}>
+              <a
+                className="btn btn-icon btn-sm btn-warning btn-hover-warning mr-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleResetPasswordAccount(row);
+                }}
+              >
+                <i className="fa-regular fa-key p-0 icon-1x" />
+              </a>
+            </KTTooltip>
+            <KTTooltip text={t('Call')}>
+              <a
+                className="btn btn-icon btn-sm btn-success btn-hover-success"
+                href={`tel:${row.phone}`}
+              >
+                <i className="far fa-phone p-0 icon-1x" />
               </a>
             </KTTooltip>
           </div>
@@ -121,45 +205,45 @@ function CategoryHomePage(props) {
       },
     ];
   }, []);
-  const [selectedCategoryItem, setSelectedCategoryItem] = useState(null);
-  const [modalEmployeeEditShowing, setModalEmployeeEditShowing] = useState(false);
-  const [modalEmployeeResetPasswordShowing, setModalEmployeeResetPasswordShowing] = useState(false);
+  const [selectedAccountItem, setSelectedAccountItem] = useState(null);
+  const [modalAccountEditShowing, setModalAccountEditShowing] = useState(false);
+  const [modalAccountResetPasswordShowing, setModalAccountResetPasswordShowing] = useState(false);
 
   // MARK: --- Functions ---
   // Get employee list
-  async function getEmployeeList() {
+  async function getStoreAccountList() {
     refLoading.current = true;
     try {
-      const res = unwrapResult(await dispatch(thunkGetListCategory(filters)));
+      const res = unwrapResult(await dispatch(thunkGetListAccount(filters)));
     } catch (error) {
       console.log(`${sTag} get employee list error: ${error.message}`);
     }
     refLoading.current = false;
   }
 
-  function handleSelectedEmployeesChanged(state) {
-    const selectedEmployees = state.selectedRows;
-    setSelectedEmployees(selectedEmployees);
+  function handleSelectedAccountsChanged(state) {
+    const selectedAccounts = state.selectedRows;
+    setSelectedAccounts(selectedAccounts);
   }
 
-  function clearSelectedEmployees() {
-    setSelectedEmployees([]);
-    setToggledClearEmployees(!toggledClearEmployees);
+  function clearSelectedAccounts() {
+    setSelectedAccounts([]);
+    setToggledClearAccounts(!toggledClearAccounts);
   }
 
-  function handleEditCategory(employee) {
-    setSelectedCategoryItem(employee);
-    setModalEmployeeEditShowing(true);
+  function handleEditAccount(employee) {
+    setSelectedAccountItem(employee);
+    setModalAccountEditShowing(true);
   }
 
-  function handleDeleteMultiEmployees() {
-    const arrIdsToDelete = selectedEmployees.map((item) => item.accountId);
-    console.log(`${sTag} handle delete multi employees: ${arrIdsToDelete}`);
+  function handleDeleteMultiAccounts() {
+    const arrIdsToDelete = selectedAccounts.map((item) => item.id);
+    console.log(`${sTag} handle delete multi account store: ${arrIdsToDelete}`);
 
     Swal.fire({
       title: t('Confirm'),
-      text: t('MessageConfirmDeleteMultiEmployee', {
-        employees: JSON.stringify(arrIdsToDelete.length),
+      text: t('MessageConfirmDeleteMultiAccount', {
+        account: JSON.stringify(arrIdsToDelete.length),
       }),
       icon: 'question',
       showCancelButton: true,
@@ -171,16 +255,17 @@ function CategoryHomePage(props) {
       },
     }).then(async function (result) {
       if (result.value) {
-        const employeeIds = arrIdsToDelete;
+        const accountIds = arrIdsToDelete;
         try {
-          const res = await employeeApi.deleteEmployee(employeeIds);
-          const { result } = res;
-          if (result === 'success') {
-            clearSelectedEmployees();
-            Global.gNeedToRefreshEmployeeList = true;
+          const res = await accountApi.deleteAccountAndStoreInfo(accountIds);
+          const { result,reason } = res;
+          if (result == true) {
+            Global.gNeedToRefreshAccountList = true;
             ToastHelper.showSuccess(t('Success'));
-            Global.gFiltersCategoryList = { ...filters };
+            Global.gFiltersAccountList = { ...filters, role : "STORE" };
             setFilters({ ...filters });
+          }else {
+            ToastHelper.showError(reason)
           }
         } catch (error) {
           console.log(`${sTag} delete faq error: ${error.message}`);
@@ -189,20 +274,20 @@ function CategoryHomePage(props) {
     });
   }
 
-  function handleSelectedEmployeesChanged(state) {
-    const selectedEmployees = state.selectedRows;
-    setSelectedEmployees(selectedEmployees);
+  function handleSelectedAccountsChanged(state) {
+    const selectedAccounts = state.selectedRows;
+    setSelectedAccounts(selectedAccounts);
   }
 
-  function handleResetPasswordEmployee(employee) {
-    setSelectedCategoryItem(employee);
-    setModalEmployeeResetPasswordShowing(true);
+  function handleResetPasswordAccount(employee) {
+    setSelectedAccountItem(employee);
+    setModalAccountResetPasswordShowing(true);
   }
 
-  function handleDeleteCategory(employee) {
+  function handleDeleteAccount(account) {
     Swal.fire({
       title: t('Confirm'),
-      text: t('MessageConfirmDeleteEmployee', { name: employee?.name }),
+      text: t('MessageConfirmDeleteAccount', { name: account?.name }),
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: t('Yes'),
@@ -212,19 +297,20 @@ function CategoryHomePage(props) {
         cancelButton: 'btn btn-light font-weight-bolder',
       },
     }).then(async function (result) {
-      if (result.value) 
-        {
+      if (result.value) {
         try {
-          const res = await categoryApi.deleteCategory(employee);
-          const { result } = res;
+          const res = await accountApi.deleteAccountAndStoreInfo([account.id]);
+          const { result,reason } = res;
           if (result == true) {
-            Global.gNeedToRefreshCategoryList = true;
+            Global.gNeedToRefreshAccountList = true;
             ToastHelper.showSuccess(t('Success'));
-            Global.gFiltersCategoryList = { ...filters };
+            Global.gFiltersAccountList = { ...filters, role : "STORE" };
             setFilters({ ...filters });
+          }else {
+            ToastHelper.showError(reason)
           }
         } catch (error) {
-          console.log(`Delete employee error: ${error?.message}`);
+          console.log(`Delete Account error: ${error?.message}`);
         }
       }
     });
@@ -232,9 +318,10 @@ function CategoryHomePage(props) {
 
   // MARK: --- Hooks ---
   useEffect(() => {
-    if (!refLoading.current && (needToRefreshData.current || Global.gNeedToRefreshEmployeeList)) {
-      getEmployeeList();
-      Global.gNeedToRefreshCategoryList = false;
+    console.log("lok"); 
+    if (!refLoading.current && (needToRefreshData.current || Global.gNeedToRefreshAccountList)) {
+      getStoreAccountList();
+      Global.gNeedToRefreshAccountList = false;
     }
   }, [filters]);
 
@@ -245,7 +332,7 @@ function CategoryHomePage(props) {
         <div className="card-header border-0 pt-6 pb-6">
           <div className="w-100 d-flex justify-content-between">
             <div className="card-title my-0">
-              <h1 className="card-label">{t('ListCategory')}</h1>
+              <h1 className="card-label">{t('ListAccount')}</h1>
               {pagination?.total ? <span>{`(${pagination?.total})`}</span> : null}
             </div>
 
@@ -254,26 +341,26 @@ function CategoryHomePage(props) {
               <a
                 href="#"
                 className={`${
-                  selectedEmployees.length === 0 ? 'd-none' : 'd-flex'
+                  selectedAccounts.length === 0 ? 'd-none' : 'd-flex'
                 } btn btn-light-danger font-weight-bold align-items-center`}
                 onClick={(e) => {
                   e.preventDefault();
-                  handleDeleteMultiEmployees();
+                  handleDeleteMultiAccounts();
                 }}
               >
                 <i className="far fa-ban"></i>
-                {`${t('Delete')} (${selectedEmployees.length})`}
+                {`${t('Delete')} (${selectedAccounts.length})`}
               </a>
               <a
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  setModalEmployeeEditShowing(true);
+                  setModalAccountEditShowing(true);
                 }}
                 className="btn btn-primary font-weight-bold d-flex align-items-center ml-2"
               >
-                <i className="fa-solid fa-plus"></i>
-                {t('NewCategory')}
+                <i className="far fa-plus"></i>
+                {t('NewAccount')}
               </a>
             </div>
           </div>
@@ -283,10 +370,10 @@ function CategoryHomePage(props) {
               name="searchQuery"
               className="mt-4 mr-4"
               placeholder={`${t('Search')}...`}
-              value={Global.gFiltersCategoryList.q}
+              value={Global.gFiltersAccountList.q}
               onSubmit={(text) => {
                 needToRefreshData.current = true;
-                Global.gFiltersCategoryList = {
+                Global.gFiltersAccountList = {
                   ...filters,
                   q: text,
                   page: 0,
@@ -307,7 +394,7 @@ function CategoryHomePage(props) {
             // fixedHeader
             // fixedHeaderScrollHeight="60vh"
             columns={columns}
-            data={category}
+            data={account}
             customStyles={customDataTableStyle}
             responsive={true}
             noHeader
@@ -323,12 +410,12 @@ function CategoryHomePage(props) {
                 />
               </div>
             }
-            progressPending={isGettingCategory}
+            progressPending={isGettingAccountList}
             progressComponent={<Loading showBackground={false} message={`${t('Loading')}...`} />}
-            onSelectedRowsChange={handleSelectedEmployeesChanged}
-            clearSelectedRows={toggledClearEmployees}
+            onSelectedRowsChange={handleSelectedAccountsChanged}
+            clearSelectedRows={toggledClearAccounts}
             onRowClicked={(row) => {
-              handleEditCategory(row);
+              handleEditAccount(row);
             }}
             pointerOnHover
             highlightOnHover
@@ -349,7 +436,7 @@ function CategoryHomePage(props) {
                     iNewPage = 0;
                   }
                   needToRefreshData.current = true;
-                  Global.gFiltersCategoryList = { ...filters, page: iNewPage };
+                  Global.gFiltersAccountList = { ...filters, page: iNewPage };
                   setFilters({
                     ...filters,
                     page: iNewPage,
@@ -359,7 +446,7 @@ function CategoryHomePage(props) {
                   const iNewPerPage = parseInt(newPerPage);
                   dispatch(setPaginationPerPage(iNewPerPage));
                   needToRefreshData.current = true;
-                  Global.gFiltersCategoryList = {
+                  Global.gFiltersAccountList = {
                     ...filters,
                     size: iNewPerPage,
                   };
@@ -375,36 +462,37 @@ function CategoryHomePage(props) {
         </div>
       </div>
 
-      <ModalEditCategory
-        show={modalEmployeeEditShowing}
+      <ModalAccountEdit
+        show={modalAccountEditShowing}
+        role= "STORE"
         onClose={() => {
-          setModalEmployeeEditShowing(false);
+          setModalAccountEditShowing(false);
         }}
         onExistDone={() => {
-          setSelectedCategoryItem(null);
+          setSelectedAccountItem(null);
         }}
-        categoryItem={selectedCategoryItem}
-        onRefreshCategoryList={() => {
-          setSelectedCategoryItem(null);
-          getEmployeeList();
+        accountItem={selectedAccountItem}
+        onRefreshAccountList={() => {
+          setSelectedAccountItem(null);
+          getStoreAccountList();
         }}
       />
-      <ModalResetPasswordEmployee
-        show={modalEmployeeResetPasswordShowing}
+      <ModalResetPasswordAccount
+        show={modalAccountResetPasswordShowing}
         onClose={() => {
-          setModalEmployeeResetPasswordShowing(false);
+          setModalAccountResetPasswordShowing(false);
         }}
         onExistDone={() => {
-          setSelectedCategoryItem(null);
+          setSelectedAccountItem(null);
         }}
-        categoryItem={selectedCategoryItem}
-        onRefreshEmployeeList={() => {
-          setSelectedCategoryItem(null);
-          getEmployeeList();
+        accountItem={selectedAccountItem}
+        onRefreshAccountList={() => {
+          setSelectedAccountItem(null);
+          getStoreAccountList();
         }}
       />
     </div>
   );
 }
 
-export default CategoryHomePage;
+export default PartnerHomePage;

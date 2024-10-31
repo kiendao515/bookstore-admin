@@ -15,7 +15,7 @@ const accountApi = {
     return axiosClient.post(url, formData);
   },
   updateAccountInfo: (params) => {
-    const url = `/customers/${params.accountId}`;
+    const url = `/customers/${params.id}`;
     const formData = new FormData();
     for (const key in params) {
       formData.append(key, params[key]);
@@ -23,11 +23,37 @@ const accountApi = {
 
     return axiosClient.put(url, formData);
   },
-  deleteEmployee: (params) => {
-    const url = '/accounts';
+  deleteAccountAndInfo: (params) => {
+    const url = '/customers';
     return axiosClient.delete(url, {
       data: {
-        accountIds: params,
+        account_ids: params,
+      },
+    });
+  },
+  createStoreInfo: (params) => {
+    const url = '/book-stores';
+    const formData = new FormData();
+    for (const key in params) {
+      formData.append(key, params[key]);
+    }
+
+    return axiosClient.post(url, formData);
+  },
+  updateStoreInfo: (params) => {
+    const url = `/book-stores/${params.id}`;
+    const formData = new FormData();
+    for (const key in params) {
+      formData.append(key, params[key]);
+    }
+
+    return axiosClient.put(url, formData);
+  },
+  deleteAccountAndStoreInfo: (params) => {
+    const url = '/book-stores';
+    return axiosClient.delete(url, {
+      data: {
+        account_ids: params,
       },
     });
   },
