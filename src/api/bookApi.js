@@ -31,14 +31,9 @@ const bookApi = {
       },
     });
   },
-  createStoreInfo: (params) => {
+  getStores: (params) => {
     const url = '/book-stores';
-    const formData = new FormData();
-    for (const key in params) {
-      formData.append(key, params[key]);
-    }
-
-    return axiosClient.post(url, formData);
+    return axiosClient.get(url, {params});
   },
   updateStoreInfo: (params) => {
     const url = `/book-stores/${params.id}`;

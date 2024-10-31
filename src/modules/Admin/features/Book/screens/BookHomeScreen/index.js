@@ -21,6 +21,7 @@ import Swal from 'sweetalert2';
 import ModalOrderEdit from '../../components/ModalEditOrder';
 import { setPaginationPerPage, thunkGetListBook } from '../../bookSlice';
 import categoryApi from 'api/categoryApi';
+import bookApi from 'api/bookApi';
 
 BookHomeScreen.propTypes = {};
 
@@ -33,6 +34,7 @@ function BookHomeScreen(props) {
   const dispatch = useDispatch();
   const [books, setBooks] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [bookStores, setBookStores] = useState([])
   const [filters, setFilters] = useState(Global.gFilterBookList);
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [toggledClearOrders, setToggledClearOrders] = useState(true);
@@ -83,13 +85,30 @@ function BookHomeScreen(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
             >
-              {Utils.formatDateTime(row?.scanTime, 'DD/MM/YYYY')}
+              {row?.category?.name}
             </div>
           );
         },
       },
+      // {
+      //   name: t('Store'),
+      //   sortable: false,
+      //   cell: (row) => {
+      //     return (
+      //       <div
+      //         data-tag="allowRowEvents"
+      //         className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
+      //       >
+      //         {
+      //           categories?.find((item) => item?.postOfficeId === row?.postOfficeId)
+      //             ?.postOfficeName
+      //         }
+      //       </div>
+      //     );
+      //   },
+      // },
       {
-        name: t('Store'),
+        name: t('NumerOfBook'),
         sortable: false,
         cell: (row) => {
           return (
@@ -97,24 +116,7 @@ function BookHomeScreen(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
             >
-              {
-                categories?.find((item) => item?.postOfficeId === row?.postOfficeId)
-                  ?.postOfficeName
-              }
-            </div>
-          );
-        },
-      },
-      {
-        name: t('PackingEmployee'),
-        sortable: false,
-        cell: (row) => {
-          return (
-            <div
-              data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
-            >
-              {books?.find((item) => item?.accountId === row?.accountId)?.fullname}
+              {row?.number_of_books}
             </div>
           );
         },
@@ -277,11 +279,11 @@ function BookHomeScreen(props) {
     }
   }
 
-  async function getListPostOffice() {
-    const res = await categoryApi.getListCategory();
-    const { result, data } = res;
-    if (result === 'success') {
-      setCategories(categories);
+  async function getListBookStores() {
+    const res = await bookApi.getStores();
+    const { success, data } = res;
+    if (success === true) {
+      setBookStores(data);
     }
   }
 
@@ -295,7 +297,7 @@ function BookHomeScreen(props) {
 
   useEffect(() => {
     getListBook();
-    getListPostOffice();
+    getListBookStores();
   }, []);
 
   return (
@@ -305,7 +307,7 @@ function BookHomeScreen(props) {
         <div className="card-header border-0 pt-6 pb-6">
           <div className="w-100 d-flex justify-content-between">
             <div className="card-title my-0">
-              <h1 className="card-label">{t('ListOrder')}</h1>
+              <h1 className="card-label">{t('ListBook')}</h1>
             </div>
 
             {/* header toolbar */}
@@ -332,7 +334,7 @@ function BookHomeScreen(props) {
                 className="btn btn-primary font-weight-bold d-flex align-items-center ml-2"
               >
                 <i className="far fa-plus"></i>
-                {t('NewOrder')}
+                {t('NewBook')}
               </a>
             </div>
           </div>
@@ -358,16 +360,18 @@ function BookHomeScreen(props) {
               }}
             />
             <div className="mt-4 mr-4 d-flex flex-wrap align-items-center">
-              <label className="mr-2 mb-0" htmlFor="postOffice">
-                {_.capitalize(t('PostOffice'))}
+              <label className="mr-2 mb-0" htmlFor="store">
+                {_.capitalize(t('Store'))}
               </label>
               <KTFormSelect
-                name="postOffice"
+                name="store"
                 isCustom
                 options={[
                   { name: 'All', value: '' },
-                  ...categories.map((item) => {
-                    return { name: item?.postOfficeName, value: item?.postOfficeId.toString() };
+                  ...bookStores.map((item) => {
+                    console.log(item);
+                    
+                    return { name: item?.name, value: item?.id.toString() };
                   }),
                 ]}
                 // value={Global.gFiltersOrderList.postOfficeId}

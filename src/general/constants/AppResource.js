@@ -152,7 +152,23 @@ const AppResource = {
 
         img404: require('assets/images/404.jpg'),
         imgBgAuth: require('assets/images/bg_auth_02.jpg'),
-        imgDefaultAvatar :require('assets/images/img_default_avatar.png'),
+        imgLogoText: require('assets/images/stores/img_shipee_logo_text.png'),
+        imgDefaultLogo: require('assets/images/stores/img_default_logo.jpeg'),
+        imgDefaultAvatar: require('assets/images/stores/img_default_avatar.png'),
+        imgAuthenticationBg: require('assets/images/stores/img_authentication_bg.png'),
+        imgAuthenticationBgMobile: require('assets/images/stores/img_authentication_bg_mobile.png'),
+        imgEmpty: require('assets/images/stores/img_empty.png'),
+        imgUpload: require('assets/images/stores/img_upload.png'),
+        imgLogo: require('assets/images/stores/img_logo.png'),
+        imgLogoTextWhite: require('assets/images/stores/img_logo_white.png'),
+        imgCardStat: require('assets/images/stores/img_bg_card_stat.png'),
+        imgEmptyView: require('assets/images/stores/img_empty_view.png'),
+        imgSpx: require('assets/images/stores/img_spx.png'),
+        imgJt: require('assets/images/stores/img_jt.png'),
+        imgGhn: require('assets/images/stores/img_ghn.png'),
+        imgGhtk: require('assets/images/stores/img_ghtk.png'),
+        imgVnp: require('assets/images/stores/img_vnp.png'),
+        imgVtp: require('assets/images/stores/img_vtp.png'),
 
         // error states
         errorStates: {

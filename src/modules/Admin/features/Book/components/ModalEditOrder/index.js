@@ -55,8 +55,8 @@ function ModalOrderEdit(props) {
   const dispatch = useDispatch();
   const { show, onClose, onRefreshOrderList, orderItem, onExistDone } = props;
   const isEditMode = !_.isNull(orderItem);
-  const postOffice = useSelector((state) => state?.postOffice?.postOffices);
-  const employees = useSelector((state) => state?.employee?.employees);
+  const categories = useSelector((state) => state?.category?.categories);
+  const bookstores = useSelector((state) => state?.bookstore?.bookstores);
 
   // MARK: --- Functions ---
   function handleClose() {
@@ -112,7 +112,7 @@ function ModalOrderEdit(props) {
           orderCode: orderItem ? orderItem.orderCode : '',
           eCommercePlatform: orderItem ? orderItem.eCommercePlatform : '',
           scanTime: orderItem ? orderItem.scanTime : '',
-          postOfficeId: orderItem ? orderItem.postOfficeId : '',
+          categoryId: orderItem ? orderItem.categoryId : '',
           scanAccountId: orderItem ? orderItem.accountId : '',
           // status: orderItem ? orderItem.status : AppData.ORDER_STATUS.SCANNED,
           image: orderItem ? orderItem.image : '',
@@ -243,23 +243,23 @@ function ModalOrderEdit(props) {
                     <KTFormGroup
                       label={
                         <>
-                          {t('PostOffice')} <span className="text-danger">(*)</span>
+                          {t('Category')} <span className="text-danger">(*)</span>
                         </>
                       }
-                      inputName="postOfficeId"
+                      inputName="categoryId"
                       inputElement={
-                        <FastField name="postOfficeId">
+                        <FastField name="categoryId">
                           {({ field, form, meta }) => (
                             <KTFormSelect
                               name={field.name}
                               isCustom
                               options={[{ name: '', value: '' }].concat(
-                                postOffice?.map((item) => {
-                                  return {
-                                    name: item.postOfficeName,
-                                    value: item.postOfficeId.toString(),
-                                  };
-                                })
+                                // categories?.map((item) => {
+                                //   return { 
+                                //     name: item.name,
+                                //     value: item.id.toString(),
+                                //   };
+                                // })
                               )}
                               value={field.value?.toString()}
                               onChange={(newValue) => {
@@ -313,12 +313,12 @@ function ModalOrderEdit(props) {
                               name={field.name}
                               isCustom
                               options={[{ name: '', value: '' }].concat(
-                                employees?.map((item) => {
-                                  return {
-                                    name: item.fullname,
-                                    value: item.accountId.toString(),
-                                  };
-                                })
+                                // bookstores?.map((item) => {
+                                //   return {
+                                //     name: item.fullname,
+                                //     value: item.accountId.toString(),
+                                //   };
+                                // })
                               )}
                               value={field.value?.toString()}
                               onChange={(newValue) => {
@@ -343,7 +343,7 @@ function ModalOrderEdit(props) {
                       name="status"
                       isCustom
                       options={AppData.orderStatus}
-                      value={formikProps.getFieldProps('status').value?.toString()}
+                      // value={formikProps.getFieldProps('status').value?.toString()}
                       onChange={(newValue) => {
                         formikProps.getFieldHelpers('status').setValue(newValue);
                       }}
