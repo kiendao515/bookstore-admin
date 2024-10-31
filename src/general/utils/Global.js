@@ -16,6 +16,8 @@ const Global = {
   gFiltersCategoryList: { page: 0, size: 30, q: '' },
   gNeedToRefreshAccountList: false,
   gFiltersAccountList: { page: 0, size: 30,role:'', q: '' },
+  gFilterBookList : {page :0, size: 30, q: ''},
+  gNeedToRefreshBookList: false
 };
 
 export default Global;  
