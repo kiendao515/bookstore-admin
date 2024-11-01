@@ -158,7 +158,7 @@ const AppResource = {
         imgAuthenticationBg: require('assets/images/stores/img_authentication_bg.png'),
         imgAuthenticationBgMobile: require('assets/images/stores/img_authentication_bg_mobile.png'),
         imgEmpty: require('assets/images/stores/img_empty.png'),
-        imgUpload: require('assets/images/stores/img_upload.png'),
+        imgUpload: require('assets/images/stores/upload_image.jpg'),
         imgLogo: require('assets/images/stores/img_logo.png'),
         imgLogoTextWhite: require('assets/images/stores/img_logo_white.png'),
         imgCardStat: require('assets/images/stores/img_bg_card_stat.png'),
