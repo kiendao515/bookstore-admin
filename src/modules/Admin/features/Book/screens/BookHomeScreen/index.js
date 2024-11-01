@@ -22,6 +22,7 @@ import ModalOrderEdit from '../../components/ModalEditOrder';
 import { setPaginationPerPage, thunkGetListBook } from '../../bookSlice';
 import categoryApi from 'api/categoryApi';
 import bookApi from 'api/bookApi';
+import ModalEditBookInventory from '../../components/ModelEditBookInventory';
 
 BookHomeScreen.propTypes = {};
 
@@ -34,13 +35,13 @@ function BookHomeScreen(props) {
   const dispatch = useDispatch();
   const [books, setBooks] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [bookStores, setBookStores] = useState([])
+  const [bookStores, setBookStores] = useState([]);
   const [filters, setFilters] = useState(Global.gFilterBookList);
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [toggledClearOrders, setToggledClearOrders] = useState(true);
   const { book, isGettingBookList, pagination } = useSelector((state) => state.book);
   console.log(book);
-  
+
   const needToRefreshData = useRef(book?.length === 0);
   const refLoading = useRef(false);
   const columns = useMemo(() => {
@@ -169,6 +170,8 @@ function BookHomeScreen(props) {
   }, [categories, books]);
   const [selectedOrderItem, setSelectedOrderItem] = useState(null);
   const [modalOrderEditShowing, setModalOrderEditShowing] = useState(false);
+  const [selectedInventoryItem, setSelectedInventoryItem] = useState(null);
+  const [modalInventoryEditShowing, setModalInventoryEditShowing] = useState(false);
 
   // MARK: --- Functions ---
   // Get order list
@@ -177,7 +180,6 @@ function BookHomeScreen(props) {
     try {
       const res = unwrapResult(await dispatch(thunkGetListBook(filters)));
       console.log(res);
-      
     } catch (error) {
       console.log(`${sTag} get order list error: ${error.message}`);
     }
@@ -370,7 +372,7 @@ function BookHomeScreen(props) {
                   { name: 'All', value: '' },
                   ...bookStores.map((item) => {
                     console.log(item);
-                    
+
                     return { name: item?.name, value: item?.id.toString() };
                   }),
                 ]}
@@ -419,7 +421,6 @@ function BookHomeScreen(props) {
               <label className="mr-2 mb-0" htmlFor="status">
                 {_.capitalize(t('Status'))}
               </label>
-              
             </div>
           </div>
         </div>
@@ -508,6 +509,26 @@ function BookHomeScreen(props) {
         onRefreshOrderList={() => {
           setSelectedOrderItem(null);
           getOrderList();
+        }}
+        onSelectInventory={(inventory) => {
+          setSelectedInventoryItem(inventory);
+          setModalInventoryEditShowing(true);
+          setModalOrderEditShowing(false);
+        }}
+      />
+      <ModalEditBookInventory
+        show={modalInventoryEditShowing}
+        onClose={() => {
+          setModalInventoryEditShowing(false);
+          setModalOrderEditShowing(true);
+        }}
+        onExistDone={() => {
+          setSelectedInventoryItem(null);
+        }}
+        bookInventoryItem={selectedInventoryItem}
+        onRefreshOrderList={() => {
+          setSelectedInventoryItem(null);
+          // getListBookInventory();
         }}
       />
     </div>

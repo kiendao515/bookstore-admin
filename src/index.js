@@ -1,33 +1,24 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
+import { Provider } from 'react-redux';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
-// style
-// bootstrap
+import store from './app/store';
 import 'bootstrap/dist/css/bootstrap.min.css';
-// keen
 import 'assets/styles/keen/theme01/style.bundle.css';
 import 'assets/styles/keen/theme01/plugins.bundle.css';
-// app custom style
 import 'assets/styles/app.style.scss';
 import './index.css';
-// i18
+import reportWebVitals from './reportWebVitals';
 import { I18nextProvider } from 'react-i18next';
-import i18n from 'i18n';
-// redux
-import { Provider } from 'react-redux';
-import store from 'app/store';
+import React from 'react';
+import './i18n';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <I18nextProvider i18n={i18n}>
-        <App />
-      </I18nextProvider>
-    </Provider>
-  </React.StrictMode>
+  <Provider store={store}>
+    <I18nextProvider>
+      <App />
+    </I18nextProvider>
+  </Provider>
 );
 
 // If you want to start measuring performance in your app, pass a function
