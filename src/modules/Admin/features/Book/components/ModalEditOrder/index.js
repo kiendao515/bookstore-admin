@@ -73,7 +73,28 @@ function ModalOrderEdit(props) {
       quantity: 0,
       image: '',
     },
+    {
+      type: 'Trung bình',
+      price: 0,
+      quantity: 0,
+      image: '',
+    },
+    {
+      type: 'Cũ',
+      price: 0,
+      quantity: 0,
+      image: '',
+    },
   ]);
+  const handleInputChange = (e, row, field) => {
+    const newData = books.map((item) => {
+      if (item.id === row.id) {
+        return { ...item, [field]: e.target.value };
+      }
+      return item;
+    });
+    setBooks(newData);
+  };
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [toggledClearOrders, setToggledClearOrders] = useState(true);
 
@@ -151,12 +172,28 @@ function ModalOrderEdit(props) {
         // minWidth: '220px',
         cell: (row) => {
           return (
-            <div
-              data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
-            >
-              {row?.price}
-            </div>
+            <FastField name="name">
+              {({ field, form, meta }) => (
+                <KTFormInput
+                  name={field.name}
+                  value={field.value}
+                  onChange={(value) => {
+                    form.setFieldValue(field.name, value);
+                  }}
+                  onBlur={() => {
+                    form.setFieldTouched(field.name, true);
+                  }}
+                  enableCheckValid
+                  isValid={_.isEmpty(meta.error)}
+                  isTouched={meta.touched}
+                  feedbackText={meta.error}
+                  rows={5}
+                  placeholder={`${_.capitalize(t(''))}...`}
+                  type={KTFormInputType.text}
+                // disabled={!canEdit}
+                />
+              )}
+            </FastField>
           );
         },
       },
@@ -166,26 +203,66 @@ function ModalOrderEdit(props) {
         // minWidth: '220px',
         cell: (row) => {
           return (
-            <div
-              data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
-            >
-              {row?.quantity}
-            </div>
+            <FastField name="name">
+              {({ field, form, meta }) => (
+                <KTFormInput
+                  name={field.name}
+                  value={field.value}
+                  onChange={(value) => {
+                    form.setFieldValue(field.name, value);
+                  }}
+                  onBlur={() => {
+                    form.setFieldTouched(field.name, true);
+                  }}
+                  enableCheckValid
+                  isValid={_.isEmpty(meta.error)}
+                  isTouched={meta.touched}
+                  feedbackText={meta.error}
+                  rows={5}
+                  placeholder={`${_.capitalize(t(''))}...`}
+                  type={KTFormInputType.text}
+                // disabled={!canEdit}
+                />
+              )}
+            </FastField>
           );
         },
       },
       {
-        name: t('NumerOfBook'),
+        name: t('ThumbnailBook'),
         sortable: false,
         cell: (row) => {
           return (
-            <div
-              data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
-            >
-              {row?.number_of_books}
-            </div>
+            <FastField name="thumbnail">
+              {({ field, form, meta }) => (
+                <KTImageInput
+                  isAvatar={true}
+                  name={field.name}
+                  value={field.value}
+                  onChange={(value) => {
+                    form.setFieldValue(field.name, value);
+                  }}
+                  onBlur={() => {
+                    form.setFieldTouched(field.name, true);
+                  }}
+                  enableCheckValid
+                  isValid={_.isEmpty(meta.error)}
+                  isTouched={meta.touched}
+                  feedbackText={meta.error}
+                  defaultImage={AppResource.images.imgUpload}
+                  acceptImageTypes={AppConfigs.acceptImages}
+                  onSelectedFile={(file) => {
+                    console.log(file);
+                    //   Utils.validateImageFile(file);
+                    form.setFieldValue('image', file);
+                  }}
+                  onRemovedFile={() => {
+                    form.setFieldValue('image', null);
+                  }}
+                  additionalClassName=""
+                />
+              )}
+            </FastField>
           );
         },
       },
@@ -346,7 +423,7 @@ function ModalOrderEdit(props) {
                               rows={5}
                               placeholder={`${_.capitalize(t('tên sách'))}...`}
                               type={KTFormInputType.text}
-                              // disabled={!canEdit}
+                            // disabled={!canEdit}
                             />
                           )}
                         </FastField>
@@ -781,11 +858,10 @@ function ModalOrderEdit(props) {
                           <Loading showBackground={false} message={`${t('Loading')}...`} />
                         }
                         onSelectedRowsChange={handleSelectedOrdersChanged}
-                        clearSelectedRows={toggledClearOrders}
-                        onRowClicked={(row) => {
-                          // handleEditOrder(row);
-                          handleSelectInventory(row);
-                        }}
+                        // onRowClicked={(row) => {
+                        //   // handleEditOrder(row);
+                        //   handleSelectInventory(row);
+                        // }}
                         pointerOnHover
                         highlightOnHover
                         selectableRowsHighlight
