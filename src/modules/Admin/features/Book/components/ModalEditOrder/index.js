@@ -1,4 +1,3 @@
-
 import { FastField, Formik } from 'formik';
 import KTImageInput from 'general/components/OtherKeenComponents/FileUpload/KTImageInput';
 import KTFormGroup from 'general/components/OtherKeenComponents/Forms/KTFormGroup';
@@ -61,7 +60,7 @@ function ModalOrderEdit(props) {
   // MARK: --- Params ---
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { show, onClose, onRefreshOrderList, orderItem, onExistDone } = props;
+  const { show, onClose, onRefreshOrderList, orderItem, onExistDone, onSelectInventory } = props;
   const isEditMode = !_.isNull(orderItem);
   const categories = useSelector((state) => state?.category?.categories);
   const bookstores = useSelector((state) => state?.bookstore?.bookstores);
@@ -69,11 +68,11 @@ function ModalOrderEdit(props) {
   const { book, isGettingBookList, pagination } = useSelector((state) => state.book);
   const [books, setBooks] = useState([
     {
-      type : "Mới",
-      price : 0,
-      quantity :0,
-      image : ""
-    }
+      type: 'Mới',
+      price: 0,
+      quantity: 0,
+      image: '',
+    },
   ]);
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [toggledClearOrders, setToggledClearOrders] = useState(true);
@@ -88,6 +87,12 @@ function ModalOrderEdit(props) {
   function handleExistDone() {
     if (onExistDone) {
       onExistDone();
+    }
+  }
+
+  function handleSelectInventory(inventory) {
+    if (onSelectInventory) {
+      onSelectInventory(inventory);
     }
   }
 
@@ -241,7 +246,6 @@ function ModalOrderEdit(props) {
     try {
       const res = unwrapResult(await dispatch(thunkGetListBook(filters)));
       console.log(res);
-      
     } catch (error) {
       console.log(`${sTag} get order list error: ${error.message}`);
     }
@@ -342,7 +346,7 @@ function ModalOrderEdit(props) {
                               rows={5}
                               placeholder={`${_.capitalize(t('tên sách'))}...`}
                               type={KTFormInputType.text}
-                            // disabled={!canEdit}
+                              // disabled={!canEdit}
                             />
                           )}
                         </FastField>
@@ -365,14 +369,15 @@ function ModalOrderEdit(props) {
                             <KTFormSelect
                               name={field.name}
                               isCustom
-                              options={[{ name: '', value: '' }].concat(
+                              options={[{ name: '', value: '' }]
+                                .concat
                                 // categories?.map((item) => {
-                                //   return { 
+                                //   return {
                                 //     name: item.name,
                                 //     value: item.id.toString(),
                                 //   };
                                 // })
-                              )}
+                                ()}
                               value={field.value?.toString()}
                               onChange={(newValue) => {
                                 form.setFieldValue(field.name, newValue);
@@ -437,14 +442,15 @@ function ModalOrderEdit(props) {
                             <KTFormSelect
                               name={field.name}
                               isCustom
-                              options={[{ name: '', value: '' }].concat(
+                              options={[{ name: '', value: '' }]
+                                .concat
                                 // categories?.map((item) => {
-                                //   return { 
+                                //   return {
                                 //     name: item.name,
                                 //     value: item.id.toString(),
                                 //   };
                                 // })
-                              )}
+                                ()}
                               value={field.value?.toString()}
                               onChange={(newValue) => {
                                 form.setFieldValue(field.name, newValue);
@@ -676,7 +682,6 @@ function ModalOrderEdit(props) {
                         <FastField name="thumbnail w-100">
                           {({ field, form, meta }) => (
                             <KTImageInput
-
                               isAvatar={false}
                               name={field.name}
                               value={field.value}
@@ -772,11 +777,14 @@ function ModalOrderEdit(props) {
                           </div>
                         }
                         progressPending={isGettingBookList}
-                        progressComponent={<Loading showBackground={false} message={`${t('Loading')}...`} />}
+                        progressComponent={
+                          <Loading showBackground={false} message={`${t('Loading')}...`} />
+                        }
                         onSelectedRowsChange={handleSelectedOrdersChanged}
                         clearSelectedRows={toggledClearOrders}
                         onRowClicked={(row) => {
-                          handleEditOrder(row);
+                          // handleEditOrder(row);
+                          handleSelectInventory(row);
                         }}
                         pointerOnHover
                         highlightOnHover
@@ -812,7 +820,7 @@ function ModalOrderEdit(props) {
           </>
         )}
       </Formik>
-      <ModalEditBookInventory
+      {/* <ModalEditBookInventory
         show={modalOrderEditShowing}
         onClose={() => {
           setModalOrderEditShowing(false);
@@ -825,7 +833,7 @@ function ModalOrderEdit(props) {
           setSelectedOrderItem(null);
           // getListBookInventory();
         }}
-      />
+      /> */}
     </div>
   );
 }
