@@ -21,13 +21,15 @@ import moment from 'moment';
 import AppData from 'general/constants/AppData';
 import bookApi from 'api/bookApi';
 import DataTable from 'react-data-table-component';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import customDataTableStyle from 'assets/styles/customDataTableStyle';
 import Empty from 'general/components/Empty';
 import Loading from 'general/components/Loading';
 import Pagination from 'general/components/Pagination';
 import KTTooltip from 'general/components/OtherKeenComponents/KTTooltip';
 import ModalEditBookInventory from '../ModelEditBookInventory';
+import KTFormTextArea from 'general/components/OtherKeenComponents/Forms/KTFormTextArea';
+import { createWorker } from 'tesseract.js';
 
 ModalOrderEdit.propTypes = {
   show: PropTypes.bool,
@@ -35,6 +37,8 @@ ModalOrderEdit.propTypes = {
   onRefreshOrderList: PropTypes.func,
   orderItem: PropTypes.object,
   onExistDone: PropTypes.func,
+  bookStores: PropTypes.object,
+  categories: PropTypes.object
 };
 
 ModalOrderEdit.defaultProps = {
@@ -43,6 +47,8 @@ ModalOrderEdit.defaultProps = {
   onRefreshOrderList: null,
   orderItem: null,
   onExistDone: null,
+  bookStores: PropTypes.object,
+  categories: PropTypes.object
 };
 
 /**
@@ -60,43 +66,37 @@ function ModalOrderEdit(props) {
   // MARK: --- Params ---
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { show, onClose, onRefreshOrderList, orderItem, onExistDone, onSelectInventory } = props;
+  const { show, onClose, onRefreshOrderList, orderItem, onExistDone, onSelectInventory, bookStores, categories } = props;
   const isEditMode = !_.isNull(orderItem);
-  const categories = useSelector((state) => state?.category?.categories);
-  const bookstores = useSelector((state) => state?.bookstore?.bookstores);
-  // thêm mơi
   const { book, isGettingBookList, pagination } = useSelector((state) => state.book);
-  const [books, setBooks] = useState([
-    {
-      type: 'Mới',
-      price: 0,
-      quantity: 0,
-      image: '',
-    },
-    {
-      type: 'Trung bình',
-      price: 0,
-      quantity: 0,
-      image: '',
-    },
-    {
-      type: 'Cũ',
-      price: 0,
-      quantity: 0,
-      image: '',
-    },
-  ]);
-  const handleInputChange = (e, row, field) => {
-    const newData = books.map((item) => {
-      if (item.id === row.id) {
-        return { ...item, [field]: e.target.value };
-      }
-      return item;
-    });
-    setBooks(newData);
-  };
+  // const [categories, setCategories] = useState([])
+  const [bookInventory, setBookInventory] = useState([]);
+  const [storeId, setStoreId] = useState([])
+  // const handleInputChange = (e, row, field) => {
+  //   const newData = books.map((item) => {
+  //     if (item.id === row.id) {
+  //       return { ...item, [field]: e.target.value };
+  //     }
+  //     return item;
+  //   });
+  //   setBooks(newData);
+  // };
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [toggledClearOrders, setToggledClearOrders] = useState(true);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [textResult, setTextResult] = useState("")
+
+  const convertImageToText = async () => {
+    const worker = await createWorker('eng');
+    if (!selectedImage) return;
+    const { data: { text } } = await worker.recognize(selectedImage);
+    console.log(text);
+    setTextResult(text);
+  };
+
+  useEffect(() => {
+    convertImageToText();
+  }, [selectedImage])
 
   // MARK: --- Functions ---
   function handleClose() {
@@ -135,19 +135,27 @@ function ModalOrderEdit(props) {
   }
 
   // Request update new order
-  async function requestUpdateOrder(values) {
+  async function requestUpdateBook(values) {
     try {
       let params = { ...values };
-      const res = await bookApi.updateOrder(params);
-      const { result } = res;
-      if (result == 'success') {
+      const res = await bookApi.updateBookInfo(params);
+      console.log(res);
+
+      const { result, reason } = res;
+      if (result == true) {
         ToastHelper.showSuccess(t('Success'));
-        dispatch(thunkGetListBook(Global.gFiltersOrderList));
+        dispatch(thunkGetListBook(Global.gFilterBookList));
         handleClose();
+      } else {
+        ToastHelper.showError(reason);
       }
     } catch (error) {
       console.log(error);
     }
+  }
+  async function saveBookInventory(row) {
+    console.log(row);
+
   }
   const columns = useMemo(() => {
     return [
@@ -161,7 +169,7 @@ function ModalOrderEdit(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
             >
-              {row?.type}
+              {Utils.getBookQuality(row?.type)}
             </div>
           );
         },
@@ -170,30 +178,22 @@ function ModalOrderEdit(props) {
         name: t('Price'),
         sortable: false,
         // minWidth: '220px',
-        cell: (row) => {
+        cell: (row, index) => {
           return (
-            <FastField name="name">
-              {({ field, form, meta }) => (
-                <KTFormInput
-                  name={field.name}
-                  value={field.value}
-                  onChange={(value) => {
-                    form.setFieldValue(field.name, value);
-                  }}
-                  onBlur={() => {
-                    form.setFieldTouched(field.name, true);
-                  }}
-                  enableCheckValid
-                  isValid={_.isEmpty(meta.error)}
-                  isTouched={meta.touched}
-                  feedbackText={meta.error}
-                  rows={5}
-                  placeholder={`${_.capitalize(t(''))}...`}
-                  type={KTFormInputType.text}
-                // disabled={!canEdit}
-                />
-              )}
-            </FastField>
+            <KTFormInput
+              value={row.price}
+              onChange={(value) => {
+                console.log(value);
+                const updatedInventory = [...bookInventory];
+                updatedInventory[index] = { ...row, price: value };
+                setBookInventory(updatedInventory);
+              }}
+              enableCheckValid
+              rows={5}
+              placeholder={`${_.capitalize(t(''))}...`}
+              type={KTFormInputType.number}
+            // disabled={!canEdit}
+            />
           );
         },
       },
@@ -201,68 +201,41 @@ function ModalOrderEdit(props) {
         name: t('NumberOfBook'),
         sortable: false,
         // minWidth: '220px',
-        cell: (row) => {
+        cell: (row, index) => {
           return (
-            <FastField name="name">
-              {({ field, form, meta }) => (
-                <KTFormInput
-                  name={field.name}
-                  value={field.value}
-                  onChange={(value) => {
-                    form.setFieldValue(field.name, value);
-                  }}
-                  onBlur={() => {
-                    form.setFieldTouched(field.name, true);
-                  }}
-                  enableCheckValid
-                  isValid={_.isEmpty(meta.error)}
-                  isTouched={meta.touched}
-                  feedbackText={meta.error}
-                  rows={5}
-                  placeholder={`${_.capitalize(t(''))}...`}
-                  type={KTFormInputType.text}
-                // disabled={!canEdit}
-                />
-              )}
-            </FastField>
+            <KTFormInput
+              value={row.quantity}
+              onChange={(value) => {
+                const updatedInventory = [...bookInventory];
+                updatedInventory[index] = { ...row, quantity: value };
+                setBookInventory(updatedInventory);
+              }}
+              rows={5}
+              placeholder={`${_.capitalize(t(''))}...`}
+              type={KTFormInputType.number}
+            // disabled={!canEdit}
+            />
           );
         },
       },
       {
-        name: t('ThumbnailBook'),
+        name: t('Location'),
         sortable: false,
-        cell: (row) => {
+        cell: (row, index) => {
           return (
-            <FastField name="thumbnail">
-              {({ field, form, meta }) => (
-                <KTImageInput
-                  isAvatar={true}
-                  name={field.name}
-                  value={field.value}
-                  onChange={(value) => {
-                    form.setFieldValue(field.name, value);
-                  }}
-                  onBlur={() => {
-                    form.setFieldTouched(field.name, true);
-                  }}
-                  enableCheckValid
-                  isValid={_.isEmpty(meta.error)}
-                  isTouched={meta.touched}
-                  feedbackText={meta.error}
-                  defaultImage={AppResource.images.imgUpload}
-                  acceptImageTypes={AppConfigs.acceptImages}
-                  onSelectedFile={(file) => {
-                    console.log(file);
-                    //   Utils.validateImageFile(file);
-                    form.setFieldValue('image', file);
-                  }}
-                  onRemovedFile={() => {
-                    form.setFieldValue('image', null);
-                  }}
-                  additionalClassName=""
-                />
-              )}
-            </FastField>
+            <KTFormInput
+              value={row.location}
+              onChange={(value) => {
+                const updatedInventory = [...bookInventory];
+                updatedInventory[index] = { ...row, location: value };
+                setBookInventory(updatedInventory);
+              }}
+              enableCheckValid
+              rows={5}
+              placeholder={`${_.capitalize(t(''))}...`}
+              type={KTFormInputType.text}
+            // disabled={!canEdit}
+            />
           );
         },
       },
@@ -284,22 +257,14 @@ function ModalOrderEdit(props) {
         width: '100px',
         cell: (row) => (
           <div className="d-flex align-items-center">
-            <KTTooltip text={t('Edit')}>
-              <a
-                className="btn btn-icon btn-sm btn-primary btn-hover-primary mr-2"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleEditOrder(row);
-                }}
-              >
-                <i className="far fa-pen p-0 icon-1x" />
-              </a>
-            </KTTooltip>
+            <a href="#" class="btn btn-primary font-weight-bold d-flex align-items-center ml-2" onClick={() => saveBookInventory(row)}>
+              Lưu
+            </a>
           </div>
         ),
       },
     ];
-  }, [categories, books]);
+  }, [bookInventory]);
 
   function handleSelectedOrdersChanged(state) {
     const selectedOrders = state.selectedRows;
@@ -321,36 +286,80 @@ function ModalOrderEdit(props) {
   async function getListBookInventory() {
     // refLoading.current = true;
     try {
-      const res = unwrapResult(await dispatch(thunkGetListBook(filters)));
+      const res = await bookApi.getListBookInventoryInfo(storeId, orderItem.id)
       console.log(res);
+      const { result, data } = res;
+      if (result === true) {
+        const updatedInventory = [...data];
+        const types = ["NEW", "MEDIUM", "OLD"];
+        types.forEach((type) => {
+          if (!updatedInventory.some((item) => item.type === type)) {
+            updatedInventory.push({
+              bookId: orderItem.id,
+              coverImage: null,
+              createdAt: null,
+              deletedAt: null,
+              id: null,
+              location: null,
+              price: 0,
+              quantity: 0,
+              relatedBookId: null,
+              storeId: storeId,
+              type: type,
+              updatedAt: null,
+            });
+          }
+        });
+
+        setBookInventory(updatedInventory);
+      }
     } catch (error) {
-      console.log(`${sTag} get order list error: ${error.message}`);
+      // console.log(`${sTag} get order list error: ${error.message}`);
     }
     // refLoading.current = false;
   }
+  async function updateBookInventory() {
+
+  }
+  useEffect(() => {
+    if (orderItem) {
+      getListBookInventory();
+    } else {
+      setBookInventory([
+        { type: "NEW", price: 0, quantity: 0, location: null },
+        { type: "MEDIUM", price: 0, quantity: 0, location: null },
+        { type: "OLD", price: 0, quantity: 0, location: null },
+      ]);
+      setStoreId(null); 
+    }
+  }, [storeId,orderItem])
   return (
     <div>
       <Formik
         initialValues={{
-          orderId: orderItem ? orderItem.orderId : '',
-          orderCode: orderItem ? orderItem.orderCode : '',
-          eCommercePlatform: orderItem ? orderItem.eCommercePlatform : '',
-          scanTime: orderItem ? orderItem.scanTime : '',
-          categoryId: orderItem ? orderItem.categoryId : '',
-          scanAccountId: orderItem ? orderItem.accountId : '',
-          // status: orderItem ? orderItem.status : AppData.ORDER_STATUS.SCANNED,
-          image: orderItem ? orderItem.image : '',
-          imageLink: orderItem ? Utils.getFullUrl(orderItem.scannedImage) : '',
+          id: orderItem ? orderItem.id : '',
+          name: orderItem ? orderItem.name : '',
+          author_name: orderItem ? orderItem.author_name : '',
+          isbn: orderItem ? orderItem.isbn : '',
+          number_of_page: orderItem ? orderItem.number_of_page : '',
+          publish_year: orderItem ? orderItem.publish_year : '',
+          publisher: orderItem ? orderItem.publisher : '',
+          tags: orderItem ? orderItem.tags : '',
+          image: orderItem ? orderItem.cover_image : '',
+          imageLink: orderItem ? Utils.getFullUrl(orderItem.cover_image) : '',
+          category_id: orderItem ? orderItem?.category?.id : '',
+          store_id: orderItem ? orderItem?.store_id : '',
+          description: orderItem ? orderItem?.description : ''
         }}
-        validationSchema={Yup.object({
-          orderCode: Yup.string().required(t('Required')),
-          postOfficeId: Yup.string().required(t('Required')),
-          scanAccountId: Yup.string().required(t('Required')),
-        })}
+        // validationSchema={Yup.object({
+        //   orderCode: Yup.string().required(t('Required')),
+        //   postOfficeId: Yup.string().required(t('Required')),
+        //   scanAccountId: Yup.string().required(t('Required')),
+        // })}
         enableReinitialize
         onSubmit={(values) => {
           if (isEditMode) {
-            requestUpdateOrder(values);
+            requestUpdateBook(values);
           } else {
             requestCreateOrder(values);
           }
@@ -439,22 +448,21 @@ function ModalOrderEdit(props) {
                           {t('Category')} <span className="text-danger">(*)</span>
                         </>
                       }
-                      inputName="categoryId"
+                      inputName="category_id"
                       inputElement={
-                        <FastField name="categoryId">
+                        <FastField name="category_id">
                           {({ field, form, meta }) => (
                             <KTFormSelect
                               name={field.name}
                               isCustom
-                              options={[{ name: '', value: '' }]
-                                .concat
-                                // categories?.map((item) => {
-                                //   return {
-                                //     name: item.name,
-                                //     value: item.id.toString(),
-                                //   };
-                                // })
-                                ()}
+                              options={[{ name: '', value: '' }].concat(
+                                categories?.map((item) => {
+                                  return {
+                                    name: item.name,
+                                    value: item.id.toString(),
+                                  };
+                                })
+                              )}
                               value={field.value?.toString()}
                               onChange={(newValue) => {
                                 form.setFieldValue(field.name, newValue);
@@ -469,7 +477,7 @@ function ModalOrderEdit(props) {
                       }
                     />
                   </div>
-                  {/* eCommercePlatform */}
+
                   <div className="col-6">
                     <KTFormGroup
                       label={
@@ -477,9 +485,9 @@ function ModalOrderEdit(props) {
                           {t('AuthorName')} <span className="text-danger">(*)</span>
                         </>
                       }
-                      inputName="author"
+                      inputName="author_name"
                       inputElement={
-                        <FastField name="author">
+                        <FastField name="author_name">
                           {({ field, form, meta }) => (
                             <KTFormInput
                               name={field.name}
@@ -504,45 +512,40 @@ function ModalOrderEdit(props) {
                     />
                   </div>
 
-                  {/* postOfficeId */}
                   <div className="col-6">
                     <KTFormGroup
                       label={
                         <>
-                          {t('Store')} <span className="text-danger">(*)</span>
+                          {t('PublishName')} <span className="text-danger">(*)</span>
                         </>
                       }
-                      inputName="storeId"
+                      inputName="publisher"
                       inputElement={
-                        <FastField name="storeId">
+                        <FastField name="publisher">
                           {({ field, form, meta }) => (
-                            <KTFormSelect
+                            <KTFormInput
                               name={field.name}
-                              isCustom
-                              options={[{ name: '', value: '' }]
-                                .concat
-                                // categories?.map((item) => {
-                                //   return {
-                                //     name: item.name,
-                                //     value: item.id.toString(),
-                                //   };
-                                // })
-                                ()}
-                              value={field.value?.toString()}
-                              onChange={(newValue) => {
-                                form.setFieldValue(field.name, newValue);
+                              value={field.value}
+                              onChange={(value) => {
+                                form.setFieldValue(field.name, value);
+                              }}
+                              onBlur={() => {
+                                form.setFieldTouched(field.name, true);
                               }}
                               enableCheckValid
                               isValid={_.isEmpty(meta.error)}
                               isTouched={meta.touched}
                               feedbackText={meta.error}
+                              rows={5}
+                              placeholder={`${_.capitalize(t('Nhà xuất bản'))}...`}
+                              type={KTFormInputType.text}
                             />
                           )}
                         </FastField>
                       }
                     />
                   </div>
-                  <div className="col-3">
+                  <div className="col-4">
                     <KTFormGroup
                       label={
                         <>
@@ -598,16 +601,16 @@ function ModalOrderEdit(props) {
                     />
                   </div> */}
                   {/* postOfficeId */}
-                  <div className="col-2">
+                  <div className="col-4">
                     <KTFormGroup
                       label={
                         <>
                           {t('NumberOfPage')} <span className="text-danger">(*)</span>
                         </>
                       }
-                      inputName="numberOfPage"
+                      inputName="number_of_page"
                       inputElement={
-                        <FastField name="numberOfPage">
+                        <FastField name="number_of_page">
                           {({ field, form, meta }) => (
                             <KTFormInput
                               name={field.name}
@@ -631,16 +634,16 @@ function ModalOrderEdit(props) {
                       }
                     />
                   </div>
-                  <div className="col-2">
+                  <div className="col-4">
                     <KTFormGroup
                       label={
                         <>
                           {t('PublishYear')} <span className="text-danger">(*)</span>
                         </>
                       }
-                      inputName="publishYear"
+                      inputName="pubish_year"
                       inputElement={
-                        <FastField name="publishYear">
+                        <FastField name="publish_year">
                           {({ field, form, meta }) => (
                             <KTFormInput
                               name={field.name}
@@ -664,39 +667,7 @@ function ModalOrderEdit(props) {
                       }
                     />
                   </div>
-                  <div className="col-5">
-                    <KTFormGroup
-                      label={
-                        <>
-                          {t('PublishName')} <span className="text-danger">(*)</span>
-                        </>
-                      }
-                      inputName="publish_name"
-                      inputElement={
-                        <FastField name="publish_name">
-                          {({ field, form, meta }) => (
-                            <KTFormInput
-                              name={field.name}
-                              value={field.value}
-                              onChange={(value) => {
-                                form.setFieldValue(field.name, value);
-                              }}
-                              onBlur={() => {
-                                form.setFieldTouched(field.name, true);
-                              }}
-                              enableCheckValid
-                              isValid={_.isEmpty(meta.error)}
-                              isTouched={meta.touched}
-                              feedbackText={meta.error}
-                              rows={5}
-                              placeholder={`${_.capitalize(t('Nhà xuất bản'))}...`}
-                              type={KTFormInputType.text}
-                            />
-                          )}
-                        </FastField>
-                      }
-                    />
-                  </div>
+
                   <div className="col-12">
                     <KTFormGroup
                       label={
@@ -704,9 +675,9 @@ function ModalOrderEdit(props) {
                           {t('Tag')} <span className="text-danger">(*)</span>
                         </>
                       }
-                      inputName="tag"
+                      inputName="tags"
                       inputElement={
-                        <FastField name="tag">
+                        <FastField name="tags">
                           {({ field, form, meta }) => (
                             <KTFormInput
                               name={field.name}
@@ -732,17 +703,36 @@ function ModalOrderEdit(props) {
                   </div>
                   {/* status */}
                   <div className="mb-4 d-flex flex-column" style={{ marginTop: '-10px' }}>
-                    <label className="mb-2" htmlFor="status">
-                      {_.capitalize(t('Status'))}
-                    </label>
-                    <KTFormSelect
-                      name="status"
-                      isCustom
-                      options={AppData.orderStatus}
-                      // value={formikProps.getFieldProps('status').value?.toString()}
-                      onChange={(newValue) => {
-                        formikProps.getFieldHelpers('status').setValue(newValue);
-                      }}
+                    <KTFormGroup
+                      label={
+                        <>
+                          {t('Description')} <span className="text-danger">(*)</span>
+                        </>
+                      }
+                      inputName="description"
+                      inputElement={
+                        <FastField name="description">
+                          {({ field, form, meta }) => (
+                            <KTFormTextArea
+                              name={field.name}
+                              value={field.value}
+                              onChange={(value) => {
+                                form.setFieldValue(field.name, value);
+                              }}
+                              onBlur={() => {
+                                form.setFieldTouched(field.name, true);
+                              }}
+                              enableCheckValid
+                              isValid={_.isEmpty(meta.error)}
+                              isTouched={meta.touched}
+                              feedbackText={meta.error}
+                              rows={10}
+                              placeholder={`${_.capitalize(t('Mô tả'))}...`}
+                              type={KTFormInputType.text}
+                            />
+                          )}
+                        </FastField>
+                      }
                     />
                   </div>
 
@@ -764,6 +754,7 @@ function ModalOrderEdit(props) {
                               value={field.value}
                               onChange={(value) => {
                                 form.setFieldValue(field.name, value);
+                                setSelectedImage(value)
                               }}
                               onBlur={() => {
                                 form.setFieldTouched(field.name, true);
@@ -835,10 +826,47 @@ function ModalOrderEdit(props) {
 
                   <div className="col-12">
                     <h2 style={{ fontWeight: 600 }}>2/ Tồn kho</h2>
+                    <div className="col-6">
+                      <KTFormGroup
+                        label={
+                          <>
+                            {t('Store')} <span className="text-danger">(*)</span>
+                          </>
+                        }
+                        inputName="store_id"
+                        inputElement={
+                          <FastField name="store_id">
+                            {({ field, form, meta }) => (
+                              <KTFormSelect
+                                name={field.name}
+                                isCustom
+                                options={[{ name: 'Chọn hiệu sách', value: '' }].concat(
+                                  bookStores?.map((item) => {
+                                    return {
+                                      name: item?.name,
+                                      value: item?.id.toString(),
+                                    };
+                                  })
+                                )}
+                                value={field.value?.toString()}
+                                onChange={(newValue) => {
+                                  form.setFieldValue(field.name, newValue);
+                                  setStoreId(newValue)
+                                }}
+                                enableCheckValid
+                                isValid={_.isEmpty(meta.error)}
+                                isTouched={meta.touched}
+                                feedbackText={meta.error}
+                              />
+                            )}
+                          </FastField>
+                        }
+                      />
+                    </div>
                     <div className="card-body pt-3">
                       <DataTable
                         columns={columns}
-                        data={books}
+                        data={bookInventory}
                         customStyles={customDataTableStyle}
                         responsive={true}
                         noHeader

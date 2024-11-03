@@ -152,6 +152,18 @@ const Utils = {
     fileSizeInMB: (sizeInBytes) => {
         const sizeInMB = (sizeInBytes / (1024 * 1024)).toFixed(2);
         return sizeInMB;
+    },
+    getBookQuality :(quality) => {
+        switch (quality) {
+            case "NEW":
+                return "Mới";
+            case "MEDIUM":
+                return "Trung bình";
+            case "OLD":
+                return "Cũ";
+            default:
+                return "Không xác định"; // hoặc giá trị mặc định khác nếu cần
+        }
     }
 };
 

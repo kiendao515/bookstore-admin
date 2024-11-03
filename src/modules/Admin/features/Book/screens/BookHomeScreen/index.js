@@ -273,11 +273,11 @@ function BookHomeScreen(props) {
     });
   }
 
-  async function getListBook() {
+  async function getListCategories() {
     const res = await categoryApi.getListCategory();
-    const { result, books } = res;
-    if (result === 'success') {
-      setBooks(books);
+    const { success, data } = res;
+    if (success === true) {
+      setCategories(data);
     }
   }
 
@@ -298,7 +298,7 @@ function BookHomeScreen(props) {
   }, [filters, Global.gNeedToRefreshBookList]);
 
   useEffect(() => {
-    getListBook();
+    getListCategories();
     getListBookStores();
   }, []);
 
@@ -391,16 +391,16 @@ function BookHomeScreen(props) {
               />
             </div>
             <div className="mt-4 mr-4 d-flex flex-wrap align-items-center">
-              <label className="mr-2 mb-0" htmlFor="employee">
-                {_.capitalize(t('PackingEmployee'))}
+              <label className="mr-2 mb-0" htmlFor="category">
+                {_.capitalize(t('Category'))}
               </label>
               <KTFormSelect
-                name="employee"
+                name="category"
                 isCustom
                 options={[
                   { name: 'All', value: '' },
-                  ...books.map((item) => {
-                    return { name: item.fullname, value: item.accountId.toString() };
+                  ...categories.map((item) => {
+                    return { name: item.name, value: item.id.toString() };
                   }),
                 ]}
                 // value={Global.gFiltersOrderList.accountId}
@@ -515,6 +515,8 @@ function BookHomeScreen(props) {
           setModalInventoryEditShowing(true);
           setModalOrderEditShowing(false);
         }}
+        bookStores={bookStores}
+        categories={categories}
       />
       <ModalEditBookInventory
         show={modalInventoryEditShowing}

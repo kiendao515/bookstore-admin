@@ -5,6 +5,10 @@ const bookApi = {
     const url = '/books';
     return axiosClient.get(url, { params });
   },
+  getListBookInventoryInfo: (storeId,bookId) => {
+    const url = '/inventories?bookId='+bookId+"&storeId="+storeId;
+    return axiosClient.get(url, null);
+  },
   createAccountInfo: (params) => {
     const url = '/customers';
     const formData = new FormData();
@@ -14,8 +18,10 @@ const bookApi = {
 
     return axiosClient.post(url, formData);
   },
-  updateAccountInfo: (params) => {
-    const url = `/customers/${params.id}`;
+  updateBookInfo: (params) => {
+    const url = `/books/${params.id}`;
+    console.log("book request",params);
+    
     const formData = new FormData();
     for (const key in params) {
       formData.append(key, params[key]);
