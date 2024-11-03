@@ -30,6 +30,7 @@ import KTTooltip from 'general/components/OtherKeenComponents/KTTooltip';
 import ModalEditBookInventory from '../ModelEditBookInventory';
 import KTFormTextArea from 'general/components/OtherKeenComponents/Forms/KTFormTextArea';
 import { createWorker } from 'tesseract.js';
+import { Cloudinary } from '@cloudinary/url-gen';
 
 ModalOrderEdit.propTypes = {
   show: PropTypes.bool,
@@ -137,10 +138,10 @@ function ModalOrderEdit(props) {
   // Request update new order
   async function requestUpdateBook(values) {
     try {
-      let params = { ...values };
+      let cover_image = await Utils.uploadFile(values?.cover_image)
+      let params = { ...values,cover_image: cover_image };
+      console.log(params);
       const res = await bookApi.updateBookInfo(params);
-      console.log(res);
-
       const { result, reason } = res;
       if (result == true) {
         ToastHelper.showSuccess(t('Success'));
@@ -155,7 +156,22 @@ function ModalOrderEdit(props) {
   }
   async function saveBookInventory(row) {
     console.log(row);
-
+    try {
+      // let cover_image = await Utils.uploadFile(values?.cover_image)
+      let params = { ...row, book_id: row.bookId ?? row.book_id, store_id:row.storeId ?? row.store_id};
+      const res = await bookApi.updateBookInventory(params);
+      const { result, reason } = res;
+      if (result == true) {
+        ToastHelper.showSuccess(t('Success'));
+        dispatch(thunkGetListBook(Global.gFilterBookList));
+        handleClose();
+      } else {
+        ToastHelper.showError(reason);
+      }
+    } catch (error) {
+      ToastHelper.showError(error);
+      console.log(error);
+    }
   }
   const columns = useMemo(() => {
     return [
@@ -199,12 +215,12 @@ function ModalOrderEdit(props) {
       },
       {
         name: t('NumberOfBook'),
-        sortable: false,
+        sortable: true,
         // minWidth: '220px',
         cell: (row, index) => {
           return (
             <KTFormInput
-              value={row.quantity}
+              value={row?.quantity}
               onChange={(value) => {
                 const updatedInventory = [...bookInventory];
                 updatedInventory[index] = { ...row, quantity: value };
@@ -291,12 +307,12 @@ function ModalOrderEdit(props) {
       const { result, data } = res;
       if (result === true) {
         const updatedInventory = [...data];
-        const types = ["NEW", "MEDIUM", "OLD"];
+        const types = ["NEW", "GOOD", "OLD"];
         types.forEach((type) => {
           if (!updatedInventory.some((item) => item.type === type)) {
             updatedInventory.push({
-              bookId: orderItem.id,
-              coverImage: null,
+              book_id: orderItem.id,
+              cover_image: null,
               createdAt: null,
               deletedAt: null,
               id: null,
@@ -304,7 +320,7 @@ function ModalOrderEdit(props) {
               price: 0,
               quantity: 0,
               relatedBookId: null,
-              storeId: storeId,
+              store_id: storeId,
               type: type,
               updatedAt: null,
             });
@@ -327,7 +343,7 @@ function ModalOrderEdit(props) {
     } else {
       setBookInventory([
         { type: "NEW", price: 0, quantity: 0, location: null },
-        { type: "MEDIUM", price: 0, quantity: 0, location: null },
+        { type: "GOOD", price: 0, quantity: 0, location: null },
         { type: "OLD", price: 0, quantity: 0, location: null },
       ]);
       setStoreId(null); 
@@ -345,7 +361,7 @@ function ModalOrderEdit(props) {
           publish_year: orderItem ? orderItem.publish_year : '',
           publisher: orderItem ? orderItem.publisher : '',
           tags: orderItem ? orderItem.tags : '',
-          image: orderItem ? orderItem.cover_image : '',
+          cover_image: orderItem ? orderItem.cover_image : '',
           imageLink: orderItem ? Utils.getFullUrl(orderItem.cover_image) : '',
           category_id: orderItem ? orderItem?.category?.id : '',
           store_id: orderItem ? orderItem?.store_id : '',
@@ -744,9 +760,9 @@ function ModalOrderEdit(props) {
                           {t('ThumbnailBook')} <span className="text-danger">(*)</span>
                         </>
                       }
-                      inputName="thumbnail"
+                      inputName="cover_image"
                       inputElement={
-                        <FastField name="thumbnail w-100">
+                        <FastField name="cover_image">
                           {({ field, form, meta }) => (
                             <KTImageInput
                               isAvatar={false}
@@ -763,15 +779,15 @@ function ModalOrderEdit(props) {
                               isValid={_.isEmpty(meta.error)}
                               isTouched={meta.touched}
                               feedbackText={meta.error}
-                              defaultImage={AppResource.images.imgUpload}
+                              defaultImage={field.value ?? AppResource.images.imgUpload}
                               acceptImageTypes={AppConfigs.acceptImages}
                               onSelectedFile={(file) => {
                                 console.log(file);
                                 //   Utils.validateImageFile(file);
-                                form.setFieldValue('image', file);
+                                form.setFieldValue('cover_image', file);
                               }}
                               onRemovedFile={() => {
-                                form.setFieldValue('image', null);
+                                form.setFieldValue('cover_image', null);
                               }}
                               additionalClassName=""
                             />

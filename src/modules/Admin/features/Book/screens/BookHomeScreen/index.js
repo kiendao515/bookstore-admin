@@ -109,7 +109,7 @@ function BookHomeScreen(props) {
       //   },
       // },
       {
-        name: t('NumerOfBook'),
+        name: t('NumberOfBook'),
         sortable: false,
         cell: (row) => {
           return (

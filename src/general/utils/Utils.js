@@ -4,6 +4,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import 'moment/locale/vi';
 import Global from './Global';
+import axios from 'axios';
 moment.locale('vi');
 
 const Utils = {
@@ -157,14 +158,26 @@ const Utils = {
         switch (quality) {
             case "NEW":
                 return "Mới";
-            case "MEDIUM":
-                return "Trung bình";
+            case "GOOD":
+                return "Tốt";
             case "OLD":
                 return "Cũ";
             default:
                 return "Không xác định"; // hoặc giá trị mặc định khác nếu cần
         }
-    }
+    },
+    uploadFile:async(file) =>{
+        const url = `https://api.cloudinary.com/v1_1/dwjvhoiin/upload`;
+        const fd = new FormData();
+        fd.append('upload_preset', "kiendao");
+        fd.append('file', file);
+        let rs = await fetch(url, {
+          method: 'POST',
+          body: fd,
+        })
+        let url_image = (await rs.json()).secure_url;
+        return url_image;
+      }
 };
 
 export default Utils;

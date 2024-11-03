@@ -9,14 +9,14 @@ const bookApi = {
     const url = '/inventories?bookId='+bookId+"&storeId="+storeId;
     return axiosClient.get(url, null);
   },
-  createAccountInfo: (params) => {
-    const url = '/customers';
+  updateBookInventory: (params) => {
+    const url = '/inventories';
     const formData = new FormData();
     for (const key in params) {
       formData.append(key, params[key]);
     }
 
-    return axiosClient.post(url, formData);
+    return axiosClient.put(url, formData);
   },
   updateBookInfo: (params) => {
     const url = `/books/${params.id}`;
