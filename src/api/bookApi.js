@@ -1,3 +1,4 @@
+import axios from 'axios';
 import axiosClient from './axiosClient';
 
 const bookApi = {
@@ -29,13 +30,9 @@ const bookApi = {
 
     return axiosClient.put(url, formData);
   },
-  deleteAccountAndInfo: (params) => {
-    const url = '/customers';
-    return axiosClient.delete(url, {
-      data: {
-        account_ids: params,
-      },
-    });
+  addBookInfoAndInventory: (params) => {
+    const url = process.env.REACT_APP_API_URL+'/inventories/create';
+    return axios.post(url, params);
   },
   getStores: (params) => {
     const url = '/book-stores';

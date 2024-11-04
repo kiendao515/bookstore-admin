@@ -121,16 +121,18 @@ function ModalOrderEdit(props) {
   // Request create new order
   async function requestCreateOrder(values) {
     try {
-      let params = { ...values };
-      params.scanTime = moment().toISOString();
-      const res = await bookApi.createOrder(params);
+      let cover_image = await Utils.uploadFile(values?.cover_image)
+      let params = { ...values,cover_image: cover_image ,book_inventory : bookInventory};
+      const res = await bookApi.addBookInfoAndInventory(params);
+      console.log(res, bookInventory, storeId)
       const { result } = res;
-      if (result == 'success') {
-        ToastHelper.showSuccess(t('Success'));
-        dispatch(thunkGetListBook(Global.gFiltersOrderList));
+      if (result == true) {
+        ToastHelper.showSuccess(t('Thêm mới thông tin sách thành công'));
+        dispatch(thunkGetListBook(Global.gFilterBookList));
         handleClose();
       }
     } catch (error) {
+      ToastHelper.showError(error)
       console.log(error);
     }
   }
@@ -140,7 +142,6 @@ function ModalOrderEdit(props) {
     try {
       let cover_image = await Utils.uploadFile(values?.cover_image)
       let params = { ...values,cover_image: cover_image };
-      console.log(params);
       const res = await bookApi.updateBookInfo(params);
       const { result, reason } = res;
       if (result == true) {
@@ -164,7 +165,7 @@ function ModalOrderEdit(props) {
       if (result == true) {
         ToastHelper.showSuccess(t('Success'));
         dispatch(thunkGetListBook(Global.gFilterBookList));
-        handleClose();
+        // handleClose();
       } else {
         ToastHelper.showError(reason);
       }
@@ -346,7 +347,7 @@ function ModalOrderEdit(props) {
         { type: "GOOD", price: 0, quantity: 0, location: null },
         { type: "OLD", price: 0, quantity: 0, location: null },
       ]);
-      setStoreId(null); 
+      // setStoreId(null); 
     }
   }, [storeId,orderItem])
   return (
