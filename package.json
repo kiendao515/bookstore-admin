@@ -28,6 +28,7 @@
     "moment": "^2.29.4",
     "perfect-scrollbar": "^1.5.5",
     "prop-types": "^15.8.1",
+    "puppeteer": "^23.6.1",
     "query-string": "^8.1.0",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.0",
