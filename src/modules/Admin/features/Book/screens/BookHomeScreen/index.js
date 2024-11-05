@@ -403,16 +403,16 @@ function BookHomeScreen(props) {
                     return { name: item.name, value: item.id.toString() };
                   }),
                 ]}
-                // value={Global.gFiltersOrderList.accountId}
+                value={Global.gFilterBookList.categoryId}
                 onChange={(newValue) => {
                   needToRefreshData.current = true;
-                  Global.gFiltersOrderList = {
+                  Global.gFilterBookList = {
                     ...filters,
                     page: 0,
-                    accountId: newValue,
+                    categoryId: newValue,
                   };
                   setFilters({
-                    ...Global.gFiltersOrderList,
+                    ...Global.gFilterBookList,
                   });
                 }}
               />
