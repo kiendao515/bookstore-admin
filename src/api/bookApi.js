@@ -34,6 +34,10 @@ const bookApi = {
     const url = process.env.REACT_APP_API_URL+'/inventories/create';
     return axios.post(url, params);
   },
+  getBookInfoByISBN:(params)=>{
+    const url = `https://crawl-book-info.onrender.com/api/book/${params}`;
+    return axios.get(url)
+  },
   getStores: (params) => {
     const url = '/book-stores';
     return axiosClient.get(url, {params});

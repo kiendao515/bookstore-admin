@@ -174,6 +174,23 @@ function ModalOrderEdit(props) {
       console.log(error);
     }
   }
+  async function fetchBookInfoByISBN(isbn, form) {
+    try {
+      const res = await bookApi.getBookInfoByISBN(isbn); // Giả sử API của bạn là `getBookInfoByISBN`
+      if (res && res?.data) {
+        form.setFieldValue('name', res?.data?.title || '');
+        form.setFieldValue('author_name', res?.data?.author || '');
+        form.setFieldValue('publisher', res?.data?.publisher || '');
+        form.setFieldValue('description',res?.data?.description || '');
+        form.setFieldValue('tags',res?.data?.tags || '')
+      } else {
+        ToastHelper.showError(t('Không tìm thấy thông tin sách với ISBN này'));
+      }
+    } catch (error) {
+      console.error(error);
+      ToastHelper.showError(t('Lỗi khi lấy thông tin sách'));
+    }
+  }
   const columns = useMemo(() => {
     return [
       {
@@ -580,8 +597,8 @@ function ModalOrderEdit(props) {
                                 form.setFieldValue(field.name, value);
                               }}
                               onBlur={() => {
-                                form.setFieldTouched(field.name, true);
-                              }}
+                                fetchBookInfoByISBN(field.value, form)
+                              }}                              
                               enableCheckValid
                               isValid={_.isEmpty(meta.error)}
                               isTouched={meta.touched}
