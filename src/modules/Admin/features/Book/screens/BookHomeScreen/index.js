@@ -23,6 +23,7 @@ import { setPaginationPerPage, thunkGetListBook } from '../../bookSlice';
 import categoryApi from 'api/categoryApi';
 import bookApi from 'api/bookApi';
 import ModalEditBookInventory from '../../components/ModelEditBookInventory';
+import WebcamComponent from '../../components/WebcamComponent';
 
 BookHomeScreen.propTypes = {};
 
@@ -40,7 +41,8 @@ function BookHomeScreen(props) {
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [toggledClearOrders, setToggledClearOrders] = useState(true);
   const { book, isGettingBookList, pagination } = useSelector((state) => state.book);
-  console.log(book);
+  const [showCamera, setShowCamera] = useState(false)
+  const [imageUrl, setImageUrl] = useState(null)
 
   const needToRefreshData = useRef(book?.length === 0);
   const refLoading = useRef(false);
@@ -226,7 +228,7 @@ function BookHomeScreen(props) {
           const { result } = res;
           if (result === 'success') {
             clearSelectedOrders();
-            Global.gNeedToRefreshOrderList = true;
+            Global.gNeedToRefreshBookList = true;
             ToastHelper.showSuccess(t('Success'));
             Global.gFiltersOrderList = { ...filters };
             setFilters({ ...filters });
@@ -316,9 +318,8 @@ function BookHomeScreen(props) {
             <div className="card-toolbar">
               <a
                 href="#"
-                className={`${
-                  selectedOrders.length === 0 ? 'd-none' : 'd-flex'
-                } btn btn-light-danger font-weight-bold align-items-center`}
+                className={`${selectedOrders.length === 0 ? 'd-none' : 'd-flex'
+                  } btn btn-light-danger font-weight-bold align-items-center`}
                 onClick={(e) => {
                   e.preventDefault();
                   handleDeleteMultiOrders();
@@ -418,9 +419,24 @@ function BookHomeScreen(props) {
               />
             </div>
             <div className="mt-4 mr-4 d-flex flex-wrap align-items-center">
-              <label className="mr-2 mb-0" htmlFor="status">
-                {_.capitalize(t('Status'))}
-              </label>
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowCamera(true);
+                }}
+                className="btn btn-primary font-weight-bold d-flex align-items-center ml-2"
+              >
+                <i className="far fa-plus"></i>
+                {t('Chụp ảnh sách')}
+              </a>
+            </div>
+            <div className="col-12">
+              {showCamera &&
+                <WebcamComponent
+                  setShowCamera={setShowCamera}
+                  setImageUrl={setImageUrl} />
+              }
             </div>
           </div>
         </div>

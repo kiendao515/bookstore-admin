@@ -30,7 +30,7 @@ import KTTooltip from 'general/components/OtherKeenComponents/KTTooltip';
 import ModalEditBookInventory from '../ModelEditBookInventory';
 import KTFormTextArea from 'general/components/OtherKeenComponents/Forms/KTFormTextArea';
 import { createWorker } from 'tesseract.js';
-import { Cloudinary } from '@cloudinary/url-gen';
+
 
 ModalOrderEdit.propTypes = {
   show: PropTypes.bool,
@@ -181,7 +181,8 @@ function ModalOrderEdit(props) {
         form.setFieldValue('name', res?.data?.title || '');
         form.setFieldValue('author_name', res?.data?.author || '');
         form.setFieldValue('publisher', res?.data?.publisher || '');
-        form.setFieldValue('description',res?.data?.description || '');
+        form.setFieldValue('publish_year',res?.data?.publish_year || '');
+        form.setFieldValue('number_of_page',res?.data?.page || '');
         form.setFieldValue('tags',res?.data?.tags || '')
       } else {
         ToastHelper.showError(t('Không tìm thấy thông tin sách với ISBN này'));
