@@ -86,6 +86,21 @@ function CategoryHomePage(props) {
         },
       },
       {
+        name: t('Thời gian tạo'),
+        sortable: false,
+        // minWidth: '220px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
+            >
+            {Utils.formatDateTime(row?.created_at,'DD/MM/YYYY HH:mm',false)}
+            </div>
+          );
+        },
+      },
+      {
         name: '',
         center: 'true',
         width: '200px',

@@ -3,7 +3,8 @@ import appReducer from './appSlice';
 import authReducer from './authSlice';
 import categoryReducer from '../modules/Admin/features/Category/categorySlice';
 import accountReducer from '../modules/Admin/features/Account/accountSlice';
-import bookReducer from "../modules/Admin/features/Book/bookSlice"
+import bookReducer from "../modules/Admin/features/Book/bookSlice";
+import collectionReducer from "../modules/Admin/features/Collection/collectionSlice"
 const { configureStore } = require('@reduxjs/toolkit');
 
 // root reducer
@@ -12,7 +13,8 @@ const rootReducer = {
   auth: authReducer,
   category : categoryReducer,
   account : accountReducer,
-  book : bookReducer
+  book : bookReducer,
+  collection : collectionReducer
 };
 
 // app store

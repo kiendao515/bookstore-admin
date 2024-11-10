@@ -24,6 +24,8 @@ import categoryApi from 'api/categoryApi';
 import bookApi from 'api/bookApi';
 import ModalEditBookInventory from '../../components/ModelEditBookInventory';
 import WebcamComponent from '../../components/WebcamComponent';
+import collectionApi from 'api/collectionApi';
+import DateRangePickerInput from 'general/components/Form/DateRangePicker';
 
 BookHomeScreen.propTypes = {};
 
@@ -37,6 +39,7 @@ function BookHomeScreen(props) {
   const [books, setBooks] = useState([]);
   const [categories, setCategories] = useState([]);
   const [bookStores, setBookStores] = useState([]);
+  const [collection, setCollection] = useState([]);
   const [filters, setFilters] = useState(Global.gFilterBookList);
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [toggledClearOrders, setToggledClearOrders] = useState(true);
@@ -135,7 +138,21 @@ function BookHomeScreen(props) {
       //     );
       //   },
       // },
-
+      {
+        name: t('Thời gian tạo'),
+        sortable: false,
+        // minWidth: '220px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
+            >
+            {Utils.formatDateTime(row?.created_at,'DD/MM/YYYY HH:mm',false)}
+            </div>
+          );
+        },
+      },
       {
         name: '',
         center: 'true',
@@ -169,7 +186,7 @@ function BookHomeScreen(props) {
         ),
       },
     ];
-  }, [categories, books]);
+  }, [categories, books,filters]);
   const [selectedOrderItem, setSelectedOrderItem] = useState(null);
   const [modalOrderEditShowing, setModalOrderEditShowing] = useState(false);
   const [selectedInventoryItem, setSelectedInventoryItem] = useState(null);
@@ -291,6 +308,14 @@ function BookHomeScreen(props) {
     }
   }
 
+  async function getListCollection() {
+    const res = await collectionApi.getListCollection();
+    const { success, data } = res;
+    if (success === true) {
+      setCollection(data);
+    }
+  }
+
   // MARK: ---- Hooks ----
   useEffect(() => {
     if (!refLoading.current && (needToRefreshData.current || Global.gNeedToRefreshBookList)) {
@@ -302,6 +327,7 @@ function BookHomeScreen(props) {
   useEffect(() => {
     getListCategories();
     getListBookStores();
+    getListCollection();
   }, []);
 
   return (
@@ -363,7 +389,56 @@ function BookHomeScreen(props) {
               }}
             />
             <div className="mt-4 mr-4 d-flex flex-wrap align-items-center">
-              <label className="mr-2 mb-0" htmlFor="store">
+                <DateRangePickerInput
+                  className=""
+                  initialLabel="7 ngày gần đây"
+                  initialEndDate={moment()}
+                  initialStartDate={moment().subtract(6, 'days')}
+                  getDateRange={(dateRange) => {
+                    console.log(dateRange);
+                    
+                    switch (dateRange.label) {
+                      case 'Tất cả':
+                        needToRefreshData.current = true;
+                        Global.gFilterBookList = {
+                          ...filters
+                        };
+                        setFilters({
+                          ...filters
+                        });
+                        break;
+                      default:
+                        console.log("run here");
+                        
+                        needToRefreshData.current = true;
+                        Global.gFilterBookList = {
+                          ...filters,
+                          start_at :dateRange.startDate.toISOString(),
+                          end_at : dateRange.endDate.toISOString()
+                        };
+                        setFilters({
+                          ...filters,
+                          start_at: dateRange.startDate.toISOString(),
+                          end_at: dateRange.endDate.toISOString()
+                        });
+                    }
+                  }}
+                  customRange={{
+                    // 'Hôm qua': [
+                    //   moment().subtract(1, 'day').startOf('day'),
+                    //   moment().subtract(1, 'day').endOf('day'),
+                    // ],
+                    'Tuần này': [moment().startOf('week'), moment()],
+                    '7 ngày gần đây': [moment().subtract(6, 'days'), moment()],
+                    '30 ngày gần đây': [moment().subtract(29, 'days'), moment()],
+                    'Tháng trước': [
+                      moment().subtract(1, 'month').startOf('month'),
+                      moment().subtract(1, 'month').endOf('month'),
+                    ],
+                    'Tháng này': [moment().startOf('month'), moment()],
+                  }}
+                />
+              {/* <label className="mr-2 mb-0" htmlFor="store">
                 {_.capitalize(t('Store'))}
               </label>
               <KTFormSelect
@@ -389,7 +464,7 @@ function BookHomeScreen(props) {
                     ...Global.gFiltersOrderList,
                   });
                 }}
-              />
+              /> */}
             </div>
             <div className="mt-4 mr-4 d-flex flex-wrap align-items-center">
               <label className="mr-2 mb-0" htmlFor="category">
@@ -499,11 +574,11 @@ function BookHomeScreen(props) {
                   needToRefreshData.current = true;
                   Global.gFiltersOrderList = {
                     ...filters,
-                    limit: iNewPerPage,
+                    size: iNewPerPage,
                   };
                   setFilters({
                     ...filters,
-                    limit: iNewPerPage,
+                    size: iNewPerPage,
                     page: 0,
                   });
                 }}
@@ -533,6 +608,7 @@ function BookHomeScreen(props) {
         }}
         bookStores={bookStores}
         categories={categories}
+        collection = {collection}
       />
       <ModalEditBookInventory
         show={modalInventoryEditShowing}

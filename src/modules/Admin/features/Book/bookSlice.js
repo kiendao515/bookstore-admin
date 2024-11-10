@@ -37,13 +37,13 @@ const bookSlice = createSlice({
     });
     builder.addCase(thunkGetListBook.fulfilled, (state, action) => {
       state.isGettingBookList = false;
-      const { success, data, total, count, page } = action.payload;
+      const { success, data, total_elements, total_pages, page } = action.payload;
       if (success == true) {
         state.book = data;
         state.pagination = {
           ...state.pagination,
-          total: total,
-          count: count,
+          total: total_elements,
+          count: total_pages,
           currentPage: page + 1,
         };
       }

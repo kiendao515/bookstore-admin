@@ -37,7 +37,7 @@ function KT01Sidebar(props) {
         type: 'item',
         text: t("Collection"),
         icon: 'fas fa-qrcode',
-        path: ""
+        path: "/collection"
       },
       {
         type: 'item',

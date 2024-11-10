@@ -67,7 +67,7 @@ function ModalOrderEdit(props) {
   // MARK: --- Params ---
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { show, onClose, onRefreshOrderList, orderItem, onExistDone, onSelectInventory, bookStores, categories } = props;
+  const { show, onClose, onRefreshOrderList, orderItem, onExistDone, onSelectInventory, bookStores, categories, collection } = props;
   const isEditMode = !_.isNull(orderItem);
   const { book, isGettingBookList, pagination } = useSelector((state) => state.book);
   // const [categories, setCategories] = useState([])
@@ -125,7 +125,7 @@ function ModalOrderEdit(props) {
       let params = { ...values,cover_image: cover_image ,book_inventory : bookInventory};
       const res = await bookApi.addBookInfoAndInventory(params);
       console.log(res, bookInventory, storeId)
-      const { result } = res;
+      const { result } = res?.data;
       if (result == true) {
         ToastHelper.showSuccess(t('Thêm mới thông tin sách thành công'));
         dispatch(thunkGetListBook(Global.gFilterBookList));
@@ -193,11 +193,10 @@ function ModalOrderEdit(props) {
     }
   }
   const columns = useMemo(() => {
-    return [
+    const baseColumns = [
       {
         name: t('BookType'),
         sortable: false,
-        // minWidth: '220px',
         cell: (row) => {
           return (
             <div
@@ -212,7 +211,6 @@ function ModalOrderEdit(props) {
       {
         name: t('Price'),
         sortable: false,
-        // minWidth: '220px',
         cell: (row, index) => {
           return (
             <KTFormInput
@@ -227,7 +225,6 @@ function ModalOrderEdit(props) {
               rows={5}
               placeholder={`${_.capitalize(t(''))}...`}
               type={KTFormInputType.number}
-            // disabled={!canEdit}
             />
           );
         },
@@ -235,7 +232,6 @@ function ModalOrderEdit(props) {
       {
         name: t('NumberOfBook'),
         sortable: true,
-        // minWidth: '220px',
         cell: (row, index) => {
           return (
             <KTFormInput
@@ -248,7 +244,6 @@ function ModalOrderEdit(props) {
               rows={5}
               placeholder={`${_.capitalize(t(''))}...`}
               type={KTFormInputType.number}
-            // disabled={!canEdit}
             />
           );
         },
@@ -269,37 +264,34 @@ function ModalOrderEdit(props) {
               rows={5}
               placeholder={`${_.capitalize(t(''))}...`}
               type={KTFormInputType.text}
-            // disabled={!canEdit}
             />
           );
         },
       },
-      // {
-      //   name: t('Status'),
-      //   sortable: false,
-      //   cell: (row) => {
-      //     return (
-      //       <span className={`badge bg-${OrderHelper.getOrderStatusColor(row?.status)}`}>
-      //         {OrderHelper.getOrderStatusText(row?.status)}
-      //       </span>
-      //     );
-      //   },
-      // },
-
-      {
+    ];
+  
+    if (isEditMode) {
+      baseColumns.push({
         name: '',
-        center: 'true',
+        center: true,
         width: '100px',
         cell: (row) => (
           <div className="d-flex align-items-center">
-            <a href="#" class="btn btn-primary font-weight-bold d-flex align-items-center ml-2" onClick={() => saveBookInventory(row)}>
+            <a
+              href="#"
+              className="btn btn-primary font-weight-bold d-flex align-items-center ml-2"
+              onClick={() => saveBookInventory(row)}
+            >
               Lưu
             </a>
           </div>
         ),
-      },
-    ];
-  }, [bookInventory]);
+      });
+    }
+  
+    return baseColumns;
+  }, [bookInventory, isEditMode, t]);
+  
 
   function handleSelectedOrdersChanged(state) {
     const selectedOrders = state.selectedRows;
@@ -703,7 +695,7 @@ function ModalOrderEdit(props) {
                     />
                   </div>
 
-                  <div className="col-12">
+                  <div className="col-6">
                     <KTFormGroup
                       label={
                         <>
@@ -730,6 +722,43 @@ function ModalOrderEdit(props) {
                               rows={5}
                               placeholder={`${_.capitalize(t('tags'))}...`}
                               type={KTFormInputType.text}
+                            />
+                          )}
+                        </FastField>
+                      }
+                    />
+                  </div>
+
+                  <div className="col-6">
+                    <KTFormGroup
+                      label={
+                        <>
+                          {t('Bộ sưu tập')} <span className="text-danger">(*)</span>
+                        </>
+                      }
+                      inputName="collection_id"
+                      inputElement={
+                        <FastField name="collection_id">
+                          {({ field, form, meta }) => (
+                            <KTFormSelect
+                              name={field.name}
+                              isCustom
+                              options={[{ name: '', value: '' }].concat(
+                                collection?.map((item) => {
+                                  return {
+                                    name: item.name,
+                                    value: item.id.toString(),
+                                  };
+                                })
+                              )}
+                              value={field.value?.toString()}
+                              onChange={(newValue) => {
+                                form.setFieldValue(field.name, newValue);
+                              }}
+                              enableCheckValid
+                              isValid={_.isEmpty(meta.error)}
+                              isTouched={meta.touched}
+                              feedbackText={meta.error}
                             />
                           )}
                         </FastField>

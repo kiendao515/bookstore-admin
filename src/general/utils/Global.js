@@ -14,9 +14,11 @@ const Global = {
   },
   gNeedToRefreshCategoryList: false,
   gFiltersCategoryList: { page: 0, size: 30, q: '' },
+  gNeedToRefreshCollectionList: false,
+  gFiltersCollectionList: { page: 0, size: 30, q: '' },
   gNeedToRefreshAccountList: false,
   gFiltersAccountList: { page: 0, size: 30,role:'', q: '' },
-  gFilterBookList : {page :0, size: 30, q: '',storeId:'',categoryId :''},
+  gFilterBookList : {page :0, size: 30, q: '',storeId:'',categoryId :'',start_at:'',end_at:''},
   gNeedToRefreshBookList: false
 };
 
