@@ -1,0 +1,77 @@
+.book-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    width: 400px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .image-container{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .book-image {
+    width: 100%;
+    height: 300px;
+    object-fit: contain;
+    border-radius: 4px;
+  }
+  
+  .book-title {
+    width: 100%;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 8px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .book-price {
+    font-size: 18px;
+    color: #000;
+    font-weight: bold;
+    margin: 4px 0;
+  }
+  
+  .book-rating {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ff9800;
+    font-size: 14px;
+    margin-top: 4px;
+    gap: 6px;
+    font-weight: 600;
+  }
+  
+  .star-icon {
+    margin-right: 4px;
+  }
+  
+  .book-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    width: 100%;
+  }
+
+  .favorite-icon {
+    color: #9e9e9e;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  
+  .favorite-icon:hover {
+    color: #ff4081;
+  }
+  

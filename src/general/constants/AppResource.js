@@ -169,6 +169,7 @@ const AppResource = {
         imgGhtk: require('assets/images/stores/img_ghtk.png'),
         imgVnp: require('assets/images/stores/img_vnp.png'),
         imgVtp: require('assets/images/stores/img_vtp.png'),
+        imgBookExample: require('assets/images/img_book_example.png'),
 
         // error states
         errorStates: {
@@ -186,7 +187,10 @@ const AppResource = {
 
     // colors
     colors: {
-        feature: '#E92E4E'
+        feature: '#E92E4E',
+        primary: '#1890FF',
+        yellow: '#FFB347',
+        neutral: '#595959'
     }
 };
 

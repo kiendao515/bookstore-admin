@@ -19,6 +19,7 @@ import ModalEditCategory from '../../Components/ModalEditCategory';
 import { setPaginationPerPage, thunkGetListCategory } from '../../categorySlice';
 import ModalResetPasswordEmployee from '../../Components/ModelResetPasswordEmployee';
 import categoryApi from 'api/categoryApi';
+import BookCard from 'general/components/BookCard';
 
 CategoryHomePage.propTypes = {};
 
@@ -34,7 +35,7 @@ function CategoryHomePage(props) {
   const [toggledClearEmployees, setToggledClearEmployees] = useState(true);
   const { category, isGettingCategory, pagination } = useSelector((state) => state.category);
   console.log(category);
-  
+
   const needToRefreshData = useRef(category?.length === 0);
   const refLoading = useRef(false);
   const columns = useMemo(() => {
@@ -52,7 +53,7 @@ function CategoryHomePage(props) {
             >
               {row?.name}
             </div>
-          )
+          );
         },
       },
       {
@@ -95,7 +96,7 @@ function CategoryHomePage(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
             >
-            {Utils.formatDateTime(row?.created_at,'DD/MM/YYYY HH:mm',false)}
+              {Utils.formatDateTime(row?.created_at, 'DD/MM/YYYY HH:mm', false)}
             </div>
           );
         },
@@ -114,7 +115,7 @@ function CategoryHomePage(props) {
                   handleEditCategory(row);
                 }}
               >
-                <i className="fa-solid fa-pen-to-square p-0 icon-1x"/>
+                <i className="fa-solid fa-pen-to-square p-0 icon-1x" />
               </a>
             </KTTooltip>
 
@@ -124,7 +125,7 @@ function CategoryHomePage(props) {
                 onClick={(e) => {
                   e.preventDefault();
                   console.log(row);
-                  
+
                   handleDeleteCategory(row);
                 }}
               >
@@ -227,8 +228,7 @@ function CategoryHomePage(props) {
         cancelButton: 'btn btn-light font-weight-bolder',
       },
     }).then(async function (result) {
-      if (result.value) 
-        {
+      if (result.value) {
         try {
           const res = await categoryApi.deleteCategory(employee);
           const { result } = res;
@@ -255,6 +255,14 @@ function CategoryHomePage(props) {
 
   return (
     <div>
+      <BookCard
+        title="Người vợ cô đơn"
+        author="Francois-Mauriac"
+        price={700000}
+        rating={4.5}
+        image={AppResource.images.imgBookExample} // Replace with actual image path
+      />
+
       <div className="card card-custom">
         {/* card header */}
         <div className="card-header border-0 pt-6 pb-6">

@@ -1,0 +1,22 @@
+.custom-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-left: 15px;
+  padding-right: 15px;
+  // gap: 6px;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.8;
+  }
+  &:active {
+    opacity: 0.6;
+  }
+  &:disabled {
+    cursor: not-allowed;
+    background-color: white !important;
+    color: #041847 !important;
+    border-color: #cfd9e0 !important;
+    opacity: 0.6;
+  }
+}
