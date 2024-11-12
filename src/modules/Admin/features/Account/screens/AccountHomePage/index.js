@@ -43,7 +43,7 @@ function AccountHomePage(props) {
   const columns = useMemo(() => {
     return [
       {
-        name: t('Avatar'),
+        name: t('Ảnh đại diện'),
         sortable: false,
         // minWidth: '100px',
         center: 'true',
@@ -92,7 +92,7 @@ function AccountHomePage(props) {
         },
       },
       {
-        name: t('Fullname'),
+        name: t('Tên'),
         sortable: false,
         // minWidth: '220px',
         cell: (row) => {
@@ -110,7 +110,7 @@ function AccountHomePage(props) {
       {
         name: t('Address'),
         sortable: false,
-        // minWidth: '80px',
+        minWidth: '80px',
         cell: (row) => {
           return (
             <p
@@ -133,6 +133,36 @@ function AccountHomePage(props) {
               className="text-dark-75 font-weight-normal m-0 text-maxline-3 mr-4"
             >
               {row?.phone}
+            </p>
+          );
+        },
+      },
+      {
+        name: t('Đơn hoàn thành'),
+        sortable: false,
+        // minWidth: '80px',
+        cell: (row) => {
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-1 mr-4"
+            >
+              0{/* {row?.phone} */}
+            </p>
+          );
+        },
+      },
+      {
+        name: t('Điểm tích lũy'),
+        sortable: false,
+        // minWidth: '80px',
+        cell: (row) => {
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-1 mr-4"
+            >
+             0 {/* {row?.phone} */}
             </p>
           );
         },
