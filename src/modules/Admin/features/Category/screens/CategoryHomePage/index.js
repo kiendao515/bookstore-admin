@@ -255,14 +255,6 @@ function CategoryHomePage(props) {
 
   return (
     <div>
-      <BookCard
-        title="Người vợ cô đơn"
-        author="Francois-Mauriac"
-        price={700000}
-        rating={4.5}
-        image={AppResource.images.imgBookExample} // Replace with actual image path
-      />
-
       <div className="card card-custom">
         {/* card header */}
         <div className="card-header border-0 pt-6 pb-6">

@@ -21,14 +21,7 @@ const bookApi = {
   },
   updateBookInfo: (params) => {
     const url = `/books/${params.id}`;
-    console.log("book request",params);
-    
-    const formData = new FormData();
-    for (const key in params) {
-      formData.append(key, params[key]);
-    }
-
-    return axiosClient.put(url, formData);
+    return axiosClient.put(url, params);
   },
   addBookInfoAndInventory: (params) => {
     const url = process.env.REACT_APP_API_URL+'/inventories/create';

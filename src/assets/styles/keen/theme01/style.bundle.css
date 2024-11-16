@@ -21002,7 +21002,7 @@ a.text-white:hover, a.text-white:focus {
   background-color: #ffffff !important; }
 
 .bg-light-primary {
-  background-color: #e1f0ff !important; }
+  background-color: #155EEF !important; }
 
 .bg-hover-light-primary {
   -webkit-transition: all 0.15s ease;
@@ -21011,10 +21011,10 @@ a.text-white:hover, a.text-white:focus {
   .bg-hover-light-primary:hover {
     -webkit-transition: all 0.15s ease;
     transition: all 0.15s ease;
-    background-color: #e1f0ff !important; }
+    background-color: #155EEF !important; }
 
 .bg-diagonal-light-primary:before {
-  background-color: #e1f0ff !important; }
+  background-color: #155EEF !important; }
 
 .bg-light-secondary {
   background-color: #EBEDF3 !important; }
@@ -37945,7 +37945,7 @@ button {
 
 .btn.btn-light-primary {
   color: #FAF8F5;
-  background-color: #e1f0ff;
+  background-color: #155EEF;
   border-color: transparent; }
   .btn.btn-light-primary i {
     color: #FAF8F5; }

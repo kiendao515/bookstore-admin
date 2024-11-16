@@ -212,6 +212,7 @@ function KTImageInput(props) {
                 type="file"
                 name={name}
                 id={name}
+                multiple
                 accept={_.join(acceptImageTypes, ', ')}
                 onChange={handleChange}
                 onBlur={handleBlur}

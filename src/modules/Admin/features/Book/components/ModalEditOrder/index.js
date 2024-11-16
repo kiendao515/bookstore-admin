@@ -30,6 +30,7 @@ import KTTooltip from 'general/components/OtherKeenComponents/KTTooltip';
 import ModalEditBookInventory from '../ModelEditBookInventory';
 import KTFormTextArea from 'general/components/OtherKeenComponents/Forms/KTFormTextArea';
 import { createWorker } from 'tesseract.js';
+import KTUploadFiles from 'general/components/OtherKeenComponents/FileUpload/KTUploadFiles';
 
 
 ModalOrderEdit.propTypes = {
@@ -118,11 +119,11 @@ function ModalOrderEdit(props) {
     }
   }
 
-  // Request create new order
+  // Request create new book
   async function requestCreateOrder(values) {
     try {
       let cover_image = await Utils.uploadFile(values?.cover_image)
-      let params = { ...values,cover_image: cover_image ,book_inventory : bookInventory};
+      let params = { ...values, cover_image: cover_image, book_inventory: bookInventory };
       const res = await bookApi.addBookInfoAndInventory(params);
       console.log(res, bookInventory, storeId)
       const { result } = res?.data;
@@ -140,11 +141,38 @@ function ModalOrderEdit(props) {
   // Request update new order
   async function requestUpdateBook(values) {
     try {
-      let cover_image = await Utils.uploadFile(values?.cover_image)
-      let params = { ...values,cover_image: cover_image };
+      let cover_image, content_image;
+      if (!values?.cover_image || typeof values.cover_image !== "object") {
+        console.error("Invalid cover_image format:", values.cover_image);
+        cover_image = values.cover_image
+      } else {
+        console.log("Uploading cover image...");
+        cover_image = await Utils.uploadFile(values?.cover_image);
+      }
+
+      if (!Array.isArray(values.content_image) || values.content_image.some((file) => typeof file !== 'object')) {
+        console.error("Invalid content_image format:", values.content_image);
+        content_image = values.content_image
+      } else {
+        console.log("Uploading content images...");
+        content_image = await Promise.all(
+          values?.content_image.map(async (image) => {
+            return await Utils.uploadFile(image);
+          })
+        );
+
+        console.log("Uploaded images:", content_image);
+      }
+      let params = {
+        ...values,
+        cover_image: cover_image,
+        content_image: content_image,
+      };
+
       const res = await bookApi.updateBookInfo(params);
       const { result, reason } = res;
-      if (result == true) {
+
+      if (result === true) {
         ToastHelper.showSuccess(t('Success'));
         dispatch(thunkGetListBook(Global.gFilterBookList));
         handleClose();
@@ -152,14 +180,23 @@ function ModalOrderEdit(props) {
         ToastHelper.showError(reason);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error updating book:", error);
+      ToastHelper.showError(t("An error occurred while updating the book."));
     }
   }
+
   async function saveBookInventory(row) {
     console.log(row);
     try {
+      let cover_image;
+      if (!row?.cover_image || typeof row.cover_image !== "object") {
+        cover_image = row.cover_image
+      } else {
+        console.log("Uploading cover image...");
+        cover_image = await Utils.uploadFile(row?.cover_image);
+      }
       // let cover_image = await Utils.uploadFile(values?.cover_image)
-      let params = { ...row, book_id: row.bookId ?? row.book_id, store_id:row.storeId ?? row.store_id};
+      let params = { ...row, book_id: row.bookId ?? row.book_id, store_id: row.storeId ?? row.store_id ,cover_image: cover_image};
       const res = await bookApi.updateBookInventory(params);
       const { result, reason } = res;
       if (result == true) {
@@ -181,9 +218,9 @@ function ModalOrderEdit(props) {
         form.setFieldValue('name', res?.data?.title || '');
         form.setFieldValue('author_name', res?.data?.author || '');
         form.setFieldValue('publisher', res?.data?.publisher || '');
-        form.setFieldValue('publish_year',res?.data?.publish_year || '');
-        form.setFieldValue('number_of_page',res?.data?.page || '');
-        form.setFieldValue('tags',res?.data?.tags || '')
+        form.setFieldValue('publish_year', res?.data?.publish_year || '');
+        form.setFieldValue('number_of_page', res?.data?.page || '');
+        form.setFieldValue('tags', res?.data?.tags || '')
       } else {
         ToastHelper.showError(t('Không tìm thấy thông tin sách với ISBN này'));
       }
@@ -268,8 +305,29 @@ function ModalOrderEdit(props) {
           );
         },
       },
+      {
+        name: t('Ảnh'),
+        sortable: false,
+        cell: (row, index) => {
+          return (
+            <KTImageInput
+              isAvatar={false}
+              name={row.image}
+              value={row.coverImage}
+              onSelectedFile={(file) => {
+                const updatedInventory = [...bookInventory];
+                updatedInventory[index] = { ...row, cover_image: file };
+                setBookInventory(updatedInventory);
+              }}
+              enableCheckValid
+              acceptImageTypes={AppConfigs.acceptImages}
+              additionalClassName=""
+            />
+          );
+        },
+      },
     ];
-  
+
     if (isEditMode) {
       baseColumns.push({
         name: '',
@@ -288,10 +346,10 @@ function ModalOrderEdit(props) {
         ),
       });
     }
-  
+
     return baseColumns;
   }, [bookInventory, isEditMode, t]);
-  
+
 
   function handleSelectedOrdersChanged(state) {
     const selectedOrders = state.selectedRows;
@@ -359,7 +417,7 @@ function ModalOrderEdit(props) {
       ]);
       // setStoreId(null); 
     }
-  }, [storeId,orderItem])
+  }, [storeId, orderItem])
   return (
     <div>
       <Formik
@@ -376,7 +434,8 @@ function ModalOrderEdit(props) {
           imageLink: orderItem ? Utils.getFullUrl(orderItem.cover_image) : '',
           category_id: orderItem ? orderItem?.category?.id : '',
           store_id: orderItem ? orderItem?.store_id : '',
-          description: orderItem ? orderItem?.description : ''
+          description: orderItem ? orderItem?.description : '',
+          content_image: orderItem ? orderItem?.content_image : []
         }}
         // validationSchema={Yup.object({
         //   orderCode: Yup.string().required(t('Required')),
@@ -591,7 +650,7 @@ function ModalOrderEdit(props) {
                               }}
                               onBlur={() => {
                                 fetchBookInfoByISBN(field.value, form)
-                              }}                              
+                              }}
                               enableCheckValid
                               isValid={_.isEmpty(meta.error)}
                               isTouched={meta.touched}
@@ -852,11 +911,11 @@ function ModalOrderEdit(props) {
                           {t('ContentBookImage')} <span className="text-danger">(*)</span>
                         </>
                       }
-                      inputName="thumbnail"
+                      inputName="content_image"
                       inputElement={
-                        <FastField name="thumbnail">
+                        <FastField name="content_image">
                           {({ field, form, meta }) => (
-                            <KTImageInput
+                            <KTUploadFiles
                               isAvatar={false}
                               name={field.name}
                               value={field.value}
@@ -870,16 +929,15 @@ function ModalOrderEdit(props) {
                               isValid={_.isEmpty(meta.error)}
                               isTouched={meta.touched}
                               feedbackText={meta.error}
-                              defaultImage={AppResource.images.imgUpload}
-                              acceptImageTypes={AppConfigs.acceptImages}
                               onSelectedFile={(file) => {
-                                console.log(file);
+                                console.log("content image", file);
                                 //   Utils.validateImageFile(file);
-                                form.setFieldValue('image', file);
+                                form.setFieldValue('content_image', file);
                               }}
                               onRemovedFile={() => {
-                                form.setFieldValue('image', null);
+                                form.setFieldValue('content_image', null);
                               }}
+
                               additionalClassName=""
                             />
                           )}
