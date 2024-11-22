@@ -74,7 +74,7 @@ const updateAxiosBaseURL = (baseUrl) => {
 
 // Update api key
 const updateAxiosApiKey = (apiKey) => {
-  axiosClient.defaults.headers.common['apisecret'] = apiKey;
+  axiosClient.defaults.headers.common['authorization'] = "Bearer " + apiKey;
 };
 
 // Remove api key
