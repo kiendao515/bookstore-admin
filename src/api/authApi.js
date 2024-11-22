@@ -5,23 +5,19 @@ const authApi = {
   signIn: (params) => {
     // params.username = params.email;
     // delete params['email'];
-    const url = '/auth/login-by-pass';
-    return axiosClient.post(url, params, {
-      headers: {
-        apisecret: process.env.REACT_APP_LOGIN_API_SECRET ?? 'UEJ34gtH4TG5345DFG45G3ht1',
-      },
-    });
+    const url = '/auth/login';
+    return axiosClient.post(url, params);
   },
 
   // get current account info
   getCurrentUserInfo: () => {
-    const url = '/account/profile';
+    const url = '/auth/profile';
     return axiosClient.get(url);
   },
 
   // sign up
   signUp: (params) => {
-    const url = '/account/register';
+    const url = '/auth/register';
     return axiosClient.post(url, params);
   },
 
@@ -37,7 +33,7 @@ const authApi = {
    * @param {string} newPassword mat khau moi
    */
   changePassword: (oldPassword, newPassword) => {
-    const url = '/account/change-password';
+    const url = '/auth/change-password';
     return axiosClient.post(url, {
       oldPassword: oldPassword,
       newPassword: newPassword,
@@ -49,7 +45,7 @@ const authApi = {
    * @param {string} email email
    */
   requestResetPassword: (email) => {
-    const url = '/account/request-reset-password';
+    const url = '/auth/send-reset-password';
     return axiosClient.post(url, {
       email: email,
     });
@@ -63,7 +59,7 @@ const authApi = {
    * @returns
    */
   resetPassword: (email, code, newPassword) => {
-    const url = '/account/reset-password';
+    const url = '/auth/reset-password';
     return axiosClient.post(url, {
       email: email,
       resetPasswordToken: code,

@@ -31,13 +31,28 @@ export const thunkSignOut = createAsyncThunk('auth/signOut', async function (par
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    isSigningIn: false,
-    current: {},
+    user: {
+      id: "",
+      email: '',
+      full_name: '',
+      role: "",
+      date_of_birth: '',
+      phone_number: '',
+    },
+    isAuth: false,
   },
   reducers: {
     signOut: (state, action) => {
       state.error = '';
-      state.current = {};
+      state.user = {
+        id: "",
+        email: '',
+        full_name: '',
+        role: "",
+        date_of_birth: '',
+        phone_number: '',
+      },
+        state.isAuth = false;
     },
   },
   extraReducers: {
@@ -51,39 +66,36 @@ const authSlice = createSlice({
     [thunkSignIn.fulfilled]: (state, action) => {
       state.isSigningIn = false;
       const payload = action.payload;
-      const { data, errors } = payload;
-      // const data = action.payload;
-      if (!!errors) {
-        ToastHelper.showError(errors[0]?.message);
+      const { data, result, reason } = payload;
+      if (!result) {
+        ToastHelper.showError(reason);
       } else {
-        state.current = data;
-        const { apiSecret } = data;
-        if (apiSecret) {
-          localStorage.setItem(PreferenceKeys.apiKey, apiSecret);
-          updateAxiosApiKey(apiSecret);
+        console.log("data", data, state.user)
+        state.user = data.user;
+        console.log("statue", state.user)
+        const { token } = data;
+        if (token) {
+          localStorage.setItem(PreferenceKeys.apiKey, token);
+          updateAxiosApiKey(token);
         }
       }
     },
 
     // Get current user info
     [thunkGetCurrentUserInfo.pending]: (state, action) => {
-      state.isSigningIn = true;
+      state.isAuth = true;
     },
     [thunkGetCurrentUserInfo.rejected]: (state, action) => {
-      state.isSigningIn = false;
+      state.isAuth = false;
     },
     [thunkGetCurrentUserInfo.fulfilled]: (state, action) => {
-      state.isSigningIn = false;
-      const data = action.payload;
-      const { result, account } = data;
-      if (result === 'success' && account) {
-        state.current = account;
-
-        if (account.accessToken) {
-          localStorage.setItem(PreferenceKeys.accessToken, account.accessToken);
-        }
-        if (account.expirationDateToken) {
-          localStorage.setItem(PreferenceKeys.accessTokenExpired, account.expirationDateToken);
+      state.isAuth = true;
+      const res = action.payload;
+      const { result, data } = res;
+      if (result && data) {
+        state.user = data;
+        if (data.token) {
+          localStorage.setItem(PreferenceKeys.accessToken, data.token);
         }
       }
     },
@@ -92,7 +104,15 @@ const authSlice = createSlice({
     [thunkSignOut.fulfilled]: (state, action) => {
       const { data, errors } = action.payload;
       if (data) {
-        state.current = {};
+        state.user = {
+          id: "",
+          email: '',
+          full_name: '',
+          role: "",
+          date_of_birth: '',
+          phone_number: '',
+        };
+        state.isAuth = false;
       }
       UserHelper.signOut();
       // window.location.href = '/sign-in';

@@ -41,8 +41,11 @@ function SignInScreen(props) {
         const params = { ...values }
         try {
             const res = unwrapResult(await dispatch(thunkSignIn(params)));
-            const { data, errors } = res;
-            if (errors === null) {
+            console.log("res", res)
+            const { data, result } = res;
+            console.log({ data, result });
+            if (result) {
+                console.log("hmm")
                 ToastHelper.showSuccess(`${t('Hello')}, ${UserHelper.getDisplayName(data)}`);
                 router.navigate('/');
             }

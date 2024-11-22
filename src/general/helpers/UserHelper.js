@@ -5,11 +5,11 @@ import Utils from 'general/utils/Utils';
 
 const UserHelper = {
   // Get display name
-  getDisplayName: (user) => {
+  getDisplayName: (data) => {
     let displayName = '';
-    if (user) {
-      return user.displayName ?? user.username;
-    }
+    // if (data.user) {
+    //   return data.user.fullName ?? "";
+    // }
     return displayName;
   },
 
@@ -28,7 +28,7 @@ const UserHelper = {
 
   // Check api key valid
   checkApiKeyValid: () => {
-    return true;
+
     const apiKey = localStorage.getItem(PreferenceKeys.apiKey);
 
     if (apiKey) {

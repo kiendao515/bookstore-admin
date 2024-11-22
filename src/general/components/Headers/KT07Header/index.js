@@ -17,7 +17,7 @@ function KT07Header(props) {
   const pathName = router.pathname;
   const arrPathNameItems = _.chain(pathName).split('/').compact().value();
   const headerTitle = _.chain(arrPathNameItems).last().capitalize().value();
-  const currentLoggedInUser = useSelector((state) => state.auth?.current);
+  const currentLoggedInUser = useSelector((state) => state.auth?.user);
 
   return (
     <div className="header">

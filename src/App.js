@@ -9,6 +9,7 @@ import PrivateRoute from 'general/components/AppRoutes/PrivateRoute';
 import KTPageError01 from 'general/components/OtherKeenComponents/KTPageError01';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import Admin from 'modules/Admin';
+import SignInScreen from 'modules/Admin/features/Auth/screens/SignIn';
 
 // Load BS
 require('bootstrap/dist/js/bootstrap.min');
@@ -54,12 +55,13 @@ function App() {
             <Route
               path="/*"
               element={
-                <PrivateRoute>
+                <PrivateRoute roles={['STORE']}>
                   <Admin />
                 </PrivateRoute>
               }
             />
-            
+            <Route path='/login' element={<SignInScreen />} />
+
 
             <Route path="*" element={<KTPageError01 />} />
           </Routes>

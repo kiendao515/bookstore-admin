@@ -23,11 +23,11 @@ function SignInForm(props) {
     // MARK: --- Params ---
     const { t } = useTranslation();
     const initialValues = {
-        username: '',
+        email: '',
         password: '',
     }
     const validationSchema = Yup.object().shape({
-        // username: Yup.string().email(t('EmailNotValid')).required(t('EmailIsRequired')),
+        email: Yup.string().email(t('EmailNotValid')).required(t('EmailIsRequired')),
         password: Yup.string().trim().required(t('PasswordIsRequired')),//.min(6, t('PasswordLengthMin')),
     });
     const { onSubmit, onSignInGoogle } = props;
@@ -57,10 +57,11 @@ function SignInForm(props) {
                             {/* end: Title */}
 
                             <Field
-                                name="username"
+                                name="email"
                                 component={BigInputField}
-                                label={t('Username')}
-                                placeholder={`${t('Username')}...`}
+                                type="email"
+                                label={t('Email')}
+                                placeholder={`${t('Email')}...`}
                             />
 
                             <Field
