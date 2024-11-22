@@ -177,6 +177,24 @@ const Utils = {
         })
         let url_image = (await rs.json()).secure_url;
         return url_image;
+      },
+    handleOrderStatus : (status) => {
+        switch (status) {
+          case "CREATED":
+            return "Chờ xác nhận";
+          case "READY_TO_PACKAGE":
+            return "Chờ gói hàng";
+          case "READY_TO_SHIP":
+            return "Sẵn sàng gửi";
+          case "SHIPPING":
+            return "Đang gửi";
+          case "DONE":
+            return "Thành công";
+          case "CANCEL":
+            return "Hủy"
+          default:
+            return "Trạng thái không xác định"; // Fallback for unknown statuses
+        }
       }
 };
 

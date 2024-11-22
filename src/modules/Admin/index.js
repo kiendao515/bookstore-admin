@@ -8,6 +8,7 @@ import AccountHomePage from './features/Account/screens/AccountHomePage';
 import PartnerHomePage from './features/Account/screens/PartnerHomePage';
 import BookHomeScreen from './features/Book/screens/BookHomeScreen';
 import CollectionHomePage from './features/Collection/screens/CollectionHomePage';
+import OrderHomePage from './features/Order/screens/OrderHomePage';
 
 function Admin(props) {
   // MARK: --- Props ---
@@ -20,6 +21,7 @@ function Admin(props) {
           {/* <Route path="/" element={<Navigate to="account" />} /> */}
           <Route path="category/*" element={<CategoryHomePage/>} />
           <Route path="book/*" element={<BookHomeScreen/>} />
+          <Route path = "order/*" element = {<OrderHomePage/>}/>
           <Route path ="collection/*" element = {<CollectionHomePage/>} />
           <Route path="account/customer/*" element={<AccountHomePage/>} />
           <Route path="account/partner/*" element={<PartnerHomePage/>} />
