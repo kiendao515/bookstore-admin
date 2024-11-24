@@ -15,6 +15,8 @@ function PrivateRoute(props) {
     dispatch(thunkGetCurrentUserInfo());
   }, [])
   currentLoggedInUser = useSelector((state) => state.auth.user);
+  console.log(currentLoggedInUser);
+  
   if (!roles.includes(currentLoggedInUser.role)) {
     navigate("/login")
   }

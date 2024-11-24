@@ -66,9 +66,9 @@ const authSlice = createSlice({
     [thunkSignIn.fulfilled]: (state, action) => {
       state.isSigningIn = false;
       const payload = action.payload;
-      const { data, result, reason } = payload;
+      const { data, result, reason, error_message } = payload;
       if (!result) {
-        ToastHelper.showError(reason);
+        ToastHelper.showError(reason || error_message);
       } else {
         console.log("data", data, state.user)
         state.user = data.user;

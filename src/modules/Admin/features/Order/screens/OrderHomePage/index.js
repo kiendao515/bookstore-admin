@@ -19,6 +19,7 @@ import { setPaginationPerPage, thunkGetListCollection, thunkGetListOrder } from 
 import collectionApi from 'api/collectionApi';
 import ModalEditCollection from '../../Components/ModalEditCollection';
 import { Tabs } from 'antd';
+import ModalOrderDetails from '../../Components/ModalOrderDetails';
 const { TabPane } = Tabs;
 OrderHomePage.propTypes = {};
 
@@ -47,7 +48,7 @@ function OrderHomePage(props) {
   const handleTabChange = (key) => {
     setActiveTab(key);
     const status = statuses.find((s) => s.key === key)?.value || '';
-    setFilters({...filters, status})
+    setFilters({ ...filters, status })
   };
   const needToRefreshData = useRef(order?.length === 0);
   const refLoading = useRef(false);
@@ -180,12 +181,13 @@ function OrderHomePage(props) {
         width: '200px',
         cell: (row) => (
           <div className="d-flex align-items-center">
-            <KTTooltip text={t('Edit')}>
+            <KTTooltip text={t('Xem')}>
               <a
                 className="btn btn-icon btn-sm btn-primary mr-2"
                 onClick={(e) => {
                   e.preventDefault();
-                  handleEditCollection(row);
+                  // handleEditCollection(row);
+                  handleShowOrderDetails(row)
                 }}
               >
                 <i className="fa-solid fa-pen-to-square p-0 icon-1x" />
@@ -213,6 +215,13 @@ function OrderHomePage(props) {
   const [selectedOrderItem, setSelectedOrderItem] = useState(null);
   const [modalOrderEditShowing, setModalOrderEditShowing] = useState(false);
   const [modalEmployeeResetPasswordShowing, setModalEmployeeResetPasswordShowing] = useState(false);
+  const [modalOrderDetailsVisible, setModalOrderDetailsVisible] = useState(false);
+  const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
+
+  const handleShowOrderDetails = (order) => {
+    setSelectedOrderDetails(order);
+    setModalOrderDetailsVisible(true);
+  };
 
   // MARK: --- Functions ---
   // Get employee list
@@ -482,6 +491,12 @@ function OrderHomePage(props) {
           setSelectedOrderItem(null);
           getEmployeeList();
         }}
+      />
+
+      <ModalOrderDetails
+        visible={modalOrderDetailsVisible}
+        onClose={() => setModalOrderDetailsVisible(false)}
+        orderDetails={selectedOrderDetails}
       />
     </div>
   );

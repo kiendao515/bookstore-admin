@@ -42,12 +42,14 @@ function SignInScreen(props) {
         try {
             const res = unwrapResult(await dispatch(thunkSignIn(params)));
             console.log("res", res)
-            const { data, result } = res;
+            const { data, result, error_message} = res;
             console.log({ data, result });
             if (result) {
                 console.log("hmm")
                 ToastHelper.showSuccess(`${t('Hello')}, ${UserHelper.getDisplayName(data)}`);
                 router.navigate('/');
+            }else{
+                ToastHelper.showError(error_message)
             }
         } catch (error) {
             console.log({ error });
