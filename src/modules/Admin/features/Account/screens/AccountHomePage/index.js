@@ -38,7 +38,7 @@ function AccountHomePage(props) {
   const { account, isGettingAccountList, pagination } = useSelector((state) => state.account);
   const needToRefreshData = useRef(account?.length === 0);
   console.log(account);
-  
+
   const refLoading = useRef(false);
   const columns = useMemo(() => {
     return [
@@ -147,7 +147,7 @@ function AccountHomePage(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-normal m-0 text-maxline-1 mr-4"
             >
-              0{/* {row?.phone} */}
+              {row?.orders_completed}
             </p>
           );
         },
@@ -162,33 +162,32 @@ function AccountHomePage(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-normal m-0 text-maxline-1 mr-4"
             >
-             0 {/* {row?.phone} */}
+              0 {/* {row?.phone} */}
             </p>
           );
         },
       },
+      // {
+      //   name: t('Thời gian tạo'),
+      //   sortable: false,
+      //   // minWidth: '220px',
+      //   cell: (row) => {
+      //     return (
+      //       <div
+      //         data-tag="allowRowEvents"
+      //         className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
+      //       >
+      //       {Utils.formatDateTime(row?.created_at,'DD/MM/YYYY HH:mm',false)}
+      //       </div>
+      //     );
+      //   },
+      // },
       {
-        name: t('Thời gian tạo'),
-        sortable: false,
-        // minWidth: '220px',
-        cell: (row) => {
-          return (
-            <div
-              data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
-            >
-            {Utils.formatDateTime(row?.created_at,'DD/MM/YYYY HH:mm',false)}
-            </div>
-          );
-        },
-      },
-      {
-        name: '',
+        name: 'Hành động',
         center: 'true',
-        width: '200px',
         cell: (row) => (
           <div className="d-flex align-items-center">
-            <KTTooltip text={t('Edit')}>
+            {/* <KTTooltip text={t('Edit')}>
               <a
                 className="btn btn-icon btn-sm btn-primary btn-hover-primary mr-2"
                 onClick={(e) => {
@@ -197,6 +196,17 @@ function AccountHomePage(props) {
                 }}
               >
                 <i className="fa-regular fa-user-pen p-0 icon-1x" />
+              </a>
+            </KTTooltip> */}
+            <KTTooltip text={t('Xem')}>
+              <a
+                className="btn btn-icon btn-sm btn-success btn-hover-success"
+                onClick={(e)=>{
+                  e.preventDefault();
+
+                }}
+              >
+                <i class="fa-regular fa-eye icon-1x"></i>
               </a>
             </KTTooltip>
 
@@ -211,7 +221,7 @@ function AccountHomePage(props) {
                 <i className="far fa-trash p-0 icon-1x" />
               </a>
             </KTTooltip>
-            <KTTooltip text={t('ResetPassword')}>
+            {/* <KTTooltip text={t('ResetPassword')}>
               <a
                 className="btn btn-icon btn-sm btn-warning btn-hover-warning mr-2"
                 onClick={(e) => {
@@ -221,15 +231,15 @@ function AccountHomePage(props) {
               >
                 <i className="fa-regular fa-key p-0 icon-1x" />
               </a>
-            </KTTooltip>
-            <KTTooltip text={t('Call')}>
+            </KTTooltip> */}
+            {/* <KTTooltip text={t('Call')}>
               <a
                 className="btn btn-icon btn-sm btn-success btn-hover-success"
                 href={`tel:${row.phone}`}
               >
                 <i className="far fa-phone p-0 icon-1x" />
               </a>
-            </KTTooltip>
+            </KTTooltip> */}
           </div>
         ),
       },
@@ -288,13 +298,13 @@ function AccountHomePage(props) {
         const accountIds = arrIdsToDelete;
         try {
           const res = await accountApi.deleteAccountAndInfo(accountIds);
-          const { result,reason } = res;
+          const { result, reason } = res;
           if (result == true) {
             Global.gNeedToRefreshAccountList = true;
             ToastHelper.showSuccess(t('Success'));
-            Global.gFiltersAccountList = { ...filters, role : "USER" };
+            Global.gFiltersAccountList = { ...filters, role: "USER" };
             setFilters({ ...filters });
-          }else {
+          } else {
             ToastHelper.showError(reason)
           }
         } catch (error) {
@@ -330,13 +340,13 @@ function AccountHomePage(props) {
       if (result.value) {
         try {
           const res = await accountApi.deleteAccountAndInfo([account.id]);
-          const { result,reason } = res;
+          const { result, reason } = res;
           if (result == true) {
             Global.gNeedToRefreshAccountList = true;
             ToastHelper.showSuccess(t('Success'));
-            Global.gFiltersAccountList = { ...filters, role : "USER" };
+            Global.gFiltersAccountList = { ...filters, role: "USER" };
             setFilters({ ...filters });
-          }else {
+          } else {
             ToastHelper.showError(reason)
           }
         } catch (error) {
@@ -348,7 +358,7 @@ function AccountHomePage(props) {
 
   // MARK: --- Hooks ---
   useEffect(() => {
-    console.log("lok"); 
+    console.log("lok");
     if (!refLoading.current && (needToRefreshData.current || Global.gNeedToRefreshAccountList)) {
       getCustomerAccountList();
       Global.gNeedToRefreshAccountList = false;
@@ -370,9 +380,8 @@ function AccountHomePage(props) {
             <div className="card-toolbar">
               <a
                 href="#"
-                className={`${
-                  selectedAccounts.length === 0 ? 'd-none' : 'd-flex'
-                } btn btn-light-danger font-weight-bold align-items-center`}
+                className={`${selectedAccounts.length === 0 ? 'd-none' : 'd-flex'
+                  } btn btn-light-danger font-weight-bold align-items-center`}
                 onClick={(e) => {
                   e.preventDefault();
                   handleDeleteMultiAccounts();
@@ -494,7 +503,7 @@ function AccountHomePage(props) {
 
       <ModalAccountEdit
         show={modalAccountEditShowing}
-        role = "USER"
+        role="USER"
         onClose={() => {
           setModalAccountEditShowing(false);
         }}

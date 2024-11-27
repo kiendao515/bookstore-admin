@@ -190,7 +190,7 @@ function OrderHomePage(props) {
                   handleShowOrderDetails(row)
                 }}
               >
-                <i className="fa-solid fa-pen-to-square p-0 icon-1x" />
+                <i class="fa-regular fa-eye icon-1x"></i>
               </a>
             </KTTooltip>
 
@@ -369,7 +369,7 @@ function OrderHomePage(props) {
                 className="btn btn-primary font-weight-bold d-flex align-items-center ml-2"
               >
                 <i className="fa-solid fa-plus"></i>
-                {t('NewCollection')}
+                {t('Đăng đơn giao hàng')}
               </a>
             </div>
           </div>

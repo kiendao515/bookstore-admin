@@ -457,7 +457,7 @@ function ModalOrderEdit(props) {
               className=""
               show={show}
               backdrop="static"
-              size="lg"
+              size="xl"
               onHide={handleClose}
               centered
               onExit={() => {
@@ -519,6 +519,39 @@ function ModalOrderEdit(props) {
                               placeholder={`${_.capitalize(t('tên sách'))}...`}
                               type={KTFormInputType.text}
                             // disabled={!canEdit}
+                            />
+                          )}
+                        </FastField>
+                      }
+                    />
+                  </div>
+                  <div className="col-6">
+                    <KTFormGroup
+                      label={
+                        <>
+                          {t('ISBN')} 
+                        </>
+                      }
+                      inputName="isbn"
+                      inputElement={
+                        <FastField name="isbn">
+                          {({ field, form, meta }) => (
+                            <KTFormInput
+                              name={field.name}
+                              value={field.value}
+                              onChange={(value) => {
+                                form.setFieldValue(field.name, value);
+                              }}
+                              onBlur={() => {
+                                fetchBookInfoByISBN(field.value, form)
+                              }}
+                              enableCheckValid
+                              isValid={_.isEmpty(meta.error)}
+                              isTouched={meta.touched}
+                              feedbackText={meta.error}
+                              rows={5}
+                              placeholder={`${_.capitalize(t('isbn'))}...`}
+                              type={KTFormInputType.text}
                             />
                           )}
                         </FastField>
@@ -597,95 +630,6 @@ function ModalOrderEdit(props) {
                       }
                     />
                   </div>
-
-                  <div className="col-6">
-                    <KTFormGroup
-                      label={
-                        <>
-                          {t('PublishName')} <span className="text-danger">(*)</span>
-                        </>
-                      }
-                      inputName="publisher"
-                      inputElement={
-                        <FastField name="publisher">
-                          {({ field, form, meta }) => (
-                            <KTFormInput
-                              name={field.name}
-                              value={field.value}
-                              onChange={(value) => {
-                                form.setFieldValue(field.name, value);
-                              }}
-                              onBlur={() => {
-                                form.setFieldTouched(field.name, true);
-                              }}
-                              enableCheckValid
-                              isValid={_.isEmpty(meta.error)}
-                              isTouched={meta.touched}
-                              feedbackText={meta.error}
-                              rows={5}
-                              placeholder={`${_.capitalize(t('Nhà xuất bản'))}...`}
-                              type={KTFormInputType.text}
-                            />
-                          )}
-                        </FastField>
-                      }
-                    />
-                  </div>
-                  <div className="col-4">
-                    <KTFormGroup
-                      label={
-                        <>
-                          {t('ISBN')} <span className="text-danger">(*)</span>
-                        </>
-                      }
-                      inputName="isbn"
-                      inputElement={
-                        <FastField name="isbn">
-                          {({ field, form, meta }) => (
-                            <KTFormInput
-                              name={field.name}
-                              value={field.value}
-                              onChange={(value) => {
-                                form.setFieldValue(field.name, value);
-                              }}
-                              onBlur={() => {
-                                fetchBookInfoByISBN(field.value, form)
-                              }}
-                              enableCheckValid
-                              isValid={_.isEmpty(meta.error)}
-                              isTouched={meta.touched}
-                              feedbackText={meta.error}
-                              rows={5}
-                              placeholder={`${_.capitalize(t('isbn'))}...`}
-                              type={KTFormInputType.text}
-                            />
-                          )}
-                        </FastField>
-                      }
-                    />
-                  </div>
-                  {/* scanAccountId */}
-                  {/* <div className="mb-4 d-flex flex-column" style={{ marginTop: '-10px' }}>
-                    <label className="mb-2" htmlFor="scanAccountId">
-                      {_.capitalize(t('PackingEmployee'))}
-                    </label>
-                    <KTFormSelect
-                      name="scanAccountId"
-                      isCustom
-                      options={[{ name: '', value: '' }].concat(
-                        employees?.map((item) => {
-                          return {
-                            name: item.fullname,
-                            value: item.accountId.toString(),
-                          };
-                        })
-                      )}
-                      value={formikProps.getFieldProps('scanAccountId').value?.toString()}
-                      onChange={(newValue) => {
-                        formikProps.getFieldHelpers('scanAccountId').setValue(newValue);
-                      }}
-                    />
-                  </div> */}
                   {/* postOfficeId */}
                   <div className="col-4">
                     <KTFormGroup
@@ -720,11 +664,69 @@ function ModalOrderEdit(props) {
                       }
                     />
                   </div>
+
                   <div className="col-4">
                     <KTFormGroup
                       label={
                         <>
-                          {t('PublishYear')} <span className="text-danger">(*)</span>
+                          {t('PublishName')} 
+                        </>
+                      }
+                      inputName="publisher"
+                      inputElement={
+                        <FastField name="publisher">
+                          {({ field, form, meta }) => (
+                            <KTFormInput
+                              name={field.name}
+                              value={field.value}
+                              onChange={(value) => {
+                                form.setFieldValue(field.name, value);
+                              }}
+                              onBlur={() => {
+                                form.setFieldTouched(field.name, true);
+                              }}
+                              enableCheckValid
+                              isValid={_.isEmpty(meta.error)}
+                              isTouched={meta.touched}
+                              feedbackText={meta.error}
+                              rows={5}
+                              placeholder={`${_.capitalize(t('Nhà xuất bản'))}...`}
+                              type={KTFormInputType.text}
+                            />
+                          )}
+                        </FastField>
+                      }
+                    />
+                  </div>
+                  
+                  {/* scanAccountId */}
+                  {/* <div className="mb-4 d-flex flex-column" style={{ marginTop: '-10px' }}>
+                    <label className="mb-2" htmlFor="scanAccountId">
+                      {_.capitalize(t('PackingEmployee'))}
+                    </label>
+                    <KTFormSelect
+                      name="scanAccountId"
+                      isCustom
+                      options={[{ name: '', value: '' }].concat(
+                        employees?.map((item) => {
+                          return {
+                            name: item.fullname,
+                            value: item.accountId.toString(),
+                          };
+                        })
+                      )}
+                      value={formikProps.getFieldProps('scanAccountId').value?.toString()}
+                      onChange={(newValue) => {
+                        formikProps.getFieldHelpers('scanAccountId').setValue(newValue);
+                      }}
+                    />
+                  </div> */}
+                  
+                  <div className="col-4">
+                    <KTFormGroup
+                      label={
+                        <>
+                          {t('PublishYear')}
                         </>
                       }
                       inputName="pubish_year"
@@ -758,7 +760,7 @@ function ModalOrderEdit(props) {
                     <KTFormGroup
                       label={
                         <>
-                          {t('Tag')} <span className="text-danger">(*)</span>
+                          {t('Tag')}
                         </>
                       }
                       inputName="tags"
@@ -792,7 +794,7 @@ function ModalOrderEdit(props) {
                     <KTFormGroup
                       label={
                         <>
-                          {t('Bộ sưu tập')} <span className="text-danger">(*)</span>
+                          {t('Bộ sưu tập')}
                         </>
                       }
                       inputName="collection_id"
@@ -952,7 +954,7 @@ function ModalOrderEdit(props) {
                       <KTFormGroup
                         label={
                           <>
-                            {t('Store')} <span className="text-danger">(*)</span>
+                            {t('Nhà bán')} <span className="text-danger">(*)</span>
                           </>
                         }
                         inputName="store_id"
@@ -962,7 +964,7 @@ function ModalOrderEdit(props) {
                               <KTFormSelect
                                 name={field.name}
                                 isCustom
-                                options={[{ name: 'Chọn hiệu sách', value: '' }].concat(
+                                options={[{ name: 'Chọn nhà bán', value: '' }].concat(
                                   bookStores?.map((item) => {
                                     return {
                                       name: item?.name,
