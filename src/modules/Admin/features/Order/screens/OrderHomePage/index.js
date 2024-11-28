@@ -20,6 +20,7 @@ import collectionApi from 'api/collectionApi';
 import ModalEditCollection from '../../Components/ModalEditCollection';
 import { Tabs } from 'antd';
 import ModalOrderDetails from '../../Components/ModalOrderDetails';
+import ModalCreateOrder from '../../Components/ModelCreateOrder';
 const { TabPane } = Tabs;
 OrderHomePage.propTypes = {};
 
@@ -35,7 +36,7 @@ function OrderHomePage(props) {
   const [toggledClearEmployees, setToggledClearEmployees] = useState(true);
   const { order, isGettingOrder, pagination } = useSelector((state) => state.order);
   const [activeTab, setActiveTab] = useState('ALL');
-  console.log(order);
+
   const statuses = [
     { key: 'ALL', label: t('Tất cả'), value: '' },
     { key: 'CREATED', label: t('Chờ xác nhận'), value: 'CREATED' },
@@ -212,7 +213,7 @@ function OrderHomePage(props) {
       },
     ];
   }, []);
-  const [selectedOrderItem, setSelectedOrderItem] = useState(null);
+  const [selectedOrderItem, setSelectedOrderItem] = useState([]);
   const [modalOrderEditShowing, setModalOrderEditShowing] = useState(false);
   const [modalEmployeeResetPasswordShowing, setModalEmployeeResetPasswordShowing] = useState(false);
   const [modalOrderDetailsVisible, setModalOrderDetailsVisible] = useState(false);
@@ -478,7 +479,7 @@ function OrderHomePage(props) {
         </div>
       </div>
 
-      <ModalEditCollection
+      {/* <ModalEditCollection
         show={modalOrderEditShowing}
         onClose={() => {
           setModalOrderEditShowing(false);
@@ -491,12 +492,26 @@ function OrderHomePage(props) {
           setSelectedOrderItem(null);
           getEmployeeList();
         }}
-      />
+      /> */}
 
       <ModalOrderDetails
         visible={modalOrderDetailsVisible}
         onClose={() => setModalOrderDetailsVisible(false)}
         orderDetails={selectedOrderDetails}
+      />
+      <ModalCreateOrder
+        show={modalOrderEditShowing}
+        onClose={() => {
+          setModalOrderEditShowing(false);
+        }}
+        onExistDone={() => {
+          setSelectedOrderItem(null);
+        }}
+        orderInfo={order}
+        onRefreshCollectionList={() => {
+          setSelectedOrderItem(null);
+          getEmployeeList();
+        }}
       />
     </div>
   );

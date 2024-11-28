@@ -91,11 +91,13 @@ const authSlice = createSlice({
     [thunkGetCurrentUserInfo.fulfilled]: (state, action) => {
       state.isAuth = true;
       const res = action.payload;
-      const { result, data } = res;
-      if (result && data) {
-        state.user = data;
-        if (data.token) {
-          localStorage.setItem(PreferenceKeys.accessToken, data.token);
+      if (res) {
+        const { result, data } = res;
+        if (result && data) {
+          state.user = data;
+          if (data.token) {
+            localStorage.setItem(PreferenceKeys.accessToken, data.token);
+          }
         }
       }
     },

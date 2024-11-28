@@ -6,14 +6,9 @@ const orderApi = {
     const url = '/orders';
     return axiosClient.get(url, { params });
   },
-  updateCollection: (params) => {
-    const url = `/collections/${params.id}`;
-    const formData = new FormData();
-    for (const key in params) {
-      formData.append(key, params[key]);
-    }
-
-    return axiosClient.put(url, formData);
+  getOrderDetail: (params) => {
+    const url = `/orders/${params}`;
+    return axiosClient.get(url);
   },
   deleteCollection: (params) => {
     const url = `/collections/${params.id}`;

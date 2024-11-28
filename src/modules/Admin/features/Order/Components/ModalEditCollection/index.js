@@ -17,6 +17,7 @@ function ModalEditCollection({
   const [form] = Form.useForm();
   const isEditMode = !!collectionItem;
 
+  console.log(collectionItem);
   const handleSubmit = async (values) => {
     try {
       const updatedValues = { ...values };
