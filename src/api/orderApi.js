@@ -10,10 +10,9 @@ const orderApi = {
     const url = `/orders/${params}`;
     return axiosClient.get(url);
   },
-  deleteCollection: (params) => {
-    const url = `/collections/${params.id}`;
-    const formData = new FormData();
-    return axiosClient.delete(url, formData)
+  getPickingAddress: () => {
+    const url = `/shipping/address/pick`;
+    return axiosClient.get(url)
   },
   getTraceOrder: (id) => {
     const url = `https://web.giaohangtietkiem.vn/api/v1/package/package-detail`;
