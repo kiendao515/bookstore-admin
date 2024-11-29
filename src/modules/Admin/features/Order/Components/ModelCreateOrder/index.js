@@ -12,7 +12,13 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
   const [pickupOptions, setPickupOptions] = useState([]);
 
   useEffect(() => {
-    setDataSource(orderInfo.filter(o=>o.status == "READY_TO_PACKAGE")); // Cập nhật lại dataSource từ prop
+    const updatedOrderInfo = orderInfo.map(order => ({
+      ...order,
+      pick_address: "",  
+      weight: order.weight || 0, 
+    }));
+  
+    setDataSource(updatedOrderInfo.filter(o=>o.status == "READY_TO_PACKAGE")); 
     const fetchPickupOptions = async () => {
       try {
         const data = await orderApi.getPickingAddress();
@@ -62,6 +68,21 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
   // API call for submitting the order
   const submitOrder = async () => {
     try {
+      const ordersToSubmit = dataSource.map(order => ({
+        order_code: order.order_code,
+        address: order.address,  // Địa chỉ nhận hàng
+        customer_name: order.customer_name,
+        customer_phone: order.customer_phone,
+        note: order.note,
+        weight: order.weight,    // Cân nặng
+        total_amount: order.total_amount,
+        payment_type: order.payment_type,
+        pickup_method: order.pickup_method,
+        pick_address: order.pick_address  
+
+      }));
+      console.log(ordersToSubmit);
+      
       const response = await orderApi.submitOrder({ orders: dataSource });
       if (response.success) {
         message.success(t("Đăng đơn hàng thành công"));
@@ -80,6 +101,7 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
     { title: t("Tên khách hàng"), dataIndex: "customer_name", editable: true },
     { title: t("Số điện thoại"), dataIndex: "customer_phone", editable: true },
     { title: t("Ghi chú giao hàng"), dataIndex: "note", editable: true },
+    { title: t("Khối lượng"), dataIndex: "weight", editable: true },
     { title: t("Giá trị hàng"), dataIndex: "total_amount", editable: false },
     {
       title: t("Tiền COD"),
@@ -100,7 +122,7 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
           onChange={(value) => handleFieldChange(value, record.key, 'pickup_method')}
         >
           {pickupOptions.map((option) => (
-            <Select.Option key={option.id} value={option.id}>
+            <Select.Option key={option.id} value={option.name}>
               {option.name}
             </Select.Option>
           ))}
