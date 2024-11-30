@@ -10,6 +10,7 @@ import {
     Card,
     Badge,
     Spin,  // Import Spin for loading indicator
+    Button,
 } from "antd";
 import PropTypes from "prop-types";
 import orderApi from "api/orderApi";
@@ -36,19 +37,19 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
         },
         {
             title: "Số lượng",
-            dataIndex : "quantity",
-            key : "quantity"
+            dataIndex: "quantity",
+            key: "quantity",
         }
     ];
     
     const [orderDetail, setOrderDetail] = useState(null);
     const [orderUpdate, setOrderUpdate] = useState(null);
-    const [loading, setLoading] = useState(false);  // State to track loading
-    
+    const [loading, setLoading] = useState(false);  
+
     const fetchOrderDetails = async () => {
-        setLoading(true);  // Set loading to true when starting to fetch
+        setLoading(true); 
         try {
-            const response = await orderApi.getTraceOrder("S428925.MN6-01-TA61.1064754820");
+            const response = await orderApi.getTraceOrder(orderDetail.shipping_code);
             if (response.data.success) {
                 const combinedLogs = [...response.data.data?.PickLog, ...response.data.data?.DeliverLog].sort(
                     (a, b) => new Date(b.created) - new Date(a.created)
@@ -60,19 +61,19 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
         } catch (error) {
             console.error("Lỗi gọi API:", error);
         } finally {
-            setLoading(false);  // Set loading to false after the request is complete
+            setLoading(false); 
         }
     };
 
     const fetchDetailOrder = async () => {
-        setLoading(true);  // Set loading to true when starting to fetch
+        setLoading(true);  
         try {
             const rs = await orderApi.getOrderDetail(orderDetails?.id);
             setOrderDetail(rs.data);
         } catch (error) {
             console.error("Lỗi khi tải dữ liệu đơn hàng:", error);
         } finally {
-            setLoading(false);  // Set loading to false after the request is complete
+            setLoading(false); 
         }
     };
 
@@ -94,12 +95,34 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
         setImageSrc("");
     };
 
+    const handlePrintOrder = () => {
+        // Call the API or logic to print the order here
+        console.log("In đơn hàng:", orderDetail.order_code);
+    };
+
+    const isPrintable = () => {
+        const status = orderDetail?.status;
+        return !(status === "CREATED" || status === "READY_TO_PACKAGE");
+    };
+
     return (
         <Modal
             title={<Title level={4}>Chi tiết đơn hàng - {orderDetail?.order_code}</Title>}
             visible={visible}
             onCancel={onClose}
-            footer={null}
+            footer={[
+                <Button key="cancel" onClick={onClose}>
+                    Đóng
+                </Button>,
+                <Button
+                    key="print"
+                    type="primary"
+                    onClick={handlePrintOrder}
+                    disabled={!isPrintable()}  // Disable the button based on the order status
+                >
+                    In đơn mã đơn hàng
+                </Button>,
+            ]}
             width={1200}
         >
             {/* Show loading spinner if loading is true */}

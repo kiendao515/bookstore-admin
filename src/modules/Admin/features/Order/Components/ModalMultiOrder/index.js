@@ -6,27 +6,45 @@ import orderApi from "api/orderApi";
 
 const { Title } = Typography;
 
-const EditableTable = ({ show, onClose, orderInfo }) => {
+const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
   const { t } = useTranslation();
-  const [dataSource, setDataSource] = useState([]);
-  const [pickupOptions, setPickupOptions] = useState([]);
-  const [orderDetails, setOrderDetails] = useState(null); 
+  const [dataSource, setDataSource] = useState([]); 
+  const [pickupOptions, setPickupOptions] = useState([]); 
+  const [orderDetails, setOrderDetails] = useState(null);
 
+  // Nhóm đơn hàng theo customer_name
   useEffect(() => {
-    const updatedOrderInfo = orderInfo.map((order, index) => ({
-      ...order,
-      key: order.id || index, 
-      pick_address: "",
-      weight: order.weight || 0,
+    const groupedOrders = orderInfo.reduce((acc, order) => {
+      const accountId = order.customer_name;  // Nhóm theo customer_name (có thể thay bằng account_id)
+      if (!acc[accountId]) {
+        acc[accountId] = [];
+      }
+      acc[accountId].push({
+        ...order,
+        key: order.id || order.customer_name,  // Dùng customer_name làm key
+        pick_address: "",
+        weight: order.weight || 0,
+      });
+      return acc;
+    }, {});
+
+    // Chuyển nhóm thành mảng
+    const groupedOrdersArray = Object.keys(groupedOrders).map((accountId) => ({
+      accountId,
+      orders: groupedOrders[accountId],
     }));
 
-    setDataSource(updatedOrderInfo.filter((o) => o.status === "READY_TO_PACKAGE"));
+    setDataSource(groupedOrdersArray); // Cập nhật lại dữ liệu nhóm đơn
+  }, [orderInfo]);
+
+  // Lấy các địa chỉ lấy hàng
+  useEffect(() => {
     const fetchPickupOptions = async () => {
       try {
         const data = await orderApi.getPickingAddress();
         if (data.result) {
           const pickupList = data.data.map((item) => ({
-            id: `${item.pick_tel}-${item.pick_name}-${item.address}`, 
+            id: `${item.pick_tel}-${item.pick_name}-${item.address}`,
             name: `${item.pick_tel}-${item.pick_name}-${item.address}`,
           }));
           setPickupOptions(pickupList);
@@ -38,23 +56,24 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
       }
     };
     fetchPickupOptions();
-  }, [orderInfo]);
+  }, []);
 
   const handleFieldChange = (value, key, column) => {
     const newData = [...dataSource];
-    const index = newData.findIndex((item) => key === item.key);
-
-    if (index > -1) {
-      const updatedRow = { ...newData[index] };
-      updatedRow[column] = value; 
-      newData[index] = updatedRow;
-      setDataSource(newData);
+    const accountIndex = newData.findIndex((item) => key === item.accountId);
+    if (accountIndex > -1) {
+      const orderIndex = newData[accountIndex].orders.findIndex(order => order.key === key);
+      if (orderIndex > -1) {
+        newData[accountIndex].orders[orderIndex][column] = value;  // Cập nhật giá trị của đơn hàng trong nhóm
+        setDataSource(newData);
+      }
     }
   };
 
-  const submitOrder = async () => {
+  // Xử lý đăng đơn
+  const submitOrder = async (orders) => {
     try {
-      const ordersToSubmit = dataSource.map((order) => ({
+      const ordersToSubmit = orders.map((order) => ({
         order_code: order.order_code,
         address: order.address,
         customer_name: order.customer_name,
@@ -64,14 +83,14 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
         total_amount: order.total_amount,
         payment_type: order.payment_type,
         pickup_method: order.pickup_method,
-        pick_address: order.pick_address, 
+        pick_address: order.pick_address,
       }));
-      console.log(ordersToSubmit);
-      
-      const response = await orderApi.createGHTKOrder(ordersToSubmit[0]);
+
+      // Gửi các đơn đến API
+      const response = await orderApi.createGHTKOrder(ordersToSubmit);
       if (response.result) {
         message.success(t("Đăng đơn hàng thành công"));
-        setOrderDetails(response.data); 
+        setOrderDetails(response.data);
         onClose();
       } else {
         message.error(t("Có lỗi khi đăng đơn hàng"));
@@ -81,9 +100,10 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
     }
   };
 
-  const printOrder = async () => {
+  // Xử lý in thông tin đơn hàng
+  const printGroupOrder = async (orders) => {
     try {
-      const response = await orderApi.printOrder({ orders: dataSource });
+      const response = await orderApi.printOrder({ orders });
       if (response.success) {
         message.success(t("In thông tin đơn hàng thành công"));
       } else {
@@ -94,6 +114,7 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
     }
   };
 
+  // Các cột có thể chỉnh sửa trong bảng
   const editableColumns = [
     { title: t("Mã đơn"), dataIndex: "order_code", editable: false },
     { title: t("Địa chỉ"), dataIndex: "address", editable: true },
@@ -108,9 +129,9 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
       editable: true,
       render: (text, record) => (
         <Select
-          value={record.pick_address} // Hiển thị giá trị pick_address hiện tại
+          value={record.pick_address}
           style={{ minWidth: "200px", width: "100%" }}
-          onChange={(value) => handleFieldChange(value, record.key, "pick_address")} // Lấy value là name
+          onChange={(value) => handleFieldChange(value, record.key, "pick_address")}
         >
           {pickupOptions.map((option) => (
             <Select.Option key={option.name} value={option.name}>
@@ -123,40 +144,39 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
   ];
 
   // Component chỉnh sửa ô bảng
-  const EditableCell = ({ title, editable, children, column, record, ...restProps }) => {
-    return (
-      <td {...restProps}>
-        {editable ? (
-          column === "pick_address" ? (
-            <Select
-              value={record[column]} // Hiển thị giá trị hiện tại là name
-              style={{ minWidth: "200px", width: "100%" }}
-              onChange={(value) => handleFieldChange(value, record.key, column)} // Cập nhật giá trị pick_address là name
-            >
-              {pickupOptions.map((option) => (
-                <Select.Option key={option.name} value={option.name}>
-                  {option.name}
-                </Select.Option>
-              ))}
-            </Select>
-          ) : (
-            <Form.Item
-              style={{ margin: 0 }}
-              name={column}
-              initialValue={record[column]}
-              rules={[{ required: true, message: `${title} is required.` }]}>
-              <Input
-                defaultValue={children}
-                onBlur={(e) => handleFieldChange(e.target.value, record.key, column)}
-              />
-            </Form.Item>
-          )
+  const EditableCell = ({ title, editable, children, column, record, ...restProps }) => (
+    <td {...restProps}>
+      {editable ? (
+        column === "pick_address" ? (
+          <Select
+            value={record[column]}
+            style={{ minWidth: "200px", width: "100%" }}
+            onChange={(value) => handleFieldChange(value, record.key, column)}
+          >
+            {pickupOptions.map((option) => (
+              <Select.Option key={option.name} value={option.name}>
+                {option.name}
+              </Select.Option>
+            ))}
+          </Select>
         ) : (
-          children
-        )}
-      </td>
-    );
-  };
+          <Form.Item
+            style={{ margin: 0 }}
+            name={column}
+            initialValue={record[column]}
+            rules={[{ required: true, message: `${title} is required.` }]}
+          >
+            <Input
+              defaultValue={children}
+              onBlur={(e) => handleFieldChange(e.target.value, record.key, column)}
+            />
+          </Form.Item>
+        )
+      ) : (
+        children
+      )}
+    </td>
+  );
 
   const mergedColumns = editableColumns.map((col) => ({
     ...col,
@@ -176,29 +196,41 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
         <Button key="cancel" onClick={onClose}>
           {t("Đóng")}
         </Button>,
-        <Button key="submit" type="primary" onClick={submitOrder}>
-          {t("Đăng đơn")}
-        </Button>,
-        <Button key="print" onClick={printOrder}>
-          {t("In thông tin đơn hàng")}
-        </Button>,
       ]}
       width={"100%"}
     >
       <Title level={4}>{t("Danh sách đơn hàng")}</Title>
-      <Table
-        rowKey="key"
-        components={{
-          body: {
-            cell: EditableCell,
-          },
-        }}
-        columns={mergedColumns}
-        dataSource={dataSource}
-        pagination={false}
-        scroll={{ x: true }}
-        bordered
-      />
+      {dataSource.map((group) => (
+        <div key={group.accountId}>
+          <Title level={5}>{t("Đơn hàng của")} {group.accountId}</Title>
+          <Table
+            rowKey="key"
+            components={{
+              body: {
+                cell: EditableCell,
+              },
+            }}
+            columns={mergedColumns}
+            dataSource={group.orders}
+            pagination={false}
+            scroll={{ x: true }}
+            bordered
+          />
+          <Button
+            key={`submit-${group.accountId}`}
+            type="primary"
+            onClick={() => submitOrder(group.orders)}
+          >
+            {t("Đăng đơn")}
+          </Button>
+          <Button
+            key={`print-${group.accountId}`}
+            onClick={() => printGroupOrder(group.orders)}
+          >
+            {t("In đơn hàng")}
+          </Button>
+        </div>
+      ))}
 
       {orderDetails && (
         <Modal
@@ -214,19 +246,17 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
           <p><strong>{t("Mã đơn hàng")}:</strong> {orderDetails.label}</p>
           <p><strong>{t("Khu vực")}:</strong> {orderDetails.area}</p>
           <p><strong>{t("Phí vận chuyển")}:</strong> {orderDetails.fee} VND</p>
-          <p><strong>{t("Thời gian ước tính lấy hàng")}:</strong> {orderDetails.estimated_pick_time}</p>
-          <p><strong>{t("Thời gian ước tính giao hàng")}:</strong> {orderDetails.estimated_deliver_time}</p>
-          <p><strong>{t("Tracking ID")}:</strong> {orderDetails.tracking_id}</p>
+          <p><strong>{t("Thời gian ước tính lấy hàng")}:</strong> {orderDetails.estimated_pickup_time}</p>
         </Modal>
       )}
     </Modal>
   );
 };
 
-EditableTable.propTypes = {
+ModalMultiOrder.propTypes = {
   show: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   orderInfo: PropTypes.array.isRequired,
 };
 
-export default EditableTable;
+export default ModalMultiOrder;

@@ -21,6 +21,7 @@ import ModalEditCollection from '../../Components/ModalEditCollection';
 import { Tabs } from 'antd';
 import ModalOrderDetails from '../../Components/ModalOrderDetails';
 import ModalCreateOrder from '../../Components/ModelCreateOrder';
+import ModalMultiOrder from '../../Components/ModalMultiOrder';
 const { TabPane } = Tabs;
 OrderHomePage.propTypes = {};
 
@@ -41,7 +42,7 @@ function OrderHomePage(props) {
     { key: 'ALL', label: t('Tất cả'), value: '' },
     { key: 'CREATED', label: t('Chờ xác nhận'), value: 'CREATED' },
     { key: 'READY_TO_PACKAGE', label: t('Chờ gói hàng'), value: 'READY_TO_PACKAGE' },
-    { key: 'READY_TO_SEND', label: t('Sẵn sàng gửi'), value: 'READY_TO_SEND' },
+    { key: 'READY_TO_SHIP', label: t('Sẵn sàng gửi'), value: 'READY_TO_SHIP' },
     { key: 'SHIPPING', label: t('Đang gửi'), value: 'SHIPPING' },
     { key: 'COMPLETED', label: t('Thành công'), value: 'COMPLETED' },
     { key: 'CANCELED', label: t('Hủy'), value: 'CANCELED' },
@@ -215,6 +216,7 @@ function OrderHomePage(props) {
   }, []);
   const [selectedOrderItem, setSelectedOrderItem] = useState([]);
   const [modalOrderEditShowing, setModalOrderEditShowing] = useState(false);
+  const [modalMultiOrder, setModalMultiOrder]= useState(false)
   const [modalEmployeeResetPasswordShowing, setModalEmployeeResetPasswordShowing] = useState(false);
   const [modalOrderDetailsVisible, setModalOrderDetailsVisible] = useState(false);
   const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
@@ -293,10 +295,6 @@ function OrderHomePage(props) {
     setSelectedOrderItem(selectedEmployees);
   }
 
-  function handleResetPasswordEmployee(employee) {
-    setSelectedOrder(employee);
-    setModalEmployeeResetPasswordShowing(true);
-  }
 
   function handleDeleteCollection(employee) {
     Swal.fire({
@@ -371,6 +369,17 @@ function OrderHomePage(props) {
               >
                 <i className="fa-solid fa-plus"></i>
                 {t('Đăng đơn giao hàng')}
+              </a>
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setModalMultiOrder(true);
+                }}
+                className="btn btn-primary font-weight-bold d-flex align-items-center ml-2"
+              >
+                <i className="fa-solid fa-plus"></i>
+                {t('Gom đơn')}
               </a>
             </div>
           </div>
@@ -479,25 +488,17 @@ function OrderHomePage(props) {
         </div>
       </div>
 
-      {/* <ModalEditCollection
-        show={modalOrderEditShowing}
-        onClose={() => {
-          setModalOrderEditShowing(false);
-        }}
-        onExistDone={() => {
-          setSelectedOrderItem(null);
-        }}
-        collectionItem={selectedOrderItem}
-        onRefreshCollectionList={() => {
-          setSelectedOrderItem(null);
-          getEmployeeList();
-        }}
-      /> */}
-
       <ModalOrderDetails
         visible={modalOrderDetailsVisible}
         onClose={() => setModalOrderDetailsVisible(false)}
         orderDetails={selectedOrderDetails}
+      />
+      <ModalMultiOrder
+        show = {modalMultiOrder} 
+        onClose={()=>{
+          setModalMultiOrder(false)
+        }} 
+        orderInfo={order}
       />
       <ModalCreateOrder
         show={modalOrderEditShowing}

@@ -21,6 +21,10 @@ const orderApi = {
         Authorization: `Bearer ${process.env.REACT_APP_GHTK_WEB_TOKEN}`
       }
     });
+  },
+  createGHTKOrder: (body)=>{
+    const url = `/shipping/order/create`;
+    return axiosClient.post(url,body,null)
   }
 };
 

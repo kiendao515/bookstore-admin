@@ -1,28 +1,7 @@
 import React, { useState } from "react";
 import { Table, Modal, Button, Descriptions, Input } from "antd";
 
-const orders = [
-  {
-    id: "Z66J2QJ5MI0ENODFNK",
-    recipientName: "Hanh Nguyen",
-    phone: "0352328651",
-    email: "bedeuilisavablackpink1009@gmail.com",
-    address: "60e2 đường số 2 phường 7, TP Bến Tre",
-    status: "Chờ gói hàng",
-    createDate: "23/11/2024 12:58:07",
-    courier: "Giao hàng tiết kiệm",
-    trackingCode: "a",
-    totalAmount: 395000,
-    shippingFee: 0,
-    note: "a",
-    details: [
-      { name: "Tác phẩm triết học", condition: "khá", quantity: 1, price: 150000 },
-      { name: "Văn chương lâm nguy", condition: "đẹp", quantity: 1, price: 100000 },
-      { name: "Những di chúc bị phản bội", condition: "đẹp", quantity: 1, price: 145000 },
-    ],
-  },
-  // Thêm các đơn hàng khác ở đây
-];
+
 
 const OrderList = () => {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
