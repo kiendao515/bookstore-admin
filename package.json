@@ -28,6 +28,7 @@
     "js-sha256": "^0.9.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
+    "pdfjs-dist": "^4.8.69",
     "perfect-scrollbar": "^1.5.5",
     "prop-types": "^15.8.1",
     "puppeteer": "^23.6.1",

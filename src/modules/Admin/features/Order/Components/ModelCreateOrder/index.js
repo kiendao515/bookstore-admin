@@ -68,7 +68,7 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
       }));
       console.log(ordersToSubmit);
       
-      const response = await orderApi.createGHTKOrder(ordersToSubmit[0]);
+      const response = await orderApi.createGHTKOrder(ordersToSubmit);
       if (response.result) {
         message.success(t("Đăng đơn hàng thành công"));
         setOrderDetails(response.data); 
@@ -81,18 +81,6 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
     }
   };
 
-  const printOrder = async () => {
-    try {
-      const response = await orderApi.printOrder({ orders: dataSource });
-      if (response.success) {
-        message.success(t("In thông tin đơn hàng thành công"));
-      } else {
-        message.error(t("Có lỗi khi in đơn hàng"));
-      }
-    } catch (error) {
-      message.error(t("Lỗi kết nối khi in đơn hàng"));
-    }
-  };
 
   const editableColumns = [
     { title: t("Mã đơn"), dataIndex: "order_code", editable: false },
@@ -178,9 +166,6 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
         </Button>,
         <Button key="submit" type="primary" onClick={submitOrder}>
           {t("Đăng đơn")}
-        </Button>,
-        <Button key="print" onClick={printOrder}>
-          {t("In thông tin đơn hàng")}
         </Button>,
       ]}
       width={"100%"}

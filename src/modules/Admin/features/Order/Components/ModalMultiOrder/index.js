@@ -15,13 +15,13 @@ const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
   // Nhóm đơn hàng theo customer_name
   useEffect(() => {
     const groupedOrders = orderInfo.reduce((acc, order) => {
-      const accountId = order.customer_name;  // Nhóm theo customer_name (có thể thay bằng account_id)
+      const accountId = order.account?.id;  
       if (!acc[accountId]) {
         acc[accountId] = [];
       }
       acc[accountId].push({
         ...order,
-        key: order.id || order.customer_name,  // Dùng customer_name làm key
+        key: order.id || order.account?.id, 
         pick_address: "",
         weight: order.weight || 0,
       });
@@ -34,7 +34,7 @@ const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
       orders: groupedOrders[accountId],
     }));
 
-    setDataSource(groupedOrdersArray); // Cập nhật lại dữ liệu nhóm đơn
+    setDataSource(groupedOrdersArray); 
   }, [orderInfo]);
 
   // Lấy các địa chỉ lấy hàng
@@ -102,6 +102,8 @@ const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
 
   // Xử lý in thông tin đơn hàng
   const printGroupOrder = async (orders) => {
+    console.log(dataSource);
+    
     try {
       const response = await orderApi.printOrder({ orders });
       if (response.success) {
@@ -189,7 +191,6 @@ const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
 
   return (
     <Modal
-      title={t("Thông tin đơn hàng")}
       visible={show}
       onCancel={onClose}
       footer={[
@@ -199,10 +200,10 @@ const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
       ]}
       width={"100%"}
     >
-      <Title level={4}>{t("Danh sách đơn hàng")}</Title>
+      <Title level={4}>{t("Đơn gom chung")}</Title>
       {dataSource.map((group) => (
         <div key={group.accountId}>
-          <Title level={5}>{t("Đơn hàng của")} {group.accountId}</Title>
+          <Title level={5}>{t("Đơn hàng của")} {group.orders[0]?.customer_name}</Title>
           <Table
             rowKey="key"
             components={{

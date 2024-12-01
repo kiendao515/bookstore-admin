@@ -22,9 +22,17 @@ const orderApi = {
       }
     });
   },
-  createGHTKOrder: (body)=>{
+  createGHTKOrder: (body) => {
     const url = `/shipping/order/create`;
-    return axiosClient.post(url,body,null)
+    return axiosClient.post(url, body, null)
+  },
+  printOrder: (id) => {
+    const url = `/shipping/label?orderId=` + id;
+    return axiosClient.get(url);
+  },
+  updateOrderStatus: (id, body) => {
+    const url = `/orders/${id}`;
+    return axiosClient.put(url, body)
   }
 };
 

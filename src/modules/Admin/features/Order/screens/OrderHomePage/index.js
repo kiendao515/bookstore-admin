@@ -44,7 +44,7 @@ function OrderHomePage(props) {
     { key: 'READY_TO_PACKAGE', label: t('Chờ gói hàng'), value: 'READY_TO_PACKAGE' },
     { key: 'READY_TO_SHIP', label: t('Sẵn sàng gửi'), value: 'READY_TO_SHIP' },
     { key: 'SHIPPING', label: t('Đang gửi'), value: 'SHIPPING' },
-    { key: 'COMPLETED', label: t('Thành công'), value: 'COMPLETED' },
+    { key: 'COMPLETED', label: t('Thành công'), value: 'DONE' },
     { key: 'CANCELED', label: t('Hủy'), value: 'CANCELED' },
   ];
   const handleTabChange = (key) => {

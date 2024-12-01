@@ -11,6 +11,8 @@ import {
     Badge,
     Spin,  // Import Spin for loading indicator
     Button,
+    message,
+    Select,
 } from "antd";
 import PropTypes from "prop-types";
 import orderApi from "api/orderApi";
@@ -41,13 +43,16 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
             key: "quantity",
         }
     ];
-    
+
     const [orderDetail, setOrderDetail] = useState(null);
     const [orderUpdate, setOrderUpdate] = useState(null);
-    const [loading, setLoading] = useState(false);  
+    const [loading, setLoading] = useState(false);
+    const [pdfUrl, setPdfUrl] = useState(null);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [status, setStatus] = useState("");
 
     const fetchOrderDetails = async () => {
-        setLoading(true); 
+        setLoading(true);
         try {
             const response = await orderApi.getTraceOrder(orderDetail.shipping_code);
             if (response.data.success) {
@@ -61,19 +66,20 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
         } catch (error) {
             console.error("Lỗi gọi API:", error);
         } finally {
-            setLoading(false); 
+            setLoading(false);
         }
     };
 
     const fetchDetailOrder = async () => {
-        setLoading(true);  
+        setLoading(true);
         try {
             const rs = await orderApi.getOrderDetail(orderDetails?.id);
             setOrderDetail(rs.data);
+            setStatus(rs.data?.status);
         } catch (error) {
             console.error("Lỗi khi tải dữ liệu đơn hàng:", error);
         } finally {
-            setLoading(false); 
+            setLoading(false);
         }
     };
 
@@ -95,14 +101,47 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
         setImageSrc("");
     };
 
-    const handlePrintOrder = () => {
-        // Call the API or logic to print the order here
+    const handlePrintOrder = async () => {
         console.log("In đơn hàng:", orderDetail.order_code);
+        try {
+            const response = await orderApi.printOrder(orderDetail.order_code);
+            if (response.result) {
+                message.success("In thông tin đơn hàng thành công");
+
+                const pdfBase64 = response.data;
+                const pdfBlob = new Blob([new Uint8Array(atob(pdfBase64).split("").map(char => char.charCodeAt(0)))], { type: 'application/pdf' });
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                setPdfUrl(pdfUrl);
+                setIsModalVisible(true);
+            } else {
+                message.error("Có lỗi khi in đơn hàng");
+            }
+        } catch (error) {
+            message.error("Lỗi kết nối khi in đơn hàng");
+        }
+    };
+    const handleCancel = () => {
+        setIsModalVisible(false);  // Đóng modal
+        setPdfUrl(null);  // Xóa URL PDF để tránh lỗi khi modal bị đóng
     };
 
     const isPrintable = () => {
         const status = orderDetail?.status;
         return !(status === "CREATED" || status === "READY_TO_PACKAGE");
+    };
+    const handleStatusChange = async (newStatus) => {
+        try {
+            const response = await orderApi.updateOrderStatus(orderDetail.order_code, {status: newStatus});
+            if (response.result) {
+                setStatus(newStatus);  // Update status in state
+                message.success("Cập nhật trạng thái đơn hàng thành công!");
+            } else {
+                message.error("Không thể cập nhật trạng thái đơn hàng.");
+            }
+        } catch (error) {
+            console.error("Lỗi khi cập nhật trạng thái:", error);
+            message.error("Có lỗi xảy ra khi cập nhật trạng thái.");
+        }
     };
 
     return (
@@ -147,10 +186,18 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
                                             <Text strong>{orderDetail.order_code}</Text>
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Trạng thái">
-                                            <Badge
-                                                status="success"
-                                                text={Utils.handleOrderStatus(orderDetail.status) || "N/A"}
-                                            />
+                                            <Select
+                                                value={orderDetail.status}
+                                                onChange={handleStatusChange}
+                                                style={{ width: "100%" }}
+                                                disabled={orderDetail.status === "DONE"}  
+                                            >
+                                                <Option value="CREATED">Chờ xác nhận</Option>
+                                                <Option value="READY_TO_PACKAGE">Sẵn sàng đóng gói</Option>
+                                                <Option value="READY_TO_SHIP">Sẵn sàng gửi</Option>
+                                                <Option value="SHIPPING">Đang giao</Option>
+                                                <Option value="DONE">Đã giao</Option>
+                                            </Select>
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Ngày tạo">
                                             {orderDetail.created_at}
@@ -255,8 +302,6 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
                     </div>
                 )}
             </Spin>
-
-            {/* Modal to view image */}
             <Modal
                 visible={visibleImage}
                 footer={null}
@@ -272,6 +317,20 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
                         objectFit: "contain",
                     }}
                 />
+            </Modal>
+            <Modal
+                title="Xem PDF"
+                visible={isModalVisible}
+                onCancel={handleCancel}
+                footer={null}
+                width="80%"
+                destroyOnClose={true}
+            >
+                {pdfUrl && (
+                    <div style={{ height: '500px', overflowY: 'auto' }}>
+                        <embed src={pdfUrl} width="100%" height="100%" type="application/pdf" />
+                    </div>
+                )}
             </Modal>
         </Modal>
     );
