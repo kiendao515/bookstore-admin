@@ -12,12 +12,16 @@ import _ from 'lodash';
 import DropdownAccountMenu from 'modules/Admin/features/Auth/components/DropdownAccountMenu';
 // import OffcanvasSearch from 'modules/Admin/features/Dashboard/components/OffcanvasSearch';
 import moment from 'moment';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import './style.scss';
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+import { notification } from 'antd';
+import { BellOutlined } from '@ant-design/icons';
 
-// const menuItems = [
+
 //     {
 //         text: 'Pages', path: '', subMenuItems: [
 //             { text: 'My Account', icon: AppResource.icons.keens.briefcase, path: '' },
@@ -122,7 +126,41 @@ function KT01Header(props) {
   const arrPathNameItems = _.chain(pathName).split('/').compact().value();
   const headerTitle = _.chain(arrPathNameItems).last().capitalize().value();
   const currentLoggedInUser = useSelector((state) => state.auth?.current);
+  const [newOrder, setNewOrder] = useState(null);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  useEffect(() => {
+    const socket = new SockJS(process.env.REACT_APP_BASE_URL + 'socket');
+    const stompClient = new Client({
+      webSocketFactory: () => socket,
+      reconnectDelay: 5000,
+    });
 
+    stompClient.onConnect = () => {
+      console.log('Connected to WebSocket');
+      stompClient.subscribe(`/topic/order`, (message) => {
+        const order = JSON.parse(message.body);
+        console.log('New Order:', order);  // Log the order info
+        setNewOrder(order);
+        setUnreadNotifications((prevCount) => prevCount + 1);
+
+        // Show notification
+        notification.open({
+          duration:10000,
+          message: 'Đơn hàng mới',
+          description: `Có một đơn hàng mới: ${order.order_code}`,
+          icon: <BellOutlined style={{ color: '#108ee9' }} />,
+        });
+      });
+    };
+
+    // Activate the WebSocket connection
+    stompClient.activate();
+
+    // Cleanup on component unmount
+    return () => {
+      stompClient.deactivate();
+    };
+  }, []);
   // MARK: --- Hooks ---
   useEffect(() => {
     new KTOffcanvas('kt_header_menu_wrapper', {
@@ -219,9 +257,8 @@ function KT01Header(props) {
                                         return (
                                           <li
                                             key={subIndexLV2}
-                                            className={`menu-item ${
-                                              hasSubMenuLV3Items && 'menu-item-submenu'
-                                            }`}
+                                            className={`menu-item ${hasSubMenuLV3Items && 'menu-item-submenu'
+                                              }`}
                                             data-menu-toggle="hover"
                                           >
                                             <a href="#" className="menu-link menu-toggle">
@@ -380,6 +417,17 @@ function KT01Header(props) {
                         e.target.src = AppResource.icons.keens.userBlank;
                       }}
                     />
+                  </div>
+                  <div className="btn btn-icon h-40px w-40px p-0 overflow-hidden hover-opacity-60 border-0">
+                    <BellOutlined
+                      className="w-200 h-200"
+                      style={{ color: unreadNotifications > 0 ? 'red' : 'black' }}
+                    />
+                    {unreadNotifications > 0 && (
+                      <span className="badge badge-danger position-absolute top-0 right-0 badge-circle badge-pill">
+                        {unreadNotifications}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
