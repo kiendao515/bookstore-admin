@@ -5,6 +5,13 @@ import moment from 'moment';
 import 'moment/locale/vi';
 import Global from './Global';
 import axios from 'axios';
+import { remark } from "remark";
+import remarkHtml from "remark-html";
+
+import rehypeParse from "rehype-parse";
+import rehypeRemark from "rehype-remark";
+import remarkStringify from "remark-stringify";
+
 moment.locale('vi');
 
 const Utils = {
@@ -154,7 +161,7 @@ const Utils = {
         const sizeInMB = (sizeInBytes / (1024 * 1024)).toFixed(2);
         return sizeInMB;
     },
-    getBookQuality :(quality) => {
+    getBookQuality: (quality) => {
         switch (quality) {
             case "NEW":
                 return "Mới";
@@ -166,36 +173,66 @@ const Utils = {
                 return "Không xác định"; // hoặc giá trị mặc định khác nếu cần
         }
     },
-    uploadFile:async(file) =>{
+    uploadFile: async (file) => {
         const url = `https://api.cloudinary.com/v1_1/dwjvhoiin/upload`;
         const fd = new FormData();
         fd.append('upload_preset', "kiendao");
         fd.append('file', file);
         let rs = await fetch(url, {
-          method: 'POST',
-          body: fd,
+            method: 'POST',
+            body: fd,
         })
         let url_image = (await rs.json()).secure_url;
         return url_image;
-      },
-    handleOrderStatus : (status) => {
+    },
+    handleOrderStatus: (status) => {
         switch (status) {
-          case "CREATED":
-            return "Chờ xác nhận";
-          case "READY_TO_PACKAGE":
-            return "Chờ gói hàng";
-          case "READY_TO_SHIP":
-            return "Sẵn sàng gửi";
-          case "SHIPPING":
-            return "Đang gửi";
-          case "DONE":
-            return "Thành công";
-          case "CANCEL":
-            return "Hủy"
-          default:
-            return "Trạng thái không xác định"; // Fallback for unknown statuses
+            case "CREATED":
+                return "Chờ xác nhận";
+            case "READY_TO_PACKAGE":
+                return "Chờ gói hàng";
+            case "READY_TO_SHIP":
+                return "Sẵn sàng gửi";
+            case "SHIPPING":
+                return "Đang gửi";
+            case "DONE":
+                return "Thành công";
+            case "CANCEL":
+                return "Hủy"
+            default:
+                return "Trạng thái không xác định"; // Fallback for unknown statuses
         }
-      }
+    },
+
+
+    markdownToHtml: (markdownText) => {
+        const file = remark().use(remarkHtml).processSync(markdownText);
+        return String(file);
+    },
+
+    htmlToMarkdown: (htmlText) => {
+        const file = remark()
+            .use(rehypeParse, { emitParseErrors: true, duplicateAttribute: false })
+            .use(rehypeRemark)
+            .use(remarkStringify)
+            .processSync(htmlText);
+
+        return String(file);
+    },
+    markdownToHtml: (markdownText) => {
+        const file = remark().use(remarkHtml).processSync(markdownText);
+        return String(file);
+    },
+
+    htmlToMarkdown: (htmlText) => {
+        const file = remark()
+            .use(rehypeParse, { emitParseErrors: true, duplicateAttribute: false })
+            .use(rehypeRemark)
+            .use(remarkStringify)
+            .processSync(htmlText);
+
+        return String(file);
+    }
 };
 
 export default Utils;

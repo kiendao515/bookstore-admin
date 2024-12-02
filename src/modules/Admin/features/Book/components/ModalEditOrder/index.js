@@ -21,7 +21,7 @@ import moment from 'moment';
 import AppData from 'general/constants/AppData';
 import bookApi from 'api/bookApi';
 import DataTable from 'react-data-table-component';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import customDataTableStyle from 'assets/styles/customDataTableStyle';
 import Empty from 'general/components/Empty';
 import Loading from 'general/components/Loading';
@@ -31,6 +31,7 @@ import ModalEditBookInventory from '../ModelEditBookInventory';
 import KTFormTextArea from 'general/components/OtherKeenComponents/Forms/KTFormTextArea';
 import { createWorker } from 'tesseract.js';
 import KTUploadFiles from 'general/components/OtherKeenComponents/FileUpload/KTUploadFiles';
+import ReactQuill from 'react-quill';
 
 
 ModalOrderEdit.propTypes = {
@@ -122,8 +123,34 @@ function ModalOrderEdit(props) {
   // Request create new book
   async function requestCreateOrder(values) {
     try {
-      let cover_image = await Utils.uploadFile(values?.cover_image)
-      let params = { ...values, cover_image: cover_image, book_inventory: bookInventory };
+      let cover_image, content_image;
+      if (!values?.cover_image || typeof values.cover_image !== "object") {
+        console.error("Invalid cover_image format:", values.cover_image);
+        cover_image = values.cover_image
+      } else {
+        console.log("Uploading cover image...");
+        cover_image = await Utils.uploadFile(values?.cover_image);
+      }
+
+      if (!Array.isArray(values.content_image) || values.content_image.some((file) => typeof file !== 'object')) {
+        console.error("Invalid content_image format:", values.content_image);
+        content_image = values.content_image
+      } else {
+        console.log("Uploading content images...");
+        content_image = await Promise.all(
+          values?.content_image.map(async (image) => {
+            return await Utils.uploadFile(image);
+          })
+        );
+
+        console.log("Uploaded images:", content_image);
+      }
+      let params = {
+        ...values,
+        cover_image: cover_image,
+        content_image: content_image,
+        book_inventory: bookInventory
+      };
       const res = await bookApi.addBookInfoAndInventory(params);
       console.log(res, bookInventory, storeId)
       const { result } = res?.data;
@@ -196,7 +223,7 @@ function ModalOrderEdit(props) {
         cover_image = await Utils.uploadFile(row?.cover_image);
       }
       // let cover_image = await Utils.uploadFile(values?.cover_image)
-      let params = { ...row, book_id: row.bookId ?? row.book_id, store_id: row.storeId ?? row.store_id ,cover_image: cover_image};
+      let params = { ...row, book_id: row.bookId ?? row.book_id, store_id: row.storeId ?? row.store_id, cover_image: cover_image };
       const res = await bookApi.updateBookInventory(params);
       const { result, reason } = res;
       if (result == true) {
@@ -418,6 +445,27 @@ function ModalOrderEdit(props) {
       // setStoreId(null); 
     }
   }, [storeId, orderItem])
+
+  const [value, setValue] = useState(Utils.markdownToHtml(props.value || ""));
+  const reactQuillRef = useRef(null);
+
+  const imageHandler = useCallback(() => {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/*");
+    input.click();
+    input.onchange = async () => {
+      if (input !== null && input.files !== null) {
+        const file = input.files[0];
+        const url = await Utils.uploadFile(file);
+        const quill = reactQuillRef.current;
+        if (quill) {
+          const range = quill.getEditorSelection();
+          range && quill.getEditor().insertEmbed(range.index, "image", url);
+        }
+      }
+    };
+  }, []);
   return (
     <div>
       <Formik
@@ -454,7 +502,7 @@ function ModalOrderEdit(props) {
         {(formikProps) => (
           <>
             <Modal
-              className=""
+              className="custom-modal-size"
               show={show}
               backdrop="static"
               size="xl"
@@ -529,7 +577,7 @@ function ModalOrderEdit(props) {
                     <KTFormGroup
                       label={
                         <>
-                          {t('ISBN')} 
+                          {t('ISBN')}
                         </>
                       }
                       inputName="isbn"
@@ -669,7 +717,7 @@ function ModalOrderEdit(props) {
                     <KTFormGroup
                       label={
                         <>
-                          {t('PublishName')} 
+                          {t('PublishName')}
                         </>
                       }
                       inputName="publisher"
@@ -698,7 +746,7 @@ function ModalOrderEdit(props) {
                       }
                     />
                   </div>
-                  
+
                   {/* scanAccountId */}
                   {/* <div className="mb-4 d-flex flex-column" style={{ marginTop: '-10px' }}>
                     <label className="mb-2" htmlFor="scanAccountId">
@@ -721,7 +769,7 @@ function ModalOrderEdit(props) {
                       }}
                     />
                   </div> */}
-                  
+
                   <div className="col-4">
                     <KTFormGroup
                       label={
@@ -838,22 +886,55 @@ function ModalOrderEdit(props) {
                       inputElement={
                         <FastField name="description">
                           {({ field, form, meta }) => (
-                            <KTFormTextArea
-                              name={field.name}
+                            <ReactQuill
+                              ref={reactQuillRef}
+                              theme="snow"
+                              placeholder="Start writing..."
+                              modules={{
+                                toolbar: {
+                                  container: [
+                                    [{ header: "1" }, { header: "2" }, { font: [] }],
+                                    [{ size: [] }],
+                                    ["bold", "italic", "underline", "strike", "blockquote"],
+                                    [
+                                      { list: "ordered" },
+                                      { list: "bullet" },
+                                      { indent: "-1" },
+                                      { indent: "+1" },
+                                    ],
+                                    ["link", "image", "video"],
+                                    ["code-block"],
+                                    ["clean"],
+                                  ],
+                                  handlers: {
+                                    image: imageHandler,
+                                  },
+                                },
+                                clipboard: {
+                                  matchVisual: false,
+                                },
+                              }}
+                              formats={[
+                                "header",
+                                "font",
+                                "size",
+                                "bold",
+                                "italic",
+                                "underline",
+                                "strike",
+                                "blockquote",
+                                "list",
+                                "bullet",
+                                "indent",
+                                "link",
+                                "image",
+                                "video",
+                                "code-block",
+                              ]}
                               value={field.value}
                               onChange={(value) => {
                                 form.setFieldValue(field.name, value);
                               }}
-                              onBlur={() => {
-                                form.setFieldTouched(field.name, true);
-                              }}
-                              enableCheckValid
-                              isValid={_.isEmpty(meta.error)}
-                              isTouched={meta.touched}
-                              feedbackText={meta.error}
-                              rows={10}
-                              placeholder={`${_.capitalize(t('Mô tả'))}...`}
-                              type={KTFormInputType.text}
                             />
                           )}
                         </FastField>

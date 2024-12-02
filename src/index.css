@@ -23,3 +23,9 @@ input::-ms-reveal,
 input::-ms-clear {
   display: none;
 }
+
+.custom-modal-size .modal-dialog {
+  max-width: 90%; /* Điều chỉnh theo ý muốn (ví dụ 90%) */
+  width: 80%;     /* Đặt chiều rộng theo tỷ lệ phần trăm hoặc pixel */
+  height: 90vh;   /* Đặt chiều cao của modal, có thể là vh (viewport height) */
+}
