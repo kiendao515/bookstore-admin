@@ -337,13 +337,19 @@ function ModalOrderEdit(props) {
         sortable: false,
         cell: (row, index) => {
           return (
-            <KTImageInput
+            <KTImageInput 
               isAvatar={false}
               name={row.image}
-              value={row.coverImage}
-              onSelectedFile={(file) => {
-                const updatedInventory = [...bookInventory];
+              onChange={async(file) => {
+                const updatedInventory = [...bookInventory]; 
                 updatedInventory[index] = { ...row, cover_image: file };
+                setBookInventory(updatedInventory);
+              }}
+              value={row.coverImage}
+              onSelectedFile={async(file) => {
+                let file1 = await Utils.uploadFile(file)
+                const updatedInventory = [...bookInventory];
+                updatedInventory[index] = { ...row, cover_image: file1 };
                 setBookInventory(updatedInventory);
               }}
               enableCheckValid
