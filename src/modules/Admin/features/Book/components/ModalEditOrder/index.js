@@ -11,7 +11,7 @@ import Global from 'general/utils/Global';
 import Utils from 'general/utils/Utils';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Button, Modal } from 'react-bootstrap';
+import { Button, Modal, Tab, Row, Col, Nav } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Yup from 'yup';
@@ -88,6 +88,8 @@ function ModalOrderEdit(props) {
   const [toggledClearOrders, setToggledClearOrders] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
   const [textResult, setTextResult] = useState("")
+  const [selectedInventoryItem, setSelectedInventoryItem] = useState(null);
+  const [modalInventoryEditShowing, setModalInventoryEditShowing] = useState(false);
 
   const convertImageToText = async () => {
     const worker = await createWorker('eng');
@@ -507,648 +509,617 @@ function ModalOrderEdit(props) {
       >
         {(formikProps) => (
           <>
-            <Modal
-              className="custom-modal-size"
-              show={show}
-              backdrop="static"
-              size="xl"
-              onHide={handleClose}
-              centered
+            <Modal show={show} backdrop="static" size="xl" onHide={handleClose} centered
               onExit={() => {
                 formikProps.handleReset();
               }}
               onExited={() => {
                 handleExistDone();
               }}
-              enforceFocus={false}
-            >
-              <Modal.Header className="px-5 py-5">
-                <Modal.Title>{orderItem ? t('EditBook') : t('NewBook')}</Modal.Title>
-                <div
-                  className="btn btn-xs btn-icon btn-light btn-hover-secondary cursor-pointer"
-                  onClick={() => {
-                    handleClose();
-                  }}
-                >
-                  <i className="far fa-times"></i>
-                </div>
+              enforceFocus={false}>
+              <Modal.Header>
+                <Modal.Title>{isEditMode ? t('EditBookInventory') : t('NewBookInventory')}</Modal.Title>
+                <Button variant="close" onClick={handleClose}></Button>
               </Modal.Header>
 
-              <Modal.Body
-                className="overflow-auto"
-                style={{
-                  maxHeight: '70vh',
-                }}
-              >
-                <div className="row">
-                  <div className="col-12">
-                    <h2 style={{ fontWeight: 600 }}>1/ Thông tin chung</h2>
-                  </div>
-                  {/* orderCode */}
-                  <div className="col-6">
-                    <KTFormGroup
-                      label={
-                        <>
-                          {t('BookName')} <span className="text-danger">(*)</span>
-                        </>
-                      }
-                      inputName="name"
-                      inputElement={
-                        <FastField name="name">
-                          {({ field, form, meta }) => (
-                            <KTFormInput
-                              name={field.name}
-                              value={field.value}
-                              onChange={(value) => {
-                                form.setFieldValue(field.name, value);
-                              }}
-                              onBlur={() => {
-                                form.setFieldTouched(field.name, true);
-                              }}
-                              enableCheckValid
-                              isValid={_.isEmpty(meta.error)}
-                              isTouched={meta.touched}
-                              feedbackText={meta.error}
-                              rows={5}
-                              placeholder={`${_.capitalize(t('tên sách'))}...`}
-                              type={KTFormInputType.text}
-                            // disabled={!canEdit}
-                            />
-                          )}
-                        </FastField>
-                      }
-                    />
-                  </div>
-                  <div className="col-6">
-                    <KTFormGroup
-                      label={
-                        <>
-                          {t('ISBN')}
-                        </>
-                      }
-                      inputName="isbn"
-                      inputElement={
-                        <FastField name="isbn">
-                          {({ field, form, meta }) => (
-                            <KTFormInput
-                              name={field.name}
-                              value={field.value}
-                              onChange={(value) => {
-                                form.setFieldValue(field.name, value);
-                              }}
-                              onBlur={() => {
-                                fetchBookInfoByISBN(field.value, form)
-                              }}
-                              enableCheckValid
-                              isValid={_.isEmpty(meta.error)}
-                              isTouched={meta.touched}
-                              feedbackText={meta.error}
-                              rows={5}
-                              placeholder={`${_.capitalize(t('isbn'))}...`}
-                              type={KTFormInputType.text}
-                            />
-                          )}
-                        </FastField>
-                      }
-                    />
-                  </div>
-
-                  {/* danh muc */}
-                  <div className="col-6">
-                    <KTFormGroup
-                      label={
-                        <>
-                          {t('Category')} <span className="text-danger">(*)</span>
-                        </>
-                      }
-                      inputName="category_id"
-                      inputElement={
-                        <FastField name="category_id">
-                          {({ field, form, meta }) => (
-                            <KTFormSelect
-                              name={field.name}
-                              isCustom
-                              options={[{ name: '', value: '' }].concat(
-                                categories?.map((item) => {
-                                  return {
-                                    name: item.name,
-                                    value: item.id.toString(),
-                                  };
-                                })
-                              )}
-                              value={field.value?.toString()}
-                              onChange={(newValue) => {
-                                form.setFieldValue(field.name, newValue);
-                              }}
-                              enableCheckValid
-                              isValid={_.isEmpty(meta.error)}
-                              isTouched={meta.touched}
-                              feedbackText={meta.error}
-                            />
-                          )}
-                        </FastField>
-                      }
-                    />
-                  </div>
-
-                  <div className="col-6">
-                    <KTFormGroup
-                      label={
-                        <>
-                          {t('AuthorName')} <span className="text-danger">(*)</span>
-                        </>
-                      }
-                      inputName="author_name"
-                      inputElement={
-                        <FastField name="author_name">
-                          {({ field, form, meta }) => (
-                            <KTFormInput
-                              name={field.name}
-                              value={field.value}
-                              onChange={(value) => {
-                                form.setFieldValue(field.name, value);
-                              }}
-                              onBlur={() => {
-                                form.setFieldTouched(field.name, true);
-                              }}
-                              enableCheckValid
-                              isValid={_.isEmpty(meta.error)}
-                              isTouched={meta.touched}
-                              feedbackText={meta.error}
-                              rows={5}
-                              placeholder={`${_.capitalize(t('author'))}...`}
-                              type={KTFormInputType.text}
-                            />
-                          )}
-                        </FastField>
-                      }
-                    />
-                  </div>
-                  {/* postOfficeId */}
-                  <div className="col-4">
-                    <KTFormGroup
-                      label={
-                        <>
-                          {t('NumberOfPage')} <span className="text-danger">(*)</span>
-                        </>
-                      }
-                      inputName="number_of_page"
-                      inputElement={
-                        <FastField name="number_of_page">
-                          {({ field, form, meta }) => (
-                            <KTFormInput
-                              name={field.name}
-                              value={field.value}
-                              onChange={(value) => {
-                                form.setFieldValue(field.name, value);
-                              }}
-                              onBlur={() => {
-                                form.setFieldTouched(field.name, true);
-                              }}
-                              enableCheckValid
-                              isValid={_.isEmpty(meta.error)}
-                              isTouched={meta.touched}
-                              feedbackText={meta.error}
-                              rows={5}
-                              placeholder={`${_.capitalize(t('số trang'))}...`}
-                              type={KTFormInputType.text}
-                            />
-                          )}
-                        </FastField>
-                      }
-                    />
-                  </div>
-
-                  <div className="col-4">
-                    <KTFormGroup
-                      label={
-                        <>
-                          {t('PublishName')}
-                        </>
-                      }
-                      inputName="publisher"
-                      inputElement={
-                        <FastField name="publisher">
-                          {({ field, form, meta }) => (
-                            <KTFormInput
-                              name={field.name}
-                              value={field.value}
-                              onChange={(value) => {
-                                form.setFieldValue(field.name, value);
-                              }}
-                              onBlur={() => {
-                                form.setFieldTouched(field.name, true);
-                              }}
-                              enableCheckValid
-                              isValid={_.isEmpty(meta.error)}
-                              isTouched={meta.touched}
-                              feedbackText={meta.error}
-                              rows={5}
-                              placeholder={`${_.capitalize(t('Nhà xuất bản'))}...`}
-                              type={KTFormInputType.text}
-                            />
-                          )}
-                        </FastField>
-                      }
-                    />
-                  </div>
-
-                  {/* scanAccountId */}
-                  {/* <div className="mb-4 d-flex flex-column" style={{ marginTop: '-10px' }}>
-                    <label className="mb-2" htmlFor="scanAccountId">
-                      {_.capitalize(t('PackingEmployee'))}
-                    </label>
-                    <KTFormSelect
-                      name="scanAccountId"
-                      isCustom
-                      options={[{ name: '', value: '' }].concat(
-                        employees?.map((item) => {
-                          return {
-                            name: item.fullname,
-                            value: item.accountId.toString(),
-                          };
-                        })
-                      )}
-                      value={formikProps.getFieldProps('scanAccountId').value?.toString()}
-                      onChange={(newValue) => {
-                        formikProps.getFieldHelpers('scanAccountId').setValue(newValue);
-                      }}
-                    />
-                  </div> */}
-
-                  <div className="col-4">
-                    <KTFormGroup
-                      label={
-                        <>
-                          {t('PublishYear')}
-                        </>
-                      }
-                      inputName="pubish_year"
-                      inputElement={
-                        <FastField name="publish_year">
-                          {({ field, form, meta }) => (
-                            <KTFormInput
-                              name={field.name}
-                              value={field.value}
-                              onChange={(value) => {
-                                form.setFieldValue(field.name, value);
-                              }}
-                              onBlur={() => {
-                                form.setFieldTouched(field.name, true);
-                              }}
-                              enableCheckValid
-                              isValid={_.isEmpty(meta.error)}
-                              isTouched={meta.touched}
-                              feedbackText={meta.error}
-                              rows={5}
-                              placeholder={`${_.capitalize(t('Năm xuất bản'))}...`}
-                              type={KTFormInputType.text}
-                            />
-                          )}
-                        </FastField>
-                      }
-                    />
-                  </div>
-
-                  <div className="col-6">
-                    <KTFormGroup
-                      label={
-                        <>
-                          {t('Tag')}
-                        </>
-                      }
-                      inputName="tags"
-                      inputElement={
-                        <FastField name="tags">
-                          {({ field, form, meta }) => (
-                            <KTFormInput
-                              name={field.name}
-                              value={field.value}
-                              onChange={(value) => {
-                                form.setFieldValue(field.name, value);
-                              }}
-                              onBlur={() => {
-                                form.setFieldTouched(field.name, true);
-                              }}
-                              enableCheckValid
-                              isValid={_.isEmpty(meta.error)}
-                              isTouched={meta.touched}
-                              feedbackText={meta.error}
-                              rows={5}
-                              placeholder={`${_.capitalize(t('tags'))}...`}
-                              type={KTFormInputType.text}
-                            />
-                          )}
-                        </FastField>
-                      }
-                    />
-                  </div>
-
-                  <div className="col-6">
-                    <KTFormGroup
-                      label={
-                        <>
-                          {t('Bộ sưu tập')}
-                        </>
-                      }
-                      inputName="collection_id"
-                      inputElement={
-                        <FastField name="collection_id">
-                          {({ field, form, meta }) => (
-                            <KTFormSelect
-                              name={field.name}
-                              isCustom
-                              options={[{ name: '', value: '' }].concat(
-                                collection?.map((item) => {
-                                  return {
-                                    name: item.name,
-                                    value: item.id.toString(),
-                                  };
-                                })
-                              )}
-                              value={field.value?.toString()}
-                              onChange={(newValue) => {
-                                form.setFieldValue(field.name, newValue);
-                              }}
-                              enableCheckValid
-                              isValid={_.isEmpty(meta.error)}
-                              isTouched={meta.touched}
-                              feedbackText={meta.error}
-                            />
-                          )}
-                        </FastField>
-                      }
-                    />
-                  </div>
-                  {/* status */}
-                  <div className="mb-4 d-flex flex-column" style={{ marginTop: '-10px' }}>
-                    <KTFormGroup
-                      label={
-                        <>
-                          {t('Description')} <span className="text-danger">(*)</span>
-                        </>
-                      }
-                      inputName="description"
-                      inputElement={
-                        <FastField name="description">
-                          {({ field, form, meta }) => (
-                            <ReactQuill
-                              ref={reactQuillRef}
-                              theme="snow"
-                              placeholder="Start writing..."
-                              modules={{
-                                toolbar: {
-                                  container: [
-                                    [{ header: "1" }, { header: "2" }, { font: [] }],
-                                    [{ size: [] }],
-                                    ["bold", "italic", "underline", "strike", "blockquote"],
-                                    [
-                                      { list: "ordered" },
-                                      { list: "bullet" },
-                                      { indent: "-1" },
-                                      { indent: "+1" },
-                                    ],
-                                    ["link", "image", "video"],
-                                    ["code-block"],
-                                    ["clean"],
-                                  ],
-                                  handlers: {
-                                    image: imageHandler,
-                                  },
-                                },
-                                clipboard: {
-                                  matchVisual: false,
-                                },
-                              }}
-                              formats={[
-                                "header",
-                                "font",
-                                "size",
-                                "bold",
-                                "italic",
-                                "underline",
-                                "strike",
-                                "blockquote",
-                                "list",
-                                "bullet",
-                                "indent",
-                                "link",
-                                "image",
-                                "video",
-                                "code-block",
-                              ]}
-                              value={field.value}
-                              onChange={(value) => {
-                                form.setFieldValue(field.name, value);
-                              }}
-                            />
-                          )}
-                        </FastField>
-                      }
-                    />
-                  </div>
-
-                  {/* image */}
-                  <div className="col-6">
-                    <KTFormGroup
-                      label={
-                        <>
-                          {t('ThumbnailBook')} <span className="text-danger">(*)</span>
-                        </>
-                      }
-                      inputName="cover_image"
-                      inputElement={
-                        <FastField name="cover_image">
-                          {({ field, form, meta }) => (
-                            <KTImageInput
-                              isAvatar={false}
-                              name={field.name}
-                              value={field.value}
-                              onChange={(value) => {
-                                form.setFieldValue(field.name, value);
-                                setSelectedImage(value)
-                              }}
-                              onBlur={() => {
-                                form.setFieldTouched(field.name, true);
-                              }}
-                              enableCheckValid
-                              isValid={_.isEmpty(meta.error)}
-                              isTouched={meta.touched}
-                              feedbackText={meta.error}
-                              defaultImage={field.value ?? AppResource.images.imgUpload}
-                              acceptImageTypes={AppConfigs.acceptImages}
-                              onSelectedFile={(file) => {
-                                console.log(file);
-                                //   Utils.validateImageFile(file);
-                                form.setFieldValue('cover_image', file);
-                              }}
-                              onRemovedFile={() => {
-                                form.setFieldValue('cover_image', null);
-                              }}
-                              additionalClassName=""
-                            />
-                          )}
-                        </FastField>
-                      }
-                    />
-                  </div>
-
-                  <div className="col-6">
-                    <KTFormGroup
-                      label={
-                        <>
-                          {t('ContentBookImage')} <span className="text-danger">(*)</span>
-                        </>
-                      }
-                      inputName="content_image"
-                      inputElement={
-                        <FastField name="content_image">
-                          {({ field, form, meta }) => (
-                            <KTUploadFiles
-                              isAvatar={false}
-                              name={field.name}
-                              value={field.value}
-                              onChange={(value) => {
-                                form.setFieldValue(field.name, value);
-                              }}
-                              onBlur={() => {
-                                form.setFieldTouched(field.name, true);
-                              }}
-                              enableCheckValid
-                              isValid={_.isEmpty(meta.error)}
-                              isTouched={meta.touched}
-                              feedbackText={meta.error}
-                              onSelectedFile={(file) => {
-                                console.log("content image", file);
-                                //   Utils.validateImageFile(file);
-                                form.setFieldValue('content_image', file);
-                              }}
-                              onRemovedFile={() => {
-                                form.setFieldValue('content_image', null);
-                              }}
-
-                              additionalClassName=""
-                            />
-                          )}
-                        </FastField>
-                      }
-                    />
-                  </div>
-
-                  <div className="col-12">
-                    <h2 style={{ fontWeight: 600 }}>2/ Tồn kho</h2>
-                    <div className="col-6">
-                      <KTFormGroup
-                        label={
-                          <>
-                            {t('Nhà bán')} <span className="text-danger">(*)</span>
-                          </>
-                        }
-                        inputName="store_id"
-                        inputElement={
-                          <FastField name="store_id">
-                            {({ field, form, meta }) => (
-                              <KTFormSelect
-                                name={field.name}
-                                isCustom
-                                options={[{ name: 'Chọn nhà bán', value: '' }].concat(
-                                  bookStores?.map((item) => {
-                                    return {
-                                      name: item?.name,
-                                      value: item?.id.toString(),
-                                    };
-                                  })
-                                )}
-                                value={field.value?.toString()}
-                                onChange={(newValue) => {
-                                  form.setFieldValue(field.name, newValue);
-                                  setStoreId(newValue)
-                                }}
-                                enableCheckValid
-                                isValid={_.isEmpty(meta.error)}
-                                isTouched={meta.touched}
-                                feedbackText={meta.error}
+              <Modal.Body>
+                <Tab.Container defaultActiveKey="generalInfo">
+                  <Row>
+                    <Col sm={3}>
+                      <Nav variant="pills" className="flex-column">
+                        <Nav.Item>
+                          <Nav.Link eventKey="generalInfo">{t('Thông tin cơ bản')}</Nav.Link>
+                        </Nav.Item>
+                        <Nav.Item>
+                          <Nav.Link eventKey="inventoryInfo">{t('Tồn kho')}</Nav.Link>
+                        </Nav.Item>
+                      </Nav>
+                    </Col>
+                    <Col sm={9}>
+                      <Tab.Content>
+                        <Tab.Pane eventKey="generalInfo">
+                          <div className='row'>
+                            <div className="col-12">
+                              <h2 style={{ fontWeight: 600 }}>1/ Thông tin chung</h2>
+                            </div>
+                            {/* orderCode */}
+                            <div className="col-6">
+                              <KTFormGroup
+                                label={
+                                  <>
+                                    {t('BookName')} <span className="text-danger">(*)</span>
+                                  </>
+                                }
+                                inputName="name"
+                                inputElement={
+                                  <FastField name="name">
+                                    {({ field, form, meta }) => (
+                                      <KTFormInput
+                                        name={field.name}
+                                        value={field.value}
+                                        onChange={(value) => {
+                                          form.setFieldValue(field.name, value);
+                                        }}
+                                        onBlur={() => {
+                                          form.setFieldTouched(field.name, true);
+                                        }}
+                                        enableCheckValid
+                                        isValid={_.isEmpty(meta.error)}
+                                        isTouched={meta.touched}
+                                        feedbackText={meta.error}
+                                        rows={5}
+                                        placeholder={`${_.capitalize(t('tên sách'))}...`}
+                                        type={KTFormInputType.text}
+                                      // disabled={!canEdit}
+                                      />
+                                    )}
+                                  </FastField>
+                                }
                               />
-                            )}
-                          </FastField>
-                        }
-                      />
-                    </div>
-                    <div className="card-body pt-3">
-                      <DataTable
-                        columns={columns}
-                        data={bookInventory}
-                        customStyles={customDataTableStyle}
-                        responsive={true}
-                        noHeader
-                        striped
-                        noDataComponent={
-                          <div className="pt-12">
-                            <Empty
-                              text={t('NoData')}
-                              visible={false}
-                              imageEmpty={AppResource.images.imgEmpty}
-                              imageEmptyPercentWidth={80}
-                            />
+                            </div>
+                            <div className="col-6">
+                              <KTFormGroup
+                                label={
+                                  <>
+                                    {t('ISBN')}
+                                  </>
+                                }
+                                inputName="isbn"
+                                inputElement={
+                                  <FastField name="isbn">
+                                    {({ field, form, meta }) => (
+                                      <KTFormInput
+                                        name={field.name}
+                                        value={field.value}
+                                        onChange={(value) => {
+                                          form.setFieldValue(field.name, value);
+                                        }}
+                                        onBlur={() => {
+                                          fetchBookInfoByISBN(field.value, form)
+                                        }}
+                                        enableCheckValid
+                                        isValid={_.isEmpty(meta.error)}
+                                        isTouched={meta.touched}
+                                        feedbackText={meta.error}
+                                        rows={5}
+                                        placeholder={`${_.capitalize(t('isbn'))}...`}
+                                        type={KTFormInputType.text}
+                                      />
+                                    )}
+                                  </FastField>
+                                }
+                              />
+                            </div>
+
+                            {/* danh muc */}
+                            <div className="col-6">
+                              <KTFormGroup
+                                label={
+                                  <>
+                                    {t('Category')} <span className="text-danger">(*)</span>
+                                  </>
+                                }
+                                inputName="category_id"
+                                inputElement={
+                                  <FastField name="category_id">
+                                    {({ field, form, meta }) => (
+                                      <KTFormSelect
+                                        name={field.name}
+                                        isCustom
+                                        options={[{ name: '', value: '' }].concat(
+                                          categories?.map((item) => {
+                                            return {
+                                              name: item.name,
+                                              value: item.id.toString(),
+                                            };
+                                          })
+                                        )}
+                                        value={field.value?.toString()}
+                                        onChange={(newValue) => {
+                                          form.setFieldValue(field.name, newValue);
+                                        }}
+                                        enableCheckValid
+                                        isValid={_.isEmpty(meta.error)}
+                                        isTouched={meta.touched}
+                                        feedbackText={meta.error}
+                                      />
+                                    )}
+                                  </FastField>
+                                }
+                              />
+                            </div>
+
+                            <div className="col-6">
+                              <KTFormGroup
+                                label={
+                                  <>
+                                    {t('AuthorName')} <span className="text-danger">(*)</span>
+                                  </>
+                                }
+                                inputName="author_name"
+                                inputElement={
+                                  <FastField name="author_name">
+                                    {({ field, form, meta }) => (
+                                      <KTFormInput
+                                        name={field.name}
+                                        value={field.value}
+                                        onChange={(value) => {
+                                          form.setFieldValue(field.name, value);
+                                        }}
+                                        onBlur={() => {
+                                          form.setFieldTouched(field.name, true);
+                                        }}
+                                        enableCheckValid
+                                        isValid={_.isEmpty(meta.error)}
+                                        isTouched={meta.touched}
+                                        feedbackText={meta.error}
+                                        rows={5}
+                                        placeholder={`${_.capitalize(t('author'))}...`}
+                                        type={KTFormInputType.text}
+                                      />
+                                    )}
+                                  </FastField>
+                                }
+                              />
+                            </div>
+                            {/* postOfficeId */}
+                            <div className="col-4">
+                              <KTFormGroup
+                                label={
+                                  <>
+                                    {t('NumberOfPage')} <span className="text-danger">(*)</span>
+                                  </>
+                                }
+                                inputName="number_of_page"
+                                inputElement={
+                                  <FastField name="number_of_page">
+                                    {({ field, form, meta }) => (
+                                      <KTFormInput
+                                        name={field.name}
+                                        value={field.value}
+                                        onChange={(value) => {
+                                          form.setFieldValue(field.name, value);
+                                        }}
+                                        onBlur={() => {
+                                          form.setFieldTouched(field.name, true);
+                                        }}
+                                        enableCheckValid
+                                        isValid={_.isEmpty(meta.error)}
+                                        isTouched={meta.touched}
+                                        feedbackText={meta.error}
+                                        rows={5}
+                                        placeholder={`${_.capitalize(t('số trang'))}...`}
+                                        type={KTFormInputType.text}
+                                      />
+                                    )}
+                                  </FastField>
+                                }
+                              />
+                            </div>
+
+                            <div className="col-4">
+                              <KTFormGroup
+                                label={
+                                  <>
+                                    {t('PublishName')}
+                                  </>
+                                }
+                                inputName="publisher"
+                                inputElement={
+                                  <FastField name="publisher">
+                                    {({ field, form, meta }) => (
+                                      <KTFormInput
+                                        name={field.name}
+                                        value={field.value}
+                                        onChange={(value) => {
+                                          form.setFieldValue(field.name, value);
+                                        }}
+                                        onBlur={() => {
+                                          form.setFieldTouched(field.name, true);
+                                        }}
+                                        enableCheckValid
+                                        isValid={_.isEmpty(meta.error)}
+                                        isTouched={meta.touched}
+                                        feedbackText={meta.error}
+                                        rows={5}
+                                        placeholder={`${_.capitalize(t('Nhà xuất bản'))}...`}
+                                        type={KTFormInputType.text}
+                                      />
+                                    )}
+                                  </FastField>
+                                }
+                              />
+                            </div>
+
+                            <div className="col-4">
+                              <KTFormGroup
+                                label={
+                                  <>
+                                    {t('PublishYear')}
+                                  </>
+                                }
+                                inputName="pubish_year"
+                                inputElement={
+                                  <FastField name="publish_year">
+                                    {({ field, form, meta }) => (
+                                      <KTFormInput
+                                        name={field.name}
+                                        value={field.value}
+                                        onChange={(value) => {
+                                          form.setFieldValue(field.name, value);
+                                        }}
+                                        onBlur={() => {
+                                          form.setFieldTouched(field.name, true);
+                                        }}
+                                        enableCheckValid
+                                        isValid={_.isEmpty(meta.error)}
+                                        isTouched={meta.touched}
+                                        feedbackText={meta.error}
+                                        rows={5}
+                                        placeholder={`${_.capitalize(t('Năm xuất bản'))}...`}
+                                        type={KTFormInputType.text}
+                                      />
+                                    )}
+                                  </FastField>
+                                }
+                              />
+                            </div>
+
+                            <div className="col-6">
+                              <KTFormGroup
+                                label={
+                                  <>
+                                    {t('Tag')}
+                                  </>
+                                }
+                                inputName="tags"
+                                inputElement={
+                                  <FastField name="tags">
+                                    {({ field, form, meta }) => (
+                                      <KTFormInput
+                                        name={field.name}
+                                        value={field.value}
+                                        onChange={(value) => {
+                                          form.setFieldValue(field.name, value);
+                                        }}
+                                        onBlur={() => {
+                                          form.setFieldTouched(field.name, true);
+                                        }}
+                                        enableCheckValid
+                                        isValid={_.isEmpty(meta.error)}
+                                        isTouched={meta.touched}
+                                        feedbackText={meta.error}
+                                        rows={5}
+                                        placeholder={`${_.capitalize(t('tags'))}...`}
+                                        type={KTFormInputType.text}
+                                      />
+                                    )}
+                                  </FastField>
+                                }
+                              />
+                            </div>
+
+                            <div className="col-6">
+                              <KTFormGroup
+                                label={
+                                  <>
+                                    {t('Bộ sưu tập')}
+                                  </>
+                                }
+                                inputName="collection_id"
+                                inputElement={
+                                  <FastField name="collection_id">
+                                    {({ field, form, meta }) => (
+                                      <KTFormSelect
+                                        name={field.name}
+                                        isCustom
+                                        options={[{ name: '', value: '' }].concat(
+                                          collection?.map((item) => {
+                                            return {
+                                              name: item.name,
+                                              value: item.id.toString(),
+                                            };
+                                          })
+                                        )}
+                                        value={field.value?.toString()}
+                                        onChange={(newValue) => {
+                                          form.setFieldValue(field.name, newValue);
+                                        }}
+                                        enableCheckValid
+                                        isValid={_.isEmpty(meta.error)}
+                                        isTouched={meta.touched}
+                                        feedbackText={meta.error}
+                                      />
+                                    )}
+                                  </FastField>
+                                }
+                              />
+                            </div>
+                            {/* status */}
+                            <div className="mb-4 d-flex flex-column" style={{ marginTop: '-10px' }}>
+                              <KTFormGroup
+                                label={
+                                  <>
+                                    {t('Description')} <span className="text-danger">(*)</span>
+                                  </>
+                                }
+                                inputName="description"
+                                inputElement={
+                                  <FastField name="description">
+                                    {({ field, form, meta }) => (
+                                      <ReactQuill
+                                        ref={reactQuillRef}
+                                        theme="snow"
+                                        placeholder="Start writing..."
+                                        modules={{
+                                          toolbar: {
+                                            container: [
+                                              [{ header: "1" }, { header: "2" }, { font: [] }],
+                                              [{ size: [] }],
+                                              ["bold", "italic", "underline", "strike", "blockquote"],
+                                              [
+                                                { list: "ordered" },
+                                                { list: "bullet" },
+                                                { indent: "-1" },
+                                                { indent: "+1" },
+                                              ],
+                                              ["link", "image", "video"],
+                                              ["code-block"],
+                                              ["clean"],
+                                            ],
+                                            handlers: {
+                                              image: imageHandler,
+                                            },
+                                          },
+                                          clipboard: {
+                                            matchVisual: false,
+                                          },
+                                        }}
+                                        formats={[
+                                          "header",
+                                          "font",
+                                          "size",
+                                          "bold",
+                                          "italic",
+                                          "underline",
+                                          "strike",
+                                          "blockquote",
+                                          "list",
+                                          "bullet",
+                                          "indent",
+                                          "link",
+                                          "image",
+                                          "video",
+                                          "code-block",
+                                        ]}
+                                        value={field.value}
+                                        onChange={(value) => {
+                                          form.setFieldValue(field.name, value);
+                                        }}
+                                      />
+                                    )}
+                                  </FastField>
+                                }
+                              />
+                            </div>
+
+                            {/* image */}
+                            <div className="col-6">
+                              <KTFormGroup
+                                label={
+                                  <>
+                                    {t('ThumbnailBook')} <span className="text-danger">(*)</span>
+                                  </>
+                                }
+                                inputName="cover_image"
+                                inputElement={
+                                  <FastField name="cover_image">
+                                    {({ field, form, meta }) => (
+                                      <KTImageInput
+                                        isAvatar={false}
+                                        name={field.name}
+                                        value={field.value}
+                                        onChange={(value) => {
+                                          form.setFieldValue(field.name, value);
+                                          setSelectedImage(value)
+                                        }}
+                                        onBlur={() => {
+                                          form.setFieldTouched(field.name, true);
+                                        }}
+                                        enableCheckValid
+                                        isValid={_.isEmpty(meta.error)}
+                                        isTouched={meta.touched}
+                                        feedbackText={meta.error}
+                                        defaultImage={field.value ?? AppResource.images.imgUpload}
+                                        acceptImageTypes={AppConfigs.acceptImages}
+                                        onSelectedFile={(file) => {
+                                          console.log(file);
+                                          //   Utils.validateImageFile(file);
+                                          form.setFieldValue('cover_image', file);
+                                        }}
+                                        onRemovedFile={() => {
+                                          form.setFieldValue('cover_image', null);
+                                        }}
+                                        additionalClassName=""
+                                      />
+                                    )}
+                                  </FastField>
+                                }
+                              />
+                            </div>
+
+                            <div className="col-6">
+                              <KTFormGroup
+                                label={
+                                  <>
+                                    {t('ContentBookImage')} <span className="text-danger">(*)</span>
+                                  </>
+                                }
+                                inputName="content_image"
+                                inputElement={
+                                  <FastField name="content_image">
+                                    {({ field, form, meta }) => (
+                                      <KTUploadFiles
+                                        isAvatar={false}
+                                        name={field.name}
+                                        value={field.value}
+                                        onChange={(value) => {
+                                          form.setFieldValue(field.name, value);
+                                        }}
+                                        onBlur={() => {
+                                          form.setFieldTouched(field.name, true);
+                                        }}
+                                        enableCheckValid
+                                        isValid={_.isEmpty(meta.error)}
+                                        isTouched={meta.touched}
+                                        feedbackText={meta.error}
+                                        onSelectedFile={(file) => {
+                                          console.log("content image", file);
+                                          //   Utils.validateImageFile(file);
+                                          form.setFieldValue('content_image', file);
+                                        }}
+                                        onRemovedFile={() => {
+                                          form.setFieldValue('content_image', null);
+                                        }}
+
+                                        additionalClassName=""
+                                      />
+                                    )}
+                                  </FastField>
+                                }
+                              />
+                            </div>
                           </div>
-                        }
-                        progressPending={isGettingBookList}
-                        progressComponent={
-                          <Loading showBackground={false} message={`${t('Loading')}...`} />
-                        }
-                        onSelectedRowsChange={handleSelectedOrdersChanged}
-                        // onRowClicked={(row) => {
-                        //   // handleEditOrder(row);
-                        //   handleSelectInventory(row);
-                        // }}
-                        pointerOnHover
-                        highlightOnHover
-                        selectableRowsHighlight
-                      />
-                    </div>
-                  </div>
-                </div>
+
+
+                        </Tab.Pane>
+
+                        {/* Tab: Inventory Info */}
+                        <Tab.Pane eventKey="inventoryInfo">
+                          <div className="col-12">
+                            <h2 style={{ fontWeight: 600 }}>2/ Tồn kho</h2>
+                            <div className="col-6">
+                              <KTFormGroup
+                                label={
+                                  <>
+                                    {t('Nhà bán')} <span className="text-danger">(*)</span>
+                                  </>
+                                }
+                                inputName="store_id"
+                                inputElement={
+                                  <FastField name="store_id">
+                                    {({ field, form, meta }) => (
+                                      <KTFormSelect
+                                        name={field.name}
+                                        isCustom
+                                        options={[{ name: 'Chọn nhà bán', value: '' }].concat(
+                                          bookStores?.map((item) => {
+                                            return {
+                                              name: item?.name,
+                                              value: item?.id.toString(),
+                                            };
+                                          })
+                                        )}
+                                        value={field.value?.toString()}
+                                        onChange={(newValue) => {
+                                          form.setFieldValue(field.name, newValue);
+                                          setStoreId(newValue)
+                                        }}
+                                        enableCheckValid
+                                        isValid={_.isEmpty(meta.error)}
+                                        isTouched={meta.touched}
+                                        feedbackText={meta.error}
+                                      />
+                                    )}
+                                  </FastField>
+                                }
+                              />
+                            </div>
+                            <div className="card-body pt-3">
+                              <DataTable
+                                columns={columns}
+                                data={bookInventory}
+                                customStyles={customDataTableStyle}
+                                responsive={true}
+                                noHeader
+                                striped
+                                noDataComponent={
+                                  <div className="pt-12">
+                                    <Empty
+                                      text={t('NoData')}
+                                      visible={false}
+                                      imageEmpty={AppResource.images.imgEmpty}
+                                      imageEmptyPercentWidth={80}
+                                    />
+                                  </div>
+                                }
+                                progressPending={isGettingBookList}
+                                progressComponent={
+                                  <Loading showBackground={false} message={`${t('Loading')}...`} />
+                                }
+                                onSelectedRowsChange={handleSelectedOrdersChanged}
+                                // onRowClicked={(row) => {
+                                //   // handleEditOrder(row);
+                                //   handleSelectInventory(row);
+                                // }}
+                                pointerOnHover
+                                highlightOnHover
+                                selectableRowsHighlight
+                              />
+                            </div>
+                          </div>
+                        </Tab.Pane>
+                      </Tab.Content>
+                    </Col>
+                  </Row>
+                </Tab.Container>
               </Modal.Body>
-
               <Modal.Footer>
-                <div className="w-100 d-flex row">
-                  <Button
-                    className="font-weight-bold flex-grow-1 col mr-3"
-                    variant="primary"
-                    onClick={() => {
-                      formikProps.handleSubmit();
-                    }}
-                  >
-                    {t('Save')}
-                  </Button>
-
-                  <Button
-                    className="font-weight-bold flex-grow-1 col"
-                    variant="secondary"
-                    onClick={handleClose}
-                  >
-                    {t('Close')}
-                  </Button>
-                </div>
+                <Button variant="primary" onClick={formikProps.handleSubmit}>
+                  {t('Save')}
+                </Button>
+                <Button variant="secondary" onClick={handleClose}>
+                  {t('Close')}
+                </Button>
               </Modal.Footer>
             </Modal>
           </>
         )}
       </Formik>
-      {/* <ModalEditBookInventory
-        show={modalOrderEditShowing}
+      <ModalEditBookInventory
+        show={modalInventoryEditShowing}
         onClose={() => {
-          setModalOrderEditShowing(false);
+          setModalInventoryEditShowing(false);
         }}
         onExistDone={() => {
-          setSelectedOrderItem(null);
+          setSelectedInventoryItem(null);
         }}
-        bookInventoryItem={selectedOrderItem}
+        bookInventoryItem={selectedInventoryItem}
         onRefreshOrderList={() => {
-          setSelectedOrderItem(null);
+          setSelectedInventoryItem(null);
           // getListBookInventory();
         }}
-      /> */}
+      />
     </div>
   );
 }
