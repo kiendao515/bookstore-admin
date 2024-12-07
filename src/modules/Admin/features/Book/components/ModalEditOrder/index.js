@@ -11,7 +11,7 @@ import Global from 'general/utils/Global';
 import Utils from 'general/utils/Utils';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Button, Modal, Tab, Row, Col, Nav } from 'react-bootstrap';
+import { Button, Modal, Tab, Row, Col, Nav, Spinner } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Yup from 'yup';
@@ -75,15 +75,7 @@ function ModalOrderEdit(props) {
   // const [categories, setCategories] = useState([])
   const [bookInventory, setBookInventory] = useState([]);
   const [storeId, setStoreId] = useState([])
-  // const handleInputChange = (e, row, field) => {
-  //   const newData = books.map((item) => {
-  //     if (item.id === row.id) {
-  //       return { ...item, [field]: e.target.value };
-  //     }
-  //     return item;
-  //   });
-  //   setBooks(newData);
-  // };
+  const [loading, setLoading] = useState(false);
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [toggledClearOrders, setToggledClearOrders] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -339,16 +331,16 @@ function ModalOrderEdit(props) {
         sortable: false,
         cell: (row, index) => {
           return (
-            <KTImageInput 
+            <KTImageInput
               isAvatar={false}
               name={row.image}
-              onChange={async(file) => {
-                const updatedInventory = [...bookInventory]; 
+              onChange={async (file) => {
+                const updatedInventory = [...bookInventory];
                 updatedInventory[index] = { ...row, cover_image: file };
                 setBookInventory(updatedInventory);
               }}
               value={row.coverImage}
-              onSelectedFile={async(file) => {
+              onSelectedFile={async (file) => {
                 let file1 = await Utils.uploadFile(file)
                 const updatedInventory = [...bookInventory];
                 updatedInventory[index] = { ...row, cover_image: file1 };
@@ -500,6 +492,7 @@ function ModalOrderEdit(props) {
         // })}
         enableReinitialize
         onSubmit={(values) => {
+          setLoading(true);
           if (isEditMode) {
             requestUpdateBook(values);
           } else {
@@ -1096,7 +1089,12 @@ function ModalOrderEdit(props) {
               </Modal.Body>
               <Modal.Footer>
                 <Button variant="primary" onClick={formikProps.handleSubmit}>
-                  {t('Save')}
+                  {loading ? (
+                    <Spinner animation="border" size="sm" /> // Hiển thị loading spinner
+                  ) : (
+                    t('Save')
+                  )}
+
                 </Button>
                 <Button variant="secondary" onClick={handleClose}>
                   {t('Close')}

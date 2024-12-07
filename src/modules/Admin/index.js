@@ -9,6 +9,7 @@ import PartnerHomePage from './features/Account/screens/PartnerHomePage';
 import BookHomeScreen from './features/Book/screens/BookHomeScreen';
 import CollectionHomePage from './features/Collection/screens/CollectionHomePage';
 import OrderHomePage from './features/Order/screens/OrderHomePage';
+import Dashboard from './features/Report';
 
 function Admin(props) {
   // MARK: --- Props ---
@@ -18,7 +19,7 @@ function Admin(props) {
     <KT01BaseLayout>
       <div id="admin-container" className="container min-h-100">
         <Routes>
-          {/* <Route path="/" element={<Navigate to="account" />} /> */}
+          <Route path="/" element={<Dashboard/>}/>
           <Route path="category/*" element={<CategoryHomePage/>} />
           <Route path="book/*" element={<BookHomeScreen/>} />
           <Route path = "order/*" element = {<OrderHomePage/>}/>

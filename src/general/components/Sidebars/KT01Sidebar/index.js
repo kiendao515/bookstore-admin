@@ -18,6 +18,19 @@ function KT01Sidebar(props) {
   const currentAccount = useSelector((state) => state.auth.current);
   const menuItems = useMemo(() => {
     return [
+      { type: 'section', text: t("Thống kê") },
+      {
+        type: 'item',
+        text: t("Thống kê"),
+        icon: 'fas fa-qrcode',
+        path: "/"
+      },
+      {
+        type: 'item',
+        text: t("Báo cáo"),
+        icon: 'fas fa-qrcode',
+        path: "/report"
+      },
       { type: 'section', text: t("Quản lý sách") },
       {
         type: 'item',

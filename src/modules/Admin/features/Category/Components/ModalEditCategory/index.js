@@ -11,12 +11,13 @@ import Global from 'general/utils/Global';
 import Utils from 'general/utils/Utils';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Button, Modal } from 'react-bootstrap';
+import { Button, Modal, Spinner } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import * as Yup from 'yup';
 import { thunkGetListCategory } from '../../categorySlice';
 import AppResource from 'general/constants/AppResource';
+import { useState } from 'react';
 
 ModalEditCategory.propTypes = {
   show: PropTypes.bool,
@@ -51,6 +52,7 @@ function ModalEditCategory(props) {
   const dispatch = useDispatch();
   const { show, onClose, onRefreshCategoryList, categoryItem, onExistDone } = props;
   const isEditMode = !_.isNull(categoryItem);
+  const [loading, setLoading] = useState(false);
   console.log(categoryItem);
 
 
@@ -90,7 +92,7 @@ function ModalEditCategory(props) {
       let params = { ...values };
       const res = await categoryApi.updateCategory(params);
       const { result } = res;
-      if ( result== true) {
+      if (result == true) {
         ToastHelper.showSuccess(t('Success'));
         dispatch(thunkGetListCategory(Global.gFiltersCategoryList));
         handleClose();
@@ -121,8 +123,8 @@ function ModalEditCategory(props) {
         // })}
         enableReinitialize
         onSubmit={(values) => {
-          console.log("thêm mới",values);
-          
+          console.log("thêm mới", values);
+          setLoading(true);
           if (isEditMode) {
             requestUpdateCategory(values);
           } else {
@@ -288,7 +290,11 @@ function ModalEditCategory(props) {
                       formikProps.handleSubmit();
                     }}
                   >
-                    {t('Save')}
+                    {loading ? (
+                      <Spinner animation="border" size="sm" /> // Hiển thị loading spinner
+                    ) : (
+                      t('Save')
+                    )}
                   </Button>
 
                   <Button

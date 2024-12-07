@@ -10,7 +10,7 @@ import Global from 'general/utils/Global';
 import Utils from 'general/utils/Utils';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Button, Modal } from 'react-bootstrap';
+import { Button, Modal, Spinner } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import * as Yup from 'yup';
@@ -18,6 +18,7 @@ import { thunkGetListAccount } from '../../accountSlice';
 import AppResource from 'general/constants/AppResource';
 import accountApi from 'api/accountApi';
 import KTFormSelect from 'general/components/OtherKeenComponents/Forms/KTFormSelect';
+import { useState } from 'react';
 
 ModalAccountEdit.propTypes = {
   show: PropTypes.bool,
@@ -53,6 +54,7 @@ function ModalAccountEdit(props) {
   const dispatch = useDispatch();
   const { show, onClose, role, onRefreshAccountList, accountItem, onExistDone } = props;
   const isEditMode = !_.isNull(accountItem);
+  const [loading,setLoading] = useState(false)
 
   // MARK: --- Functions ---
   function handleClose() {
@@ -90,6 +92,7 @@ function ModalAccountEdit(props) {
       } else {
         ToastHelper.showError(reason);
       }
+      setLoading(false)
     } catch (error) {
       ToastHelper.showError(t('Error'));
       console.log(error);
@@ -126,6 +129,7 @@ function ModalAccountEdit(props) {
           handleClose();
         }
       }
+      setLoading(false)
     } catch (error) {
       console.log(error);
     }
@@ -161,6 +165,7 @@ function ModalAccountEdit(props) {
         // })}
         enableReinitialize
         onSubmit={(values) => {
+          setLoading(true)
           console.log(values);
           if (isEditMode) {
             requestUpdateAccount(values);
@@ -512,7 +517,11 @@ function ModalAccountEdit(props) {
                       formikProps.handleSubmit();
                     }}
                   >
-                    {t('Save')}
+                    {loading ? (
+                    <Spinner animation="border" size="sm" /> // Hiển thị loading spinner
+                  ) : (
+                    t('Save')
+                  )}
                   </Button>
 
                   <Button
