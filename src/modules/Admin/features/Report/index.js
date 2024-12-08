@@ -18,6 +18,7 @@ import CardBarChart from './components/CardBarChart';
 import DateRangePickerInput from 'general/components/Form/DateRangePicker';
 import moment from 'moment';
 import CardAreaChart from './components/CardAreaChart';
+import reportApi from 'api/reportApi';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -39,32 +40,24 @@ const Dashboard = () => {
       setLoading(true);
       const { startDate, endDate } = range;
 
-      const response = await axios.get(process.env.REACT_APP_API_URL + '/reports', {
-        params: { from: startDate, to: endDate },
-      });
-      if (response.data?.result) {
-        setStatistics(response.data.data);
+      const response = await reportApi.getListReport(startDate,endDate)
+      if (response.result) {
+        setStatistics(response.data);
       }
 
-      const categoryResponse = await axios.get(process.env.REACT_APP_API_URL + '/reports/category', {
-        params: { from: startDate, to: endDate },
-      });
-      if (categoryResponse.data?.result) {
-        setCategories(categoryResponse.data.data);
+      const categoryResponse = await reportApi.getListTopCategory(startDate,endDate)
+      if (categoryResponse?.result) {
+        setCategories(categoryResponse.data);
       }
 
-      const buyerResponse = await axios.get(process.env.REACT_APP_API_URL + '/reports/buyer', {
-        params: { from: startDate, to: endDate },
-      });
-      if (buyerResponse.data?.result) {
-        setTopBuyers(buyerResponse.data.data);
+      const buyerResponse = await reportApi.getListTopBuyer(startDate, endDate)
+      if (buyerResponse?.result) {
+        setTopBuyers(buyerResponse.data);
       }
 
-      const revenue = await axios.get(process.env.REACT_APP_API_URL + '/reports/revenue', {
-        params: { from: startDate, to: endDate },
-      })
-      if (revenue.data.result) {
-        setRevenueByDate(revenue.data.data)
+      const revenue = await reportApi.getRevenue(startDate,endDate)
+      if (revenue?.result) {
+        setRevenueByDate(revenue.data)
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -92,13 +85,13 @@ const Dashboard = () => {
     return <Spinner />;
   }
 
-  const { ready_to_confirm, ready_to_package, ready_to_ship, shipping, done, cancel } = statistics;
+  // const { ready_to_confirm, ready_to_package, ready_to_ship, shipping, done, cancel } = statistics;
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Content style={{ padding: '24px', margin: 0 }}>
         <Row gutter={[16, 16]}>
           <Col span={18}>
-            <h1>Doanh thu: {Utils.formatNumber(ready_to_confirm?.amount)}đ</h1>
+            <h1>Doanh thu: {Utils.formatNumber(statistics?.ready_to_confirm?.amount)}đ</h1>
           </Col>
           <Col span={6}>
             <DateRangePickerInput
@@ -125,9 +118,9 @@ const Dashboard = () => {
               icon={<i className="fa-duotone fa-box fa-2xl" style={{ '--fa-primary-color': '#00b505', '--fa-secondary-color': '#00b505' }}></i>}
               iconColor="#00b505"
               label="Chờ xác nhận"
-              growth={ready_to_confirm?.percent_change}
-              value={ready_to_confirm?.quantity}
-              amount={`$${Utils.formatNumber(ready_to_confirm?.amount)}`}
+              growth={statistics?.ready_to_confirm?.percent_change}
+              value={statistics?.ready_to_confirm?.quantity}
+              amount={`$${Utils.formatNumber(statistics?.ready_to_confirm?.amount)}`}
             />
           </Col>
           <Col span={8}>
@@ -135,9 +128,9 @@ const Dashboard = () => {
               icon={<i className="fa-duotone fa-box-circle-check fa-2l" style={{ '--fa-primary-color': '#3388EC', '--fa-secondary-color': '#3388EC' }}></i>}
               iconColor="#3388EC"
               label="Chờ gói hàng"
-              growth={ready_to_package?.percent_change}
-              value={ready_to_package?.quantity}
-              amount={`$${Utils.formatNumber(ready_to_package?.amount)}`}
+              growth={statistics?.ready_to_package?.percent_change}
+              value={statistics?.ready_to_package?.quantity}
+              amount={`$${Utils.formatNumber(statistics?.ready_to_package?.amount)}`}
             />
           </Col>
           <Col span={8}>
@@ -145,9 +138,9 @@ const Dashboard = () => {
               icon={<i className="fa-regular fa-arrow-rotate-left fa-2xl" style={{ color: '#ffb700' }}></i>}
               iconColor="#ffb700"
               label="Sẵn sàng gửi"
-              growth={ready_to_ship?.percent_change}
-              value={ready_to_ship?.quantity}
-              amount={`$${Utils.formatNumber(ready_to_ship?.amount)}`}
+              growth={statistics?.ready_to_ship?.percent_change}
+              value={statistics?.ready_to_ship?.quantity}
+              amount={`$${Utils.formatNumber(statistics?.ready_to_ship?.amount)}`}
             />
           </Col>
         </Row>
@@ -157,9 +150,9 @@ const Dashboard = () => {
               icon={<i className="fa-regular fa-truck fa-2xl" style={{ color: '#3388EC' }}></i>}
               iconColor="#3388EC"
               label="Đang gửi"
-              growth={shipping?.percent_change}
-              value={shipping?.quantity}
-              amount={`$${Utils.formatNumber(shipping?.amount)}`}
+              growth={statistics?.shipping?.percent_change}
+              value={statistics?.shipping?.quantity}
+              amount={`$${Utils.formatNumber(statistics?.shipping?.amount)}`}
             />
           </Col>
           <Col span={8}>
@@ -167,9 +160,9 @@ const Dashboard = () => {
               icon={<i className="fa-regular fa-check-circle fa-2xl" style={{ color: '#00b505' }}></i>}
               iconColor="#00b505"
               label="Thành công"
-              growth={done?.percent_change}
-              value={done?.quantity}
-              amount={`$${Utils.formatNumber(done?.amount)}`}
+              growth={statistics?.done?.percent_change}
+              value={statistics?.done?.quantity}
+              amount={`$${Utils.formatNumber(statistics?.done?.amount)}`}
             />
           </Col>
           <Col span={8}>
@@ -177,9 +170,9 @@ const Dashboard = () => {
               icon={<i className="fa-regular fa-times-circle fa-2xl" style={{ color: '#EC3B31' }}></i>}
               iconColor="#EC3B31"
               label="Hủy đơn"
-              growth={cancel?.percent_change}
-              value={cancel?.quantity}
-              amount={`$${Utils.formatNumber(cancel?.amount)}`}
+              growth={statistics?.cancel?.percent_change}
+              value={statistics?.cancel?.quantity}
+              amount={`$${Utils.formatNumber(statistics?.cancel?.amount)}`}
             />
           </Col>
         </Row>
