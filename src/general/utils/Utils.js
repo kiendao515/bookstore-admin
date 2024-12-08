@@ -232,7 +232,36 @@ const Utils = {
             .processSync(htmlText);
 
         return String(file);
-    }
+    },
+    hexToRGBA: (hex, alpha) => {
+        // Remove '#' if it's included
+        hex = hex.replace('#', '');
+
+        // Parse hexadecimal color string to separate RGB values
+        var r = parseInt(hex.substring(0, 2), 16);
+        var g = parseInt(hex.substring(2, 4), 16);
+        var b = parseInt(hex.substring(4, 6), 16);
+
+        // Convert alpha value to range between 0 and 1
+        var a = alpha >= 0 ? parseFloat(alpha) : 1;
+        // Return RGBA string
+        return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')';
+    },
+    allElementsZero: (array) => {
+        for (let element of array) {
+            if (element !== 0) {
+                return false;
+            }
+        }
+        return true;
+    },
+    blurColor: (colorCode, opacity) => {
+        return `rgba(${parseInt(colorCode.slice(1, 3), 16)}, ${parseInt(
+            colorCode.slice(3, 5),
+            16
+        )}, ${parseInt(colorCode.slice(5, 7), 16)}, ${opacity})`;
+    },
+
 };
 
 export default Utils;
