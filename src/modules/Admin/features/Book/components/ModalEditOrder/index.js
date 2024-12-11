@@ -511,7 +511,7 @@ function ModalOrderEdit(props) {
               }}
               enforceFocus={false}>
               <Modal.Header>
-                <Modal.Title>{isEditMode ? t('EditBookInventory') : t('NewBookInventory')}</Modal.Title>
+                <Modal.Title>{isEditMode ? t('Chỉnh sửa thông tin sách') : t('Thêm mới thông tin sách')}</Modal.Title>
                 <Button variant="close" onClick={handleClose}></Button>
               </Modal.Header>
 
@@ -532,9 +532,9 @@ function ModalOrderEdit(props) {
                       <Tab.Content>
                         <Tab.Pane eventKey="generalInfo">
                           <div className='row'>
-                            <div className="col-12">
+                            {/* <div className="col-12">
                               <h2 style={{ fontWeight: 600 }}>1/ Thông tin chung</h2>
-                            </div>
+                            </div> */}
                             {/* orderCode */}
                             <div className="col-6">
                               <KTFormGroup
@@ -1010,7 +1010,7 @@ function ModalOrderEdit(props) {
                         {/* Tab: Inventory Info */}
                         <Tab.Pane eventKey="inventoryInfo">
                           <div className="col-12">
-                            <h2 style={{ fontWeight: 600 }}>2/ Tồn kho</h2>
+                            {/* <h2 style={{ fontWeight: 600 }}>2/ Tồn kho</h2> */}
                             <div className="col-6">
                               <KTFormGroup
                                 label={

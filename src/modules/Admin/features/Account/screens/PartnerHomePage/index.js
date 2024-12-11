@@ -138,6 +138,21 @@ function PartnerHomePage(props) {
         },
       },
       {
+        name: t('Chiết khấu'),
+        sortable: false,
+        // minWidth: '80px',
+        cell: (row) => {
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-3 mr-4"
+            >
+              {row?.commission_percentage}
+            </p>
+          );
+        },
+      },
+      {
         name: t('Description'),
         sortable: false,
         // minWidth: '80px',

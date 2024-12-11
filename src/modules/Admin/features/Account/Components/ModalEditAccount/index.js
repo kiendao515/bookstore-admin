@@ -54,7 +54,7 @@ function ModalAccountEdit(props) {
   const dispatch = useDispatch();
   const { show, onClose, role, onRefreshAccountList, accountItem, onExistDone } = props;
   const isEditMode = !_.isNull(accountItem);
-  const [loading,setLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   // MARK: --- Functions ---
   function handleClose() {
@@ -75,9 +75,11 @@ function ModalAccountEdit(props) {
       let params = { ...values };
       // params.password = Utils.sha256(params.password);
       let res = null;
-      if(role == "USER"){
+      if (role == "USER") {
         res = await accountApi.createAccountInfo(params);
-      }else {
+      } else {
+        let cover_image = await Utils.uploadFile(values?.thumbnail)
+        params.thumbnail = cover_image;
         res = await accountApi.createStoreInfo(params)
       }
       const { result, reason } = res;
@@ -117,6 +119,8 @@ function ModalAccountEdit(props) {
         }
       }
       if (role == "STORE") {
+        let cover_image = await Utils.uploadFile(values?.thumbnail)
+        params.avatar = cover_image;
         const res = await accountApi.updateStoreInfo(params);
         const { result } = res;
         if (result == true) {
@@ -150,7 +154,8 @@ function ModalAccountEdit(props) {
             ? Utils.getFullUrl(accountItem.avatar)
             : AppResource.images.imgDefaultAvatar,
           email: accountItem ? accountItem.email : '',
-          description: accountItem ? accountItem.description : ''
+          description: accountItem ? accountItem.description : '',
+          commission_percentage: accountItem ? accountItem?.commission_percentage: ''
         }}
         // validationSchema={Yup.object({
         //   name: Yup.string().required(t('Required')),
@@ -180,7 +185,7 @@ function ModalAccountEdit(props) {
               className=""
               show={show}
               backdrop="static"
-              size="lg"
+              size="xl"
               onHide={handleClose}
               centered
               onExit={() => {
@@ -212,7 +217,7 @@ function ModalAccountEdit(props) {
                 <div>
                   <div className="row">
                     {/* email */}
-                    <div className="col-12">
+                    <div className="col-6">
                       <KTFormGroup
                         label={
                           <>
@@ -247,7 +252,7 @@ function ModalAccountEdit(props) {
                       />
                     </div>
                     {/* username */}
-                    {isEditMode ? (<div className="col-12">
+                    {isEditMode ? (<div className="col-6">
                       <KTFormGroup
                         label={
                           <>
@@ -292,11 +297,11 @@ function ModalAccountEdit(props) {
 
                     {/* password */}
                     {!isEditMode ? (
-                      <div className="col-12">
+                      <div className="col-6">
                         <KTFormGroup
                           label={
                             <>
-                              {t('Password')} <span className="text-danger">(*)</span>
+                              {t('Mật khẩu')} <span className="text-danger">(*)</span>
                             </>
                           }
                           inputName="password"
@@ -327,53 +332,13 @@ function ModalAccountEdit(props) {
                       </div>
                     ) : null}
 
-                    {/* avatar */}
-                    <div className="col-12">
-                      <KTFormGroup
-                        label={
-                          <>
-                            {t('Avatar')} <span className="text-danger">(*)</span>
-                          </>
-                        }
-                        inputName="avatar"
-                        inputElement={
-                          <FastField name="avatar">
-                            {({ field, form, meta }) => (
-                              <KTImageInput
-                                name={field.name}
-                                value={field.value}
-                                onChange={(value) => {
-                                  form.setFieldValue(field.name, value);
-                                }}
-                                onFocus={() => {
-                                  form.setFieldTouched(field.name, true);
-                                }}
-                                enableCheckValid
-                                isValid={_.isEmpty(meta.error)}
-                                isTouched={meta.touched}
-                                feedbackText={meta.error}
-                                // defaultImage={AppResource.images.imgDefaultAvatar}
-                                acceptImageTypes={AppConfigs.acceptImages}
-                                onSelectedFile={(file) => {
-                                  form.setFieldValue('avatar', file);
-                                }}
-                                onRemovedFile={() => {
-                                  form.setFieldValue('avatar', null);
-                                }}
-                                additionalClassName=""
-                              />
-                            )}
-                          </FastField>
-                        }
-                      />
-                    </div>
 
                     {/* fullname */}
-                    <div className="col-12">
+                    <div className="col-6">
                       <KTFormGroup
                         label={
                           <>
-                            {t('name')} <span className="text-danger">(*)</span>
+                            {t('Tên')} <span className="text-danger">(*)</span>
                           </>
                         }
                         inputName="name"
@@ -404,11 +369,11 @@ function ModalAccountEdit(props) {
                     </div>
 
                     {/* phone */}
-                    <div className="col-12">
+                    <div className="col-6">
                       <KTFormGroup
                         label={
                           <>
-                            {t('Phone')} <span className="text-danger">(*)</span>
+                            {t('Điện thoại')} <span className="text-danger">(*)</span>
                           </>
                         }
                         inputName="phone"
@@ -439,9 +404,9 @@ function ModalAccountEdit(props) {
                     </div>
 
                     {/* address */}
-                    <div className="col-12">
+                    <div className="col-6">
                       <KTFormGroup
-                        label={<>{t('Address')}</>}
+                        label={<>{t('Địa chỉ')} <span className="text-danger">(*)</span></>}
                         inputName="address"
                         inputElement={
                           <FastField name="address">
@@ -460,7 +425,7 @@ function ModalAccountEdit(props) {
                                 isTouched={meta.touched}
                                 feedbackText={meta.error}
                                 rows={5}
-                                placeholder={`${_.capitalize(t('Address'))}...`}
+                                placeholder={`${_.capitalize(t('Địa chỉ'))}...`}
                                 type={KTFormInputType.text}
                               />
                             )}
@@ -472,12 +437,12 @@ function ModalAccountEdit(props) {
                     {/* description for bookstore */}
                     {
                       role == "USER" ? null : (
-                        <div className="col-12">
+                        <div className="col-6">
                           <KTFormGroup
-                            label={<>{t('Description')}</>}
-                            inputName="desription"
+                            label={<>{t('Phần trăm hoa hồng')} <span className="text-danger">(*)</span></>}
+                            inputName="commission_percentage"
                             inputElement={
-                              <FastField name="description">
+                              <FastField name="commission_percentage">
                                 {({ field, form, meta }) => (
                                   <KTFormInput
                                     name={field.name}
@@ -493,8 +458,8 @@ function ModalAccountEdit(props) {
                                     isTouched={meta.touched}
                                     feedbackText={meta.error}
                                     rows={5}
-                                    placeholder={`${_.capitalize(t('Description'))}...`}
-                                    type={KTFormInputType.text}
+                                    placeholder={`${_.capitalize(t('phần trăm hoa hồng'))}...`}
+                                    type={KTFormInputType.number}
                                   />
                                 )}
                               </FastField>
@@ -503,6 +468,78 @@ function ModalAccountEdit(props) {
                         </div>
                       )
                     }
+
+                    <div className="col-6">
+                      <KTFormGroup
+                        label={<>{t('Mô tả')}</>}
+                        inputName="desription"
+                        inputElement={
+                          <FastField name="description">
+                            {({ field, form, meta }) => (
+                              <KTFormInput
+                                name={field.name}
+                                value={field.value}
+                                onChange={(value) => {
+                                  form.setFieldValue(field.name, value);
+                                }}
+                                onBlur={() => {
+                                  form.setFieldTouched(field.name, true);
+                                }}
+                                enableCheckValid
+                                isValid={_.isEmpty(meta.error)}
+                                isTouched={meta.touched}
+                                feedbackText={meta.error}
+                                rows={5}
+                                placeholder={`${_.capitalize(t('Mô tả'))}...`}
+                                type={KTFormInputType.text}
+                              />
+                            )}
+                          </FastField>
+                        }
+                      />
+                    </div>
+
+                    {/* avatar */}
+                    <div className="col-6">
+                      <KTFormGroup
+                        label={
+                          <>
+                            {t('Ảnh bìa')}
+                          </>
+                        }
+                        inputName="thumbnail"
+                        inputElement={
+                          <FastField name="thumbnail">
+                            {({ field, form, meta }) => (
+                              <KTImageInput
+                              isAvatar={false}
+                                name={field.name}
+                                value={field.value}
+                                onChange={(value) => {
+                                  form.setFieldValue(field.name, value);
+                                }}
+                                onFocus={() => {
+                                  form.setFieldTouched(field.name, true);
+                                }}
+                                enableCheckValid
+                                isValid={_.isEmpty(meta.error)}
+                                isTouched={meta.touched}
+                                feedbackText={meta.error}
+                                defaultImage={AppResource.images.imgUpload}
+                                acceptImageTypes={AppConfigs.acceptImages}
+                                onSelectedFile={(file) => {
+                                  form.setFieldValue('thumbnail', file);
+                                }}
+                                onRemovedFile={() => {
+                                  form.setFieldValue('thumbnail', null);
+                                }}
+                                additionalClassName=""
+                              />
+                            )}
+                          </FastField>
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
               </Modal.Body>
@@ -518,10 +555,10 @@ function ModalAccountEdit(props) {
                     }}
                   >
                     {loading ? (
-                    <Spinner animation="border" size="sm" /> // Hiển thị loading spinner
-                  ) : (
-                    t('Save')
-                  )}
+                      <Spinner animation="border" size="sm" /> // Hiển thị loading spinner
+                    ) : (
+                      t('Save')
+                    )}
                   </Button>
 
                   <Button
