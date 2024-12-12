@@ -42,25 +42,25 @@ function PartnerHomePage(props) {
   const refLoading = useRef(false);
   const columns = useMemo(() => {
     return [
-      {
-        name: t('Thumbnail'),
-        sortable: false,
-        // minWidth: '100px',
-        center: 'true',
-        cell: (row) => {
-          return (
-            <img
-              src={row?.avatar ? Utils.getFullUrl(row?.avatar) : AppResource.images.imgDefaultAvatar}
-              style={{
-                aspectRatio: '1/1',
-                objectFit: 'cover',
-                height: 50,
-                borderRadius: 10,
-              }}
-            />
-          );
-        },
-      },
+      // {
+      //   name: t('Thumbnail'),
+      //   sortable: false,
+      //   // minWidth: '100px',
+      //   center: 'true',
+      //   cell: (row) => {
+      //     return (
+      //       <img
+      //         src={row?.avatar ? Utils.getFullUrl(row?.avatar) : AppResource.images.imgDefaultAvatar}
+      //         style={{
+      //           aspectRatio: '1/1',
+      //           objectFit: 'cover',
+      //           height: 50,
+      //           borderRadius: 10,
+      //         }}
+      //       />
+      //     );
+      //   },
+      // },
       {
         name: t('Email'),
         sortable: false,
@@ -92,7 +92,7 @@ function PartnerHomePage(props) {
         },
       },
       {
-        name: t('Fullname'),
+        name: t('Tên'),
         sortable: false,
         // minWidth: '220px',
         cell: (row) => {
@@ -108,7 +108,7 @@ function PartnerHomePage(props) {
       },
 
       {
-        name: t('Address'),
+        name: t('Địa chỉ'),
         sortable: false,
         // minWidth: '80px',
         cell: (row) => {
@@ -123,7 +123,7 @@ function PartnerHomePage(props) {
         },
       },
       {
-        name: t('Phone'),
+        name: t('Số điện thoại'),
         sortable: false,
         // minWidth: '80px',
         cell: (row) => {
@@ -152,21 +152,21 @@ function PartnerHomePage(props) {
           );
         },
       },
-      {
-        name: t('Description'),
-        sortable: false,
-        // minWidth: '80px',
-        cell: (row) => {
-          return (
-            <p
-              data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-normal m-0 text-maxline-3 mr-4"
-            >
-              {row?.description}
-            </p>
-          );
-        },
-      },
+      // {
+      //   name: t('Description'),
+      //   sortable: false,
+      //   // minWidth: '80px',
+      //   cell: (row) => {
+      //     return (
+      //       <p
+      //         data-tag="allowRowEvents"
+      //         className="text-dark-75 font-weight-normal m-0 text-maxline-3 mr-4"
+      //       >
+      //         {row?.description}
+      //       </p>
+      //     );
+      //   },
+      // },
       {
         name: t('Thời gian tạo'),
         sortable: false,

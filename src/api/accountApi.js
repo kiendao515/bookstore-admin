@@ -14,6 +14,15 @@ const accountApi = {
 
     return axiosClient.post(url, formData);
   },
+  resetPassword: (params) => {
+    const url = `/accounts/pass/reset/${params.id}`;
+    const formData = new FormData();
+    for (const key in params) {
+      formData.append(key, params[key]);
+    }
+
+    return axiosClient.post(url, formData);
+  },
   updateAccountInfo: (params) => {
     const url = `/customers/${params.id}`;
     const formData = new FormData();

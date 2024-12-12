@@ -19,14 +19,14 @@ import accountApi from 'api/accountApi';
 ModalResetPasswordEmployee.propTypes = {
   show: PropTypes.bool,
   onClose: PropTypes.func,
-  employeeItem: PropTypes.object,
+  accountItem: PropTypes.object,
   onExistDone: PropTypes.func,
 };
 
 ModalResetPasswordEmployee.defaultProps = {
   show: false,
   onClose: null,
-  employeeItem: null,
+  accountItem: null,
   onExistDone: null,
 };
 
@@ -35,7 +35,7 @@ ModalResetPasswordEmployee.defaultProps = {
  * @param {{
  * show: boolean,
  * onClose: function,
- * employeeItem: object,
+ * accountItem: object,
  * onExistDone: function,
  * }} props
  * @returns
@@ -44,7 +44,8 @@ function ModalResetPasswordEmployee(props) {
   // MARK: --- Params ---
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { show, onClose, employeeItem, onExistDone } = props;
+  const { show, onClose, accountItem, onExistDone } = props;
+  
 
   // MARK: --- Functions ---
   function handleClose() {
@@ -63,12 +64,16 @@ function ModalResetPasswordEmployee(props) {
   async function requestResetPassword(values) {
     try {
       let params = { ...values };
-      params.password = Utils.sha256(params.password);
-      const res = await accountApi.updateAccount(params);
+      console.log(params);
+      const res = await accountApi.resetPassword(params);
       const { result } = res;
-      if (result == 'success') {
+      if (result == true) {
         ToastHelper.showSuccess(t('Success'));
-        dispatch(thunkGetListAccount(Global.gFiltersAccountList));
+        let filter = {
+          ...Global.gFiltersAccountList,
+          role: role
+        }
+        dispatch(thunkGetListAccount(filter));
         handleClose();
       }
     } catch (error) {
@@ -80,7 +85,7 @@ function ModalResetPasswordEmployee(props) {
     <div>
       <Formik
         initialValues={{
-          accountId: employeeItem ? employeeItem.accountId : '',
+          id: accountItem ? accountItem.id : '',
           password: '',
           confirmPassword: '',
         }}
@@ -116,7 +121,7 @@ function ModalResetPasswordEmployee(props) {
               enforceFocus={false}
             >
               <Modal.Header className="px-5 py-5">
-                <Modal.Title>{employeeItem ? t('EditEmployee') : t('NewEmployee')}</Modal.Title>
+                <Modal.Title>{accountItem ? t('Thay đổi mật khẩu') : t('Thay đổi mật khẩu')}</Modal.Title>
                 <div
                   className="btn btn-xs btn-icon btn-light btn-hover-secondary cursor-pointer"
                   onClick={() => {

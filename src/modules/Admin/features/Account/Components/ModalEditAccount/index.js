@@ -78,7 +78,7 @@ function ModalAccountEdit(props) {
       if (role == "USER") {
         res = await accountApi.createAccountInfo(params);
       } else {
-        let cover_image = await Utils.uploadFile(values?.thumbnail)
+        let cover_image = await Utils.uploadFile(values?.avatar)
         params.thumbnail = cover_image;
         res = await accountApi.createStoreInfo(params)
       }
@@ -119,7 +119,7 @@ function ModalAccountEdit(props) {
         }
       }
       if (role == "STORE") {
-        let cover_image = await Utils.uploadFile(values?.thumbnail)
+        let cover_image = await Utils.uploadFile(values?.avatar)
         params.avatar = cover_image;
         const res = await accountApi.updateStoreInfo(params);
         const { result } = res;
@@ -197,7 +197,7 @@ function ModalAccountEdit(props) {
               enforceFocus={false}
             >
               <Modal.Header className="px-5 py-5">
-                <Modal.Title>{accountItem ? t('EditAccount') : t('Newaccount')}</Modal.Title>
+                <Modal.Title>{accountItem ? t('Chỉnh sửa tài khoản') : t('Thêm mới tài khoản')}</Modal.Title>
                 <div
                   className="btn btn-xs btn-icon btn-light btn-hover-secondary cursor-pointer"
                   onClick={() => {
@@ -507,9 +507,9 @@ function ModalAccountEdit(props) {
                             {t('Ảnh bìa')}
                           </>
                         }
-                        inputName="thumbnail"
+                        inputName="avatar"
                         inputElement={
-                          <FastField name="thumbnail">
+                          <FastField name="avatar">
                             {({ field, form, meta }) => (
                               <KTImageInput
                               isAvatar={false}
@@ -528,10 +528,10 @@ function ModalAccountEdit(props) {
                                 defaultImage={AppResource.images.imgUpload}
                                 acceptImageTypes={AppConfigs.acceptImages}
                                 onSelectedFile={(file) => {
-                                  form.setFieldValue('thumbnail', file);
+                                  form.setFieldValue('avatar', file);
                                 }}
                                 onRemovedFile={() => {
-                                  form.setFieldValue('thumbnail', null);
+                                  form.setFieldValue('avatar', null);
                                 }}
                                 additionalClassName=""
                               />
