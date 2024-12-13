@@ -11,6 +11,7 @@ import CollectionHomePage from './features/Collection/screens/CollectionHomePage
 import OrderHomePage from './features/Order/screens/OrderHomePage';
 import Dashboard from './features/Report';
 import RevenueReport from './features/Revenue';
+import OfflineOrderPage from './features/OfflineOrder/screens/OfflineOrderPage';
 
 function Admin(props) {
   // MARK: --- Props ---
@@ -20,14 +21,15 @@ function Admin(props) {
     <KT01BaseLayout>
       <div id="admin-container" className="container min-h-100">
         <Routes>
-          <Route path="/" element={<Dashboard/>}/>
-          <Route path="category/*" element={<CategoryHomePage/>} />
-          <Route path="book/*" element={<BookHomeScreen/>} />
-          <Route path = "order/*" element = {<OrderHomePage/>}/>
-          <Route path ="collection/*" element = {<CollectionHomePage/>} />
-          <Route path="account/customer/*" element={<AccountHomePage/>} />
-          <Route path="account/partner/*" element={<PartnerHomePage/>} />
-          <Route path= "report/*" element ={<RevenueReport/>}/>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="category/*" element={<CategoryHomePage />} />
+          <Route path="book/*" element={<BookHomeScreen />} />
+          <Route path="order/*" element={<OrderHomePage />} />
+          <Route path="collection/*" element={<CollectionHomePage />} />
+          <Route path="account/customer/*" element={<AccountHomePage />} />
+          <Route path="account/partner/*" element={<PartnerHomePage />} />
+          <Route path="report/*" element={<RevenueReport />} />
+          <Route path="offline-order/*" element={<OfflineOrderPage />} />
           <Route
             path="*"
             element={

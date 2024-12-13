@@ -31,6 +31,13 @@ function KT01Sidebar(props) {
         icon: 'fas fa-qrcode',
         path: "/report"
       },
+      { type: 'section', text: t("Bán hàng") },
+      {
+        type: 'item',
+        text: t("Bán hàng offline"),
+        icon: 'fas fa-qrcode',
+        path: '/offline-order',
+      },
       { type: 'section', text: t("Quản lý sách") },
       {
         type: 'item',
@@ -121,7 +128,7 @@ function KT01Sidebar(props) {
     }
   }, []);
 
-  useEffect(() => {}, [currentAccount]);
+  useEffect(() => { }, [currentAccount]);
 
   return (
     <div className="aside aside-left aside-fixed d-flex flex-column flex-row-auto" id="kt_aside">
@@ -133,12 +140,12 @@ function KT01Sidebar(props) {
             className="h-25px"
             src={AppResource.icons.icLogoICorpLight}
             alt="logo"
-            // style={{
-            //     filter: 'invert(96%) sepia(38%) saturate(59%) hue-rotate(118deg) brightness(109%) contrast(100%)',
-            // }}
+          // style={{
+          //     filter: 'invert(96%) sepia(38%) saturate(59%) hue-rotate(118deg) brightness(109%) contrast(100%)',
+          // }}
           />
         </a>
-        <span className = "">Hiệu sách Hộp</span>
+        <span className="">Hiệu sách Hộp</span>
         {/* button toggle */}
         <button className="brand-toggle btn btn-sm px-0 border-0" id="kt_aside_toggle">
           <span className="svg-icon svg-icon svg-icon-xl">
@@ -153,7 +160,7 @@ function KT01Sidebar(props) {
         className="aside-menu my-0"
         data-menu-scroll="1" // enable scroll
         data-menu-vertical="1"
-        // data-menu-dropdown-timeout='500'
+      // data-menu-dropdown-timeout='500'
       >
         {/* Nav menu */}
         <ul className="menu-nav pt-0">
@@ -165,17 +172,15 @@ function KT01Sidebar(props) {
               return (
                 <li
                   key={index}
-                  className={`menu-item ${hasSubMenuLV1Items && 'menu-item-submenu'} ${
-                    hasSubMenuLV1Items &&
+                  className={`menu-item ${hasSubMenuLV1Items && 'menu-item-submenu'} ${hasSubMenuLV1Items &&
                     item?.path?.length > 0 &&
                     pathName.includes(item.path) &&
                     'menu-item-open'
-                  } ${
-                    !hasSubMenuLV1Items &&
+                    } ${!hasSubMenuLV1Items &&
                     item?.path?.length > 0 &&
                     pathName === item.path &&
                     'menu-item-active'
-                  }`}
+                    }`}
                 >
                   <Link
                     to={item?.path}
@@ -210,22 +215,19 @@ function KT01Sidebar(props) {
                           return (
                             <li
                               key={subIndexLV1}
-                              className={`menu-item ${hasSubMenuLV2Items && 'menu-item-submenu'} ${
-                                hasSubMenuLV2Items &&
+                              className={`menu-item ${hasSubMenuLV2Items && 'menu-item-submenu'} ${hasSubMenuLV2Items &&
                                 subItemLV1.path.length > 0 &&
                                 pathName.includes(subItemLV1.path) &&
                                 'menu-item-open'
-                              } ${
-                                !hasSubMenuLV2Items &&
+                                } ${!hasSubMenuLV2Items &&
                                 subItemLV1.path.length > 0 &&
                                 pathName.includes(subItemLV1.path) &&
                                 'menu-item-active'
-                              }`}
+                                }`}
                             >
                               <Link
-                                className={`menu-link rounded-0 ${
-                                  hasSubMenuLV2Items && 'menu-toggle'
-                                }`}
+                                className={`menu-link rounded-0 ${hasSubMenuLV2Items && 'menu-toggle'
+                                  }`}
                                 to={subItemLV1?.path}
                               >
                                 <i className="menu-bullet menu-bullet-dot">
@@ -252,24 +254,20 @@ function KT01Sidebar(props) {
                                       return (
                                         <li
                                           key={subIndexLV2}
-                                          className={`menu-item ${
-                                            hasSubMenuLV3Items && 'menu-item-submenu'
-                                          } ${
-                                            hasSubMenuLV3Items &&
+                                          className={`menu-item ${hasSubMenuLV3Items && 'menu-item-submenu'
+                                            } ${hasSubMenuLV3Items &&
                                             subItemLV2.path.length > 0 &&
                                             pathName.includes(subItemLV2.path) &&
                                             'menu-item-open'
-                                          } ${
-                                            !hasSubMenuLV3Items &&
+                                            } ${!hasSubMenuLV3Items &&
                                             subItemLV2.path.length > 0 &&
                                             pathName.includes(subItemLV2.path) &&
                                             'menu-item-active'
-                                          }`}
+                                            }`}
                                         >
                                           <Link
-                                            className={`menu-link rounded-0 ${
-                                              hasSubMenuLV3Items && 'menu-toggle'
-                                            }`}
+                                            className={`menu-link rounded-0 ${hasSubMenuLV3Items && 'menu-toggle'
+                                              }`}
                                             to={subItemLV2?.path}
                                           >
                                             <i className="menu-bullet menu-bullet-dot">
@@ -297,24 +295,20 @@ function KT01Sidebar(props) {
                                                     return (
                                                       <li
                                                         key={subIndexLV3}
-                                                        className={`menu-item ${
-                                                          hasSubMenuLV4Items && 'menu-item-submenu'
-                                                        } ${
-                                                          hasSubMenuLV4Items &&
+                                                        className={`menu-item ${hasSubMenuLV4Items && 'menu-item-submenu'
+                                                          } ${hasSubMenuLV4Items &&
                                                           subItemLV3.path.length > 0 &&
                                                           pathName.includes(subItemLV3.path) &&
                                                           'menu-item-open'
-                                                        } ${
-                                                          !hasSubMenuLV4Items &&
+                                                          } ${!hasSubMenuLV4Items &&
                                                           subItemLV3.path.length > 0 &&
                                                           pathName.includes(subItemLV3.path) &&
                                                           'menu-item-active'
-                                                        }`}
+                                                          }`}
                                                       >
                                                         <Link
-                                                          className={`menu-link rounded-0 ${
-                                                            hasSubMenuLV4Items && 'menu-toggle'
-                                                          }`}
+                                                          className={`menu-link rounded-0 ${hasSubMenuLV4Items && 'menu-toggle'
+                                                            }`}
                                                           to={subItemLV3?.path}
                                                         >
                                                           <i className="menu-bullet menu-bullet-dot">
