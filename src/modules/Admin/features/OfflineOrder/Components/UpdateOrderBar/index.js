@@ -6,11 +6,10 @@ import * as yup from 'yup';
 import { useForm } from "react-hook-form";
 import TextInput from "general/components/FormInput/TextInput";
 import offlineOrderApi from "api/offlineOrderApi";
-import { toast } from "react-toastify";
-import { ToastHeader } from "reactstrap";
 import ToastHelper from "general/helpers/ToastHelper";
+import Utils from "general/utils/Utils";
 
-const UpdateOrderBar = ({ orders, setOrders, disableSearch = false }) => {
+const UpdateOrderBar = ({ orders, setOrders, disableSearch = false, setToggleHistory }) => {
     const [toggleScan, setToggleScan] = useState(false);
     const [messageContent, setMessageContent] = useState("");
 
@@ -76,16 +75,20 @@ const UpdateOrderBar = ({ orders, setOrders, disableSearch = false }) => {
                     note: "",
                     totalPrice: bookOrderDetail?.data?.price * data.quantity || 0,
                     discount: 0,
-                    type: handleStatusBook(bookOrderDetail?.data?.type || "") || "",
+                    type: Utils.handleStatusBook(bookOrderDetail?.data?.type || "") || "",
                 },
             ]);
         }
         setMessageContent("");
-        reset();
+        // reset();
     };
 
     return (
-        <>
+        <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+
+        }}>
             <Form layout="inline"
                 onFinish={handleSubmit(onHandleSubmit)}
             >
@@ -95,6 +98,7 @@ const UpdateOrderBar = ({ orders, setOrders, disableSearch = false }) => {
                     placeholder="Vui lòng nhập barcode"
                     control={control}
                     errors={errors.barcode}
+                    disabled={disableSearch}
                 />
                 <TextInput
                     name="quantity"
@@ -102,6 +106,7 @@ const UpdateOrderBar = ({ orders, setOrders, disableSearch = false }) => {
                     control={control}
                     errors={errors.quantity}
                     type="number"
+                    disabled={disableSearch}
                 />
                 <Form.Item>
                     <Button
@@ -123,8 +128,18 @@ const UpdateOrderBar = ({ orders, setOrders, disableSearch = false }) => {
                     </Button>
                 </Form.Item>
             </Form>
+            <div>
+                <Button
+                    type="default"
+                    icon={<i className="fas fa-qrcode" />}
+                    onClick={() => setToggleHistory(prev => !prev)}
+                >
+                    Lịch sử
+                </Button>
 
-        </>
+            </div>
+
+        </div>
     );
 };
 
