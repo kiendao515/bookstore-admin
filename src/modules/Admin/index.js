@@ -10,7 +10,7 @@ import BookHomeScreen from './features/Book/screens/BookHomeScreen';
 import CollectionHomePage from './features/Collection/screens/CollectionHomePage';
 import OrderHomePage from './features/Order/screens/OrderHomePage';
 import Dashboard from './features/Report';
-import RevenueReport from './features/Revenue';
+import RevenueHomePage from './features/Revenue/screens/RevenueHomePage';
 
 function Admin(props) {
   // MARK: --- Props ---
@@ -27,7 +27,7 @@ function Admin(props) {
           <Route path ="collection/*" element = {<CollectionHomePage/>} />
           <Route path="account/customer/*" element={<AccountHomePage/>} />
           <Route path="account/partner/*" element={<PartnerHomePage/>} />
-          <Route path= "report/*" element ={<RevenueReport/>}/>
+          <Route path= "report/*" element ={<RevenueHomePage/>}/>
           <Route
             path="*"
             element={
