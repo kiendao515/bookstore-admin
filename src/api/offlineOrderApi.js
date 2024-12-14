@@ -1,4 +1,5 @@
 import axiosClient from './axiosClient';
+import axios from 'axios';
 
 const offlineOrderApi = {
   getOfflineOrders: (params) => {

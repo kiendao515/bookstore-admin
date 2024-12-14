@@ -21,7 +21,9 @@ const Global = {
   gFilterBookList : {page :0, size: 30, q: '',storeId:'',categoryId :'',start_at:'',end_at:''},
   gNeedToRefreshBookList: false,
   gFilterOrderList : {page :0, size: 30, q: '',storeId:'',start_at:'',end_at:'',status:''},
-  gNeedToRefreshOrderList: false
+  gNeedToRefreshOrderList: false,
+  gNeedToRefreshRevenueList: false,
+  gFiltersRevenueList: { from: '', to: '',store_id:''},
 };
 
 export default Global;  

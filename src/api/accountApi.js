@@ -66,6 +66,10 @@ const accountApi = {
       },
     });
   },
+  getStores:()=>{
+    const url = `/book-stores`
+    return axiosClient.get(url);
+  }
 };
 
 export default accountApi;
