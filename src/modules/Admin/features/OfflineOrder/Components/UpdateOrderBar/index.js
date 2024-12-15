@@ -8,6 +8,7 @@ import TextInput from "general/components/FormInput/TextInput";
 import offlineOrderApi from "api/offlineOrderApi";
 import ToastHelper from "general/helpers/ToastHelper";
 import Utils from "general/utils/Utils";
+import ScanBarcodePopUp from "../ScanBarcodePopUp";
 
 const UpdateOrderBar = ({ orders, setOrders, disableSearch = false, setToggleHistory }) => {
     const [toggleScan, setToggleScan] = useState(false);
@@ -138,6 +139,17 @@ const UpdateOrderBar = ({ orders, setOrders, disableSearch = false, setToggleHis
                 </Button>
 
             </div>
+            {
+                toggleScan && (
+                    <ScanBarcodePopUp
+                        togglePopUp={toggleScan}
+                        setTogglePopUp={setToggleScan}
+                        message={messageContent}
+                        setMessage={setMessageContent}
+                        handleScanBarcode={onHandleSubmit}
+                    />
+                )
+            }
 
         </div>
     );

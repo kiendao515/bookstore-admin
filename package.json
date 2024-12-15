@@ -46,6 +46,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.54.1",
     "react-i18next": "^12.1.1",
+    "react-qr-barcode-scanner": "^2.0.0",
     "react-quill": "^2.0.0",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.6.1",
