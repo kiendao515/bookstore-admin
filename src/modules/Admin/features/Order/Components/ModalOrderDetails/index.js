@@ -13,6 +13,7 @@ import {
     Button,
     message,
     Select,
+    Input,
 } from "antd";
 import PropTypes from "prop-types";
 import orderApi from "api/orderApi";
@@ -50,6 +51,8 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
     const [pdfUrl, setPdfUrl] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [status, setStatus] = useState("");
+    const [weight, setWeight] = useState("")
+    const [ghtkOrder, setGhtkOrder] = useState(null);
 
     const fetchOrderDetails = async () => {
         setLoading(true);
@@ -88,7 +91,7 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
             fetchOrderDetails();
             fetchDetailOrder();
         }
-    }, [visible]);
+    }, [visible, status]);
 
     const [visibleImage, setVisibleImage] = useState(false);
     const [imageSrc, setImageSrc] = useState("");
@@ -129,9 +132,13 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
         const status = orderDetail?.status;
         return !(status === "CREATED" || status === "READY_TO_PACKAGE");
     };
+    const isCreateOrder = () => {
+        const status = orderDetail?.status;
+        return !(status === "READY_TO_PACKAGE")
+    }
     const handleStatusChange = async (newStatus) => {
         try {
-            const response = await orderApi.updateOrderStatus(orderDetail.order_code, {status: newStatus});
+            const response = await orderApi.updateOrderStatus(orderDetail.order_code, { status: newStatus });
             if (response.result) {
                 setStatus(newStatus);  // Update status in state
                 message.success("Cập nhật trạng thái đơn hàng thành công!");
@@ -143,6 +150,31 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
             message.error("Có lỗi xảy ra khi cập nhật trạng thái.");
         }
     };
+    const handleWeightChange = (e) => {
+        setWeight(e.target.value);
+    };
+    const createGHTKOrder = async () => {
+        let order = [{
+            order_code: orderDetail.order_code,
+            address: orderDetail.address,
+            customer_name: orderDetail.customer_name,
+            customer_phone: orderDetail.customer_phone,
+            note: orderDetail.note,
+            weight: weight,
+            total_amount: orderDetail.total_amount,
+            payment_type: orderDetail.payment_type,
+            pickup_method: orderDetail.pickup_method,
+            pick_address: orderDetail.pick_address,
+        }]
+        const response = await orderApi.createGHTKOrder(order);
+        if (response.result) {
+          message.success(t("Đăng đơn hàng thành công"));
+          setGhtkOrder(response.data);
+          onClose();
+        } else {
+          message.error(t("Có lỗi khi đăng đơn hàng"));
+        }
+    }
 
     return (
         <Modal
@@ -152,6 +184,9 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
             footer={[
                 <Button key="cancel" onClick={onClose}>
                     Đóng
+                </Button>,
+                <Button key="create" type="primary" onClick={createGHTKOrder} disabled={isCreateOrder()}>
+                    Đăng đơn
                 </Button>,
                 <Button
                     key="print"
@@ -190,7 +225,7 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
                                                 value={orderDetail.status}
                                                 onChange={handleStatusChange}
                                                 style={{ width: "100%" }}
-                                                disabled={orderDetail.status === "DONE"}  
+                                                disabled={orderDetail.status === "DONE"}
                                             >
                                                 <Option value="CREATED">Chờ xác nhận</Option>
                                                 <Option value="READY_TO_PACKAGE">Sẵn sàng đóng gói</Option>
@@ -207,6 +242,14 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Ghi chú">
                                             {orderDetail.note || "Không có"}
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label="Cân nặng">
+                                            <Input
+                                                value={orderDetail?.weight}
+                                                onChange={handleWeightChange}
+                                                placeholder="Nhập cân nặng"
+                                                suffix="kg"
+                                            />
                                         </Descriptions.Item>
                                     </Descriptions>
                                 </Card>
