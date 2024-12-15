@@ -256,6 +256,20 @@ function ModalOrderEdit(props) {
   const columns = useMemo(() => {
     const baseColumns = [
       {
+        name: "Barcode",
+        sortable: false,
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
+            >
+              {row?.barcode}
+            </div>
+          );
+        },
+      },
+      {
         name: t('BookType'),
         sortable: false,
         cell: (row) => {
@@ -505,7 +519,7 @@ function ModalOrderEdit(props) {
       >
         {(formikProps) => (
           <>
-            <Modal show={show} backdrop="static" size="xl" onHide={handleClose} centered
+            <Modal show={show} backdrop="static" size='xl' onHide={handleClose} centered
               onExit={() => {
                 formikProps.handleReset();
               }}
