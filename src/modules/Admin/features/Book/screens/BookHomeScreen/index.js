@@ -479,13 +479,13 @@ function BookHomeScreen(props) {
                     return { name: item.name, value: item.id.toString() };
                   }),
                 ]}
-                value={Global.gFilterBookList.categoryId}
+                value={Global.gFilterBookList.category_id}
                 onChange={(newValue) => {
                   needToRefreshData.current = true;
                   Global.gFilterBookList = {
                     ...filters,
                     page: 0,
-                    categoryId: newValue,
+                    category_id: newValue,
                   };
                   setFilters({
                     ...Global.gFilterBookList,

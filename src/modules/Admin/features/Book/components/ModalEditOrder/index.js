@@ -150,6 +150,7 @@ function ModalOrderEdit(props) {
       const { result } = res?.data;
       if (result == true) {
         ToastHelper.showSuccess(t('Thêm mới thông tin sách thành công'));
+        setLoading(false)
         dispatch(thunkGetListBook(Global.gFilterBookList));
         handleClose();
       }
@@ -196,6 +197,7 @@ function ModalOrderEdit(props) {
       if (result === true) {
         ToastHelper.showSuccess(t('Success'));
         dispatch(thunkGetListBook(Global.gFilterBookList));
+        setLoading(false)
         handleClose();
       } else {
         ToastHelper.showError(reason);
@@ -222,6 +224,7 @@ function ModalOrderEdit(props) {
       const { result, reason } = res;
       if (result == true) {
         ToastHelper.showSuccess(t('Success'));
+        setLoading(false)
         dispatch(thunkGetListBook(Global.gFilterBookList));
         // handleClose();
       } else {

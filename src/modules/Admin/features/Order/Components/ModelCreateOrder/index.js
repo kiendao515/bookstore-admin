@@ -10,28 +10,26 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
   const { t } = useTranslation();
   const [dataSource, setDataSource] = useState([]);
   const [pickupOptions, setPickupOptions] = useState([]);
-  const [orderDetails, setOrderDetails] = useState(null); 
+  const [orderDetails, setOrderDetails] = useState(null);
 
   useEffect(() => {
     const updatedOrderInfo = orderInfo.map((order, index) => ({
       ...order,
-      key: order.id || index, 
+      key: order.id || index,
       pick_address: "",
       weight: order.weight || 0,
     }));
-
     setDataSource(updatedOrderInfo.filter((o) => o.status === "READY_TO_PACKAGE"));
+
     const fetchPickupOptions = async () => {
       try {
         const data = await orderApi.getPickingAddress();
         if (data.result) {
           const pickupList = data.data.map((item) => ({
-            id: `${item.pick_tel}-${item.pick_name}-${item.address}`, 
+            id: `${item.pick_tel}-${item.pick_name}-${item.address}`,
             name: `${item.pick_tel}-${item.pick_name}-${item.address}`,
           }));
           setPickupOptions(pickupList);
-        } else {
-          console.error("Lỗi khi lấy dữ liệu từ API:", data.message);
         }
       } catch (error) {
         console.error("Error fetching pickup options:", error);
@@ -40,14 +38,13 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
     fetchPickupOptions();
   }, [orderInfo]);
 
+  // Cập nhật ô bảng
   const handleFieldChange = (value, key, column) => {
     const newData = [...dataSource];
     const index = newData.findIndex((item) => key === item.key);
 
     if (index > -1) {
-      const updatedRow = { ...newData[index] };
-      updatedRow[column] = value; 
-      newData[index] = updatedRow;
+      newData[index] = { ...newData[index], [column]: value };
       setDataSource(newData);
     }
   };
@@ -64,14 +61,13 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
         total_amount: order.total_amount,
         payment_type: order.payment_type,
         pickup_method: order.pickup_method,
-        pick_address: order.pick_address, 
+        pick_address: order.pick_address,
       }));
-      console.log(ordersToSubmit);
-      
+
       const response = await orderApi.createGHTKOrder(ordersToSubmit);
       if (response.result) {
         message.success(t("Đăng đơn hàng thành công"));
-        setOrderDetails(response.data); 
+        setOrderDetails(response.data);
         onClose();
       } else {
         message.error(t("Có lỗi khi đăng đơn hàng"));
@@ -81,24 +77,14 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
     }
   };
 
-
-  const editableColumns = [
-    { title: t("Mã đơn"), dataIndex: "order_code", editable: false },
-    { title: t("Địa chỉ"), dataIndex: "address", editable: true },
-    { title: t("Tên khách hàng"), dataIndex: "customer_name", editable: true },
-    { title: t("Số điện thoại"), dataIndex: "customer_phone", editable: true },
-    { title: t("Ghi chú giao hàng"), dataIndex: "note", editable: true },
-    { title: t("Khối lượng"), dataIndex: "weight", editable: true },
-    { title: t("Giá trị hàng"), dataIndex: "total_amount", editable: false },
-    {
-      title: t("Địa chỉ lấy hàng"),
-      dataIndex: "pick_address",
-      editable: true,
-      render: (text, record) => (
+  // Editable Cell
+  const EditableCell = ({ editable, children, record, column, ...restProps }) => {
+    const inputNode =
+      column === "pick_address" ? (
         <Select
-          value={record.pick_address} // Hiển thị giá trị pick_address hiện tại
-          style={{ minWidth: "200px", width: "100%" }}
-          onChange={(value) => handleFieldChange(value, record.key, "pick_address")} // Lấy value là name
+          value={record[column]}
+          style={{ width: "100%" }}
+          onChange={(value) => handleFieldChange(value, record.key, column)}
         >
           {pickupOptions.map((option) => (
             <Select.Option key={option.name} value={option.name}>
@@ -106,39 +92,19 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
             </Select.Option>
           ))}
         </Select>
-      ),
-    },
-  ];
+      ) : (
+        <Input
+          defaultValue={record[column]}
+          onBlur={(e) => handleFieldChange(e.target.value, record.key, column)}
+        />
+      );
 
-  // Component chỉnh sửa ô bảng
-  const EditableCell = ({ title, editable, children, column, record, ...restProps }) => {
     return (
       <td {...restProps}>
         {editable ? (
-          column === "pick_address" ? (
-            <Select
-              value={record[column]} // Hiển thị giá trị hiện tại là name
-              style={{ minWidth: "200px", width: "100%" }}
-              onChange={(value) => handleFieldChange(value, record.key, column)} // Cập nhật giá trị pick_address là name
-            >
-              {pickupOptions.map((option) => (
-                <Select.Option key={option.name} value={option.name}>
-                  {option.name}
-                </Select.Option>
-              ))}
-            </Select>
-          ) : (
-            <Form.Item
-              style={{ margin: 0 }}
-              name={column}
-              initialValue={record[column]}
-              rules={[{ required: true, message: `${title} is required.` }]}>
-              <Input
-                defaultValue={children}
-                onBlur={(e) => handleFieldChange(e.target.value, record.key, column)}
-              />
-            </Form.Item>
-          )
+          <Form.Item style={{ margin: 0 }}>
+            {inputNode}
+          </Form.Item>
         ) : (
           children
         )}
@@ -146,7 +112,19 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
     );
   };
 
-  const mergedColumns = editableColumns.map((col) => ({
+  const columns = [
+    { title: t("Mã đơn"), dataIndex: "order_code", editable: false },
+    { title: t("Địa chỉ"), dataIndex: "address", editable: true },
+    { title: t("Tên khách hàng"), dataIndex: "customer_name", editable: true },
+    { title: t("Số điện thoại"), dataIndex: "customer_phone", editable: true },
+    { title: t("Ghi chú giao hàng"), dataIndex: "note", editable: true },
+    { title: t("Khối lượng"), dataIndex: "weight", editable: true },
+    {
+      title: t("Địa chỉ lấy hàng"),
+      dataIndex: "pick_address",
+      editable: true,
+    },
+  ].map((col) => ({
     ...col,
     onCell: (record) => ({
       record,
@@ -171,19 +149,21 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
       width={"100%"}
     >
       <Title level={4}>{t("Danh sách đơn hàng")}</Title>
-      <Table
-        rowKey="key"
-        components={{
-          body: {
-            cell: EditableCell,
-          },
-        }}
-        columns={mergedColumns}
-        dataSource={dataSource}
-        pagination={false}
-        scroll={{ x: true }}
-        bordered
-      />
+      <Form component={false}>
+        <Table
+          rowKey="key"
+          components={{
+            body: {
+              cell: EditableCell,
+            },
+          }}
+          columns={columns}
+          dataSource={dataSource}
+          pagination={false}
+          scroll={{ x: true }}
+          bordered
+        />
+      </Form>
 
       {orderDetails && (
         <Modal
