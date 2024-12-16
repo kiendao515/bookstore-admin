@@ -117,6 +117,36 @@ function RevenueHomePage(props) {
         },
       },
       {
+        name: t('Tiền chưa chốt'),
+        sortable: false,
+        // minWidth: '220px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
+            >
+              {row?.not_settle_amount}
+            </div>
+          );
+        },
+      },
+      {
+        name: t('Tiền đã chốt'),
+        sortable: false,
+        // minWidth: '220px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
+            >
+              {row?.settle_amount}
+            </div>
+          );
+        },
+      },
+      {
         name: '',
         center: 'true',
         width: '200px',
@@ -296,7 +326,7 @@ function RevenueHomePage(props) {
         <div className="card-header border-0 pt-6 pb-6">
           <div className="w-100 d-flex justify-content-between">
             <div className="card-title my-0">
-              <h1 className="card-label">{t('ListCollection')}</h1>
+              <h1 className="card-label">{t('Báo cáo tồn kho nhà ký gửi')}</h1>
               {pagination?.total ? <span>{`(${pagination?.total})`}</span> : null}
             </div>
 
