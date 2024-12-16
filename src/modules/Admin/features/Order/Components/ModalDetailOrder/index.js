@@ -4,8 +4,9 @@ import { Table, Modal, Button, Descriptions, Input } from "antd";
 
 
 const OrderList = () => {
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [selectedOrder, setSelectedOrder] = useState < any > (null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [weight, setWeight]= useState(null)
 
   const showOrderDetails = (order) => {
     setSelectedOrder(order);

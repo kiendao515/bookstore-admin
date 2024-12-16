@@ -17,7 +17,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import { setPaginationPerPage, thunkGetListCollection, thunkGetListOrder } from '../../orderSlice';
 import collectionApi from 'api/collectionApi';
-import ModalEditCollection from '../../Components/ModalEditCollection';
 import { Tabs } from 'antd';
 import ModalOrderDetails from '../../Components/ModalOrderDetails';
 import ModalCreateOrder from '../../Components/ModelCreateOrder';

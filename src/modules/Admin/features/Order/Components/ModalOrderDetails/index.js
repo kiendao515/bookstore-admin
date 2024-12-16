@@ -13,6 +13,7 @@ import {
     Button,
     message,
     Select,
+    Input,
 } from "antd";
 import PropTypes from "prop-types";
 import orderApi from "api/orderApi";
@@ -50,6 +51,7 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
     const [pdfUrl, setPdfUrl] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [status, setStatus] = useState("");
+    const [ghtkOrder, setGhtkOrder] = useState(null);
 
     const fetchOrderDetails = async () => {
         setLoading(true);
@@ -88,7 +90,7 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
             fetchOrderDetails();
             fetchDetailOrder();
         }
-    }, [visible]);
+    }, [visible,status]);
 
     const [visibleImage, setVisibleImage] = useState(false);
     const [imageSrc, setImageSrc] = useState("");
@@ -129,9 +131,13 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
         const status = orderDetail?.status;
         return !(status === "CREATED" || status === "READY_TO_PACKAGE");
     };
+    const isCreateGHTKOrder = () => {
+        const status = orderDetail?.status;
+        return !(status === "READY_TO_PACKAGE");
+    };
     const handleStatusChange = async (newStatus) => {
         try {
-            const response = await orderApi.updateOrderStatus(orderDetail.order_code, {status: newStatus});
+            const response = await orderApi.updateOrderStatus(orderDetail.order_code, { status: newStatus });
             if (response.result) {
                 setStatus(newStatus);  // Update status in state
                 message.success("Cập nhật trạng thái đơn hàng thành công!");
@@ -143,6 +149,40 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
             message.error("Có lỗi xảy ra khi cập nhật trạng thái.");
         }
     };
+    const handleCreateGHTKOrder = async () => {
+        try {
+            const ordersToSubmit = [{
+                order_code: orderDetail?.order_code,
+                address: orderDetail?.address,
+                customer_name: orderDetail?.customer_name,
+                customer_phone: orderDetail?.customer_phone,
+                note: orderDetail?.note,
+                weight: weight,
+                total_amount: orderDetail?.total_amount,
+                payment_type: orderDetail?.payment_type,
+                pickup_method: orderDetail?.pickup_method,
+                pick_address: orderDetail?.pick_address,
+            }]
+
+            const response = await orderApi.createGHTKOrder(ordersToSubmit);
+            if (response.result) {
+                message.success("Đăng đơn hàng thành công");
+                setGhtkOrder(response.data[0]);
+                // onClose();
+            } else {
+                message.error("Có lỗi khi đăng đơn hàng");
+            }
+        } catch (error) {
+            console.log(error);
+
+            message.error("Lỗi kết nối khi đăng đơn hàng", error);
+        }
+    };
+
+    const handleWeightChange = (e) => {
+        setWeight(e.target.value);
+    };
+    const [weight, setWeight] = useState(null);
 
     return (
         <Modal
@@ -152,6 +192,14 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
             footer={[
                 <Button key="cancel" onClick={onClose}>
                     Đóng
+                </Button>,
+                <Button
+                    key="order"
+                    type="primary"
+                    onClick={handleCreateGHTKOrder}
+                    disabled={isCreateGHTKOrder()}
+                >
+                    Đăng đơn
                 </Button>,
                 <Button
                     key="print"
@@ -190,7 +238,7 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
                                                 value={orderDetail.status}
                                                 onChange={handleStatusChange}
                                                 style={{ width: "100%" }}
-                                                disabled={orderDetail.status === "DONE"}  
+                                                disabled={orderDetail.status === "DONE"}
                                             >
                                                 <Option value="CREATED">Chờ xác nhận</Option>
                                                 <Option value="READY_TO_PACKAGE">Sẵn sàng đóng gói</Option>
@@ -207,6 +255,14 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Ghi chú">
                                             {orderDetail.note || "Không có"}
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label="Cân nặng">
+                                            <Input
+                                                value={weight}
+                                                onChange={handleWeightChange}
+                                                placeholder="Nhập cân nặng"
+                                                suffix="kg"
+                                            />
                                         </Descriptions.Item>
                                     </Descriptions>
                                 </Card>
@@ -332,6 +388,24 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
                     </div>
                 )}
             </Modal>
+            {ghtkOrder && (
+                <Modal
+                    title="Đăng đơn hàng thành công"
+                    visible={!!ghtkOrder}
+                    onCancel={() => setGhtkOrder(null)}
+                    footer={[
+                        <Button key="ok" type="primary" onClick={() => setGhtkOrder(null)}>
+                            OK
+                        </Button>,
+                    ]}
+                >
+                    <p><strong>Tình trạng:</strong> {ghtkOrder.status_id == 1 ? "Chưa tiếp nhận" : "Đã tiếp nhận"}</p>
+                    <p><strong>Mã đơn hàng:</strong> {ghtkOrder.label}</p>
+                    <p><strong>Khu vực:</strong> {ghtkOrder.area}</p>
+                    <p><strong>Phí vận chuyển:</strong> {ghtkOrder.fee} VND</p>
+                    <p><strong>Thời gian ước tính lấy hàng:</strong> {ghtkOrder.estimated_pick_time}</p>
+                </Modal>
+            )}
         </Modal>
     );
 }
