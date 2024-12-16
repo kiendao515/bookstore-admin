@@ -51,7 +51,6 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
     const [pdfUrl, setPdfUrl] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [status, setStatus] = useState("");
-    const [weight, setWeight] = useState("")
     const [ghtkOrder, setGhtkOrder] = useState(null);
 
     const fetchOrderDetails = async () => {
@@ -91,7 +90,7 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
             fetchOrderDetails();
             fetchDetailOrder();
         }
-    }, [visible, status]);
+    }, [visible,status]);
 
     const [visibleImage, setVisibleImage] = useState(false);
     const [imageSrc, setImageSrc] = useState("");
@@ -132,10 +131,10 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
         const status = orderDetail?.status;
         return !(status === "CREATED" || status === "READY_TO_PACKAGE");
     };
-    const isCreateOrder = () => {
+    const isCreateGHTKOrder = () => {
         const status = orderDetail?.status;
-        return !(status === "READY_TO_PACKAGE")
-    }
+        return !(status === "READY_TO_PACKAGE");
+    };
     const handleStatusChange = async (newStatus) => {
         try {
             const response = await orderApi.updateOrderStatus(orderDetail.order_code, { status: newStatus });
@@ -150,31 +149,40 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
             message.error("Có lỗi xảy ra khi cập nhật trạng thái.");
         }
     };
+    const handleCreateGHTKOrder = async () => {
+        try {
+            const ordersToSubmit = [{
+                order_code: orderDetail?.order_code,
+                address: orderDetail?.address,
+                customer_name: orderDetail?.customer_name,
+                customer_phone: orderDetail?.customer_phone,
+                note: orderDetail?.note,
+                weight: weight,
+                total_amount: orderDetail?.total_amount,
+                payment_type: orderDetail?.payment_type,
+                pickup_method: orderDetail?.pickup_method,
+                pick_address: orderDetail?.pick_address,
+            }]
+
+            const response = await orderApi.createGHTKOrder(ordersToSubmit);
+            if (response.result) {
+                message.success("Đăng đơn hàng thành công");
+                setGhtkOrder(response.data[0]);
+                // onClose();
+            } else {
+                message.error("Có lỗi khi đăng đơn hàng");
+            }
+        } catch (error) {
+            console.log(error);
+
+            message.error("Lỗi kết nối khi đăng đơn hàng", error);
+        }
+    };
+
     const handleWeightChange = (e) => {
         setWeight(e.target.value);
     };
-    const createGHTKOrder = async () => {
-        let order = [{
-            order_code: orderDetail.order_code,
-            address: orderDetail.address,
-            customer_name: orderDetail.customer_name,
-            customer_phone: orderDetail.customer_phone,
-            note: orderDetail.note,
-            weight: weight,
-            total_amount: orderDetail.total_amount,
-            payment_type: orderDetail.payment_type,
-            pickup_method: orderDetail.pickup_method,
-            pick_address: orderDetail.pick_address,
-        }]
-        const response = await orderApi.createGHTKOrder(order);
-        if (response.result) {
-          message.success(t("Đăng đơn hàng thành công"));
-          setGhtkOrder(response.data);
-          onClose();
-        } else {
-          message.error(t("Có lỗi khi đăng đơn hàng"));
-        }
-    }
+    const [weight, setWeight] = useState(null);
 
     return (
         <Modal
@@ -185,7 +193,12 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
                 <Button key="cancel" onClick={onClose}>
                     Đóng
                 </Button>,
-                <Button key="create" type="primary" onClick={createGHTKOrder} disabled={isCreateOrder()}>
+                <Button
+                    key="order"
+                    type="primary"
+                    onClick={handleCreateGHTKOrder}
+                    disabled={isCreateGHTKOrder()}
+                >
                     Đăng đơn
                 </Button>,
                 <Button
@@ -245,7 +258,7 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Cân nặng">
                                             <Input
-                                                value={orderDetail?.weight}
+                                                value={weight}
                                                 onChange={handleWeightChange}
                                                 placeholder="Nhập cân nặng"
                                                 suffix="kg"
@@ -375,6 +388,24 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
                     </div>
                 )}
             </Modal>
+            {ghtkOrder && (
+                <Modal
+                    title="Đăng đơn hàng thành công"
+                    visible={!!ghtkOrder}
+                    onCancel={() => setGhtkOrder(null)}
+                    footer={[
+                        <Button key="ok" type="primary" onClick={() => setGhtkOrder(null)}>
+                            OK
+                        </Button>,
+                    ]}
+                >
+                    <p><strong>Tình trạng:</strong> {ghtkOrder.status_id == 1 ? "Chưa tiếp nhận" : "Đã tiếp nhận"}</p>
+                    <p><strong>Mã đơn hàng:</strong> {ghtkOrder.label}</p>
+                    <p><strong>Khu vực:</strong> {ghtkOrder.area}</p>
+                    <p><strong>Phí vận chuyển:</strong> {ghtkOrder.fee} VND</p>
+                    <p><strong>Thời gian ước tính lấy hàng:</strong> {ghtkOrder.estimated_pick_time}</p>
+                </Modal>
+            )}
         </Modal>
     );
 }

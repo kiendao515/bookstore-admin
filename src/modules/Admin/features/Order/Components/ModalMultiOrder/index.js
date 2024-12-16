@@ -125,55 +125,23 @@ const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
     { title: t("Ghi chú giao hàng"), dataIndex: "note", editable: true },
     { title: t("Khối lượng"), dataIndex: "weight", editable: true },
     { title: t("Giá trị hàng"), dataIndex: "total_amount", editable: false },
-    {
-      title: t("Địa chỉ lấy hàng"),
-      dataIndex: "pick_address",
-      editable: true,
-      render: (text, record) => (
-        <Select
-          value={record.pick_address}
-          style={{ minWidth: "200px", width: "100%" }}
-          onChange={(value) => handleFieldChange(value, record.key, "pick_address")}
-        >
-          {pickupOptions.map((option) => (
-            <Select.Option key={option.name} value={option.name}>
-              {option.name}
-            </Select.Option>
-          ))}
-        </Select>
-      ),
-    },
   ];
 
   // Component chỉnh sửa ô bảng
   const EditableCell = ({ title, editable, children, column, record, ...restProps }) => (
     <td {...restProps}>
       {editable ? (
-        column === "pick_address" ? (
-          <Select
-            value={record[column]}
-            style={{ minWidth: "200px", width: "100%" }}
-            onChange={(value) => handleFieldChange(value, record.key, column)}
-          >
-            {pickupOptions.map((option) => (
-              <Select.Option key={option.name} value={option.name}>
-                {option.name}
-              </Select.Option>
-            ))}
-          </Select>
-        ) : (
-          <Form.Item
-            style={{ margin: 0 }}
-            name={column}
-            initialValue={record[column]}
-            rules={[{ required: true, message: `${title} is required.` }]}
-          >
-            <Input
-              defaultValue={children}
-              onBlur={(e) => handleFieldChange(e.target.value, record.key, column)}
-            />
-          </Form.Item>
-        )
+        <Form.Item
+        style={{ margin: 0 }}
+        name={column}
+        initialValue={record[column]}
+        rules={[{ required: true, message: `${title} is required.` }]}
+      >
+        <Input
+          defaultValue={children}
+          onBlur={(e) => handleFieldChange(e.target.value, record.key, column)}
+        />
+      </Form.Item>
       ) : (
         children
       )}
