@@ -79,25 +79,12 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
 
   // Editable Cell
   const EditableCell = ({ editable, children, record, column, ...restProps }) => {
-    const inputNode =
-      column === "pick_address" ? (
-        <Select
-          value={record[column]}
-          style={{ width: "100%" }}
-          onChange={(value) => handleFieldChange(value, record.key, column)}
-        >
-          {pickupOptions.map((option) => (
-            <Select.Option key={option.name} value={option.name}>
-              {option.name}
-            </Select.Option>
-          ))}
-        </Select>
-      ) : (
-        <Input
-          defaultValue={record[column]}
-          onBlur={(e) => handleFieldChange(e.target.value, record.key, column)}
-        />
-      );
+    const inputNode = (
+      <Input
+        defaultValue={record ? record[column]: ""}
+        onBlur={(e) => handleFieldChange(e.target.value, record.key, column)}
+      />
+    );
 
     return (
       <td {...restProps}>
@@ -114,16 +101,11 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
 
   const columns = [
     { title: t("Mã đơn"), dataIndex: "order_code", editable: false },
-    { title: t("Địa chỉ"), dataIndex: "address", editable: true },
+    { title: t("Địa chỉ"), dataIndex: "address", editable: false },
     { title: t("Tên khách hàng"), dataIndex: "customer_name", editable: true },
     { title: t("Số điện thoại"), dataIndex: "customer_phone", editable: true },
     { title: t("Ghi chú giao hàng"), dataIndex: "note", editable: true },
     { title: t("Khối lượng"), dataIndex: "weight", editable: true },
-    {
-      title: t("Địa chỉ lấy hàng"),
-      dataIndex: "pick_address",
-      editable: true,
-    },
   ].map((col) => ({
     ...col,
     onCell: (record) => ({
@@ -142,13 +124,12 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
         <Button key="cancel" onClick={onClose}>
           {t("Đóng")}
         </Button>,
-        <Button key="submit" type="primary" onClick={submitOrder}>
+        <Button key="submit" type="primary" onClick={submitOrder} disabled={dataSource.length==0}>
           {t("Đăng đơn")}
         </Button>,
       ]}
       width={"100%"}
     >
-      <Title level={4}>{t("Danh sách đơn hàng")}</Title>
       <Form component={false}>
         <Table
           rowKey="key"
@@ -165,7 +146,7 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
         />
       </Form>
 
-      {orderDetails && (
+      {/* {orderDetails && (
         <Modal
           title={t("Thông tin đơn hàng thành công")}
           visible={!!orderDetails}
@@ -183,7 +164,7 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
           <p><strong>{t("Thời gian ước tính giao hàng")}:</strong> {orderDetails.estimated_deliver_time}</p>
           <p><strong>{t("Tracking ID")}:</strong> {orderDetails.tracking_id}</p>
         </Modal>
-      )}
+      )} */}
     </Modal>
   );
 };
