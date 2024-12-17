@@ -1,5 +1,6 @@
 import axios from 'axios';
 import axiosClient from './axiosClient';
+import store from 'app/store';
 
 const revenueApi = {
   getListReport: async (from, to) => {
@@ -21,6 +22,10 @@ const revenueApi = {
   getStoreRevenue:(params)=>{
     const url = `/book-stores/statistic`
     return axiosClient.get(url, { params });
+  },
+  getDetailBookRevenue:(storeId, bookId)=>{
+    const url = `/book-stores/statistic/detail?book_id=${bookId}&store_id=${storeId}`
+    return axiosClient.get(url);
   }
 };
 

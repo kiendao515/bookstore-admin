@@ -1,326 +1,147 @@
-import categoryApi from 'api/categoryApi';
-import { FastField, Formik } from 'formik';
-import KTImageInput from 'general/components/OtherKeenComponents/FileUpload/KTImageInput';
-import KTFormGroup from 'general/components/OtherKeenComponents/Forms/KTFormGroup';
-import KTFormInput, {
-  KTFormInputType,
-} from 'general/components/OtherKeenComponents/Forms/KTFormInput';
-import AppConfigs from 'general/constants/AppConfigs';
-import ToastHelper from 'general/helpers/ToastHelper';
-import Global from 'general/utils/Global';
-import Utils from 'general/utils/Utils';
-import _ from 'lodash';
-import PropTypes from 'prop-types';
-import { Button, Modal } from 'react-bootstrap';
-import { useTranslation } from 'react-i18next';
-import { useDispatch } from 'react-redux';
-import * as Yup from 'yup';
-import AppResource from 'general/constants/AppResource';
+import React, { useEffect, useState } from 'react';
+import { Modal, Spin, Table, Image, Row, Col } from 'antd';
+import axios from 'axios';
+import revenueApi from 'api/revenueApi';
 
-import collectionApi from 'api/collectionApi';
-import { thunkGetListRevenue } from '../../revenueSlice';
+const ModalEditRevenue = ({
+  show,
+  onClose,
+  onExistDone,
+  collectionItem,
+  onRefreshCollectionList,
+  storeId
+}) => {
+  const [loading, setLoading] = useState(false);
+  const [bookDetail, setBookDetail] = useState(null);
 
-ModalEditRevenue.propTypes = {
-  show: PropTypes.bool,
-  onClose: PropTypes.func,
-  onRefreshRevenueList: PropTypes.func,
-  revenueItem: PropTypes.object,
-  onExistDone: PropTypes.func,
-};
-
-ModalEditRevenue.defaultProps = {
-  show: false,
-  onClose: null,
-  onRefreshRevenueList: null,
-  revenueItem: null,
-  onExistDone: null,
-};
-
-/**
- *
- * @param {{
- * show: boolean,
- * onClose: function,
- * onRefreshRevenueList: function,
- * revenueItem: object,
- * onExistDone: function,
- * }} props
- * @returns
- */
-function ModalEditRevenue(props) {
-  // MARK: --- Params ---
-  const { t } = useTranslation();
-  const dispatch = useDispatch();
-  const { show, onClose, onRefreshRevenueList, revenueItem, onExistDone } = props;
-  const isEditMode = !_.isNull(revenueItem);
-  console.log(revenueItem);
-
-
-  // MARK: --- Functions ---
-  function handleClose() {
-    if (onClose) {
-      onClose();
+  useEffect(() => {
+    if (show && collectionItem) {
+      fetchBookDetail(storeId, collectionItem.id);
     }
-  }
+  }, [show, collectionItem]);
 
-  function handleExistDone() {
-    if (onExistDone) {
-      onExistDone();
-    }
-  }
-
-  // Request create new employee
-  async function requestCreateCollection(values) {
+  const fetchBookDetail = async (storeId, bookId) => {
+    setLoading(true);
     try {
-      let params = { ...values };
-      let cover_image = await Utils.uploadFile(values?.image)
-      params.image = cover_image;
-      // params.password = Utils.sha256(params.password);
-      const res = await collectionApi.createCollection(params);
-      const { result } = res;
-      if (result == true) {
-        ToastHelper.showSuccess(t('Success'));
-        dispatch(thunkGetListRevenue(Global.gFiltersRevenueList));
-        handleClose();
+      const response = await revenueApi.getDetailBookRevenue(storeId, bookId);
+      if (response.result) {
+        setBookDetail(response.data);
+      } else {
+        console.error('Failed to fetch book details');
       }
     } catch (error) {
-      console.log(error);
+      console.error('Error fetching book details:', error);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-  // Request update new employee
-  async function requestUpdateCategory(values) {
-    try {
-      let params = { ...values };
-      let cover_image = await Utils.uploadFile(values?.image)
-      params.image = cover_image;
-      const res = await collectionApi.updateCollection(params);
-      const { result } = res;
-      if (result == true) {
-        ToastHelper.showSuccess(t('Success'));
-        dispatch(thunkGetListRevenue(Global.gFiltersRevenueList));
-        handleClose();
-      }
-    } catch (error) {
-      console.log(error);
+  const inventoryColumns = [
+    {
+      title: 'Tình trạng',
+      dataIndex: 'type',
+      key: 'type',
+    },
+    {
+      title: 'Giá tiền',
+      dataIndex: 'price',
+      key: 'price',
+      render: (price) => price ? `${price.toLocaleString()} VND` : 'N/A',
+    },
+    {
+      title: 'Số lượng',
+      dataIndex: 'quantity',
+      key: 'quantity',
+    },
+    {
+      title: 'Vị trí',
+      dataIndex: 'location',
+      key: 'location',
+    },
+    {
+      title: 'Cover Image',
+      dataIndex: 'book',
+      key: 'coverImage',
+      render: (book) => book?.coverImage ? <Image width={50} src={book.coverImage} /> : 'No Image',
     }
-  }
+  ];
+
+  const soldColumns = [
+    {
+      title: 'Order ID',
+      dataIndex: 'order_id',
+      key: 'order_id',
+    },
+    {
+      title: 'Price',
+      dataIndex: 'price',
+      key: 'price',
+      render: (price) => price ? `${price.toLocaleString()} VND` : 'N/A',
+    },
+    {
+      title: 'Quantity',
+      dataIndex: 'quantity',
+      key: 'quantity',
+    },
+    {
+      title: 'Date Sold',
+      dataIndex: 'date_sold',
+      key: 'date_sold',
+    }
+  ];
 
   return (
-    <div>
-      <Formik
-        initialValues={{
-          id: revenueItem ? revenueItem.id : '',
-          book_name: revenueItem ? revenueItem.book?.name : '',
-          inventory: revenueItem ? revenueItem.inventory : '',
-          sold: revenueItem ? revenueItem.sold : '',
-          settle: revenueItem ? revenueItem.settle : '',
-          notSettle: revenueItem ? revenueItem.notSettle : '',
-          commission_percentage: revenueItem ? revenueItem.commission_percentage: ''
-        }}
-        // validationSchema={Yup.object({
-        //   name: Yup.string().required(t('Required')),
-        //   description: Yup.string().required(t('Required')),
-        //   num_of_books: isEditMode
-        //     ? null
-        //     : Yup.string()
-        //       .required(t('Required'))
-        //       .min(6, t('ThePasswordMustContainAtLeast6Characters'))
-        //       .matches(/^\S*$/, t('ThePasswordMustNotContainWhitespace'))
-        // })}
-        enableReinitialize
-        onSubmit={(values) => {
-          console.log("thêm mới", values);
+    <Modal
+      visible={show}
+      title="Book Inventory and Sales Detail"
+      onCancel={onClose}
+      footer={null}
+      width={1500}
+      afterClose={onExistDone}
+    >
+      {loading ? (
+        <Spin size="large" />
+      ) : (
+        <>
+          {bookDetail ? (
+            <>
+              <h3>Book Name: {bookDetail.inventory[0]?.book?.name}</h3>
+              <p><strong>Author:</strong> {bookDetail.inventory[0]?.book?.authorName}</p>
+              <p><strong>Publisher:</strong> {bookDetail.inventory[0]?.book?.publisher}</p>
+              <p><strong>Description:</strong> {bookDetail.inventory[0]?.book?.description}</p>
 
-          if (isEditMode) {
-            requestUpdateCategory(values);
-          } else {
-            requestCreateCollection(values);
-          }
-        }}
-      >
-        {(formikProps) => (
-          <>
-            <Modal
-              className=""
-              show={show}
-              backdrop="static"
-              size="lg"
-              onHide={handleClose}
-              centered
-              onExit={() => {
-                formikProps.handleReset();
-              }}
-              onExited={() => {
-                handleExistDone();
-              }}
-              enforceFocus={false}
-            >
-              <Modal.Header className="px-5 py-5">
-                <Modal.Title>{revenueItem ? t('Sửa bộ sưu tập') : t('Thêm mới bộ sưu tập')}</Modal.Title>
-                <div
-                  className="btn btn-xs btn-icon btn-light btn-hover-secondary cursor-pointer"
-                  onClick={() => {
-                    handleClose();
-                  }}
-                >
-                  <i className="far fa-times"></i>
-                </div>
-              </Modal.Header>
+              <Row gutter={16}>
+                <Col xs={24} md={12} lg={12}>
+                  <h4>Inventory Information</h4>
+                  <Table
+                    dataSource={bookDetail.inventory}
+                    columns={inventoryColumns}
+                    rowKey="id"
+                    pagination={false}
+                    scroll={{ x: true }}
+                  />
+                </Col>
+                <Col xs={24} md={12} lg={12}>
+                  <h4>Sold Information</h4>
+                  <Table
+                    dataSource={bookDetail.order_items}
+                    columns={soldColumns}
+                    rowKey="order_id"
+                    pagination={false}
+                    scroll={{ x: true }}
+                  />
+                </Col>
+                
+              </Row>
 
-              <Modal.Body
-                className="overflow-auto"
-                style={{
-                  maxHeight: '70vh',
-                }}
-              >
-                <div>
-                  <div className="row">
-                    {/* email */}
-                    <div className="col-12">
-                      <KTFormGroup
-                        label={
-                          <>
-                            {t('Tên sách')} <span className="text-danger">(*)</span>
-                          </>
-                        }
-                        inputName="tên"
-                        inputElement={
-                          <FastField name="book_name">
-                            {({ field, form, meta }) => (
-                              <KTFormInput
-                                name={field.name}
-                                value={field.value}
-                                onChange={(value) => {
-                                  form.setFieldValue(field.name, value);
-                                }}
-                                onBlur={() => {
-                                  form.setFieldTouched(field.name, true);
-                                }}
-                                enableCheckValid
-                                isValid={_.isEmpty(meta.error)}
-                                isTouched={meta.touched}
-                                feedbackText={meta.error}
-                                rows={5}
-                                placeholder={`${_.capitalize(t('Tên sách'))}...`}
-                                type={KTFormInputType.text}
-                              // disabled={true}
-                              />
-                            )}
-                          </FastField>
-                        }
-                      />
-                    </div>
-
-                    {/* username */}
-                    <div className="col-12">
-                      <KTFormGroup
-                        label={
-                          <>
-                            {t('Mô tả')} <span className="text-danger">(*)</span>
-                          </>
-                        }
-                        inputName="Mô tả"
-                        inputElement={
-                          <FastField name="description">
-                            {({ field, form, meta }) => (
-                              <KTFormInput
-                                name={field.name}
-                                value={field.value}
-                                onChange={(value) => {
-                                  form.setFieldValue(field.name, value);
-                                }}
-                                onBlur={() => {
-                                  form.setFieldTouched(field.name, true);
-                                }}
-                                enableCheckValid
-                                isValid={_.isEmpty(meta.error)}
-                                isTouched={meta.touched}
-                                feedbackText={meta.error}
-                                rows={5}
-                                placeholder={`${_.capitalize(t('mô tả'))}...`}
-                                type={KTFormInputType.text}
-                              />
-                            )}
-                          </FastField>
-                        }
-                      />
-                    </div>
-
-                    <div className="col-6">
-                      <KTFormGroup
-                        label={
-                          <>
-                            {t('Bìa collection')} <span className="text-danger">(*)</span>
-                          </>
-                        }
-                        inputName="image"
-                        inputElement={
-                          <FastField name="image">
-                            {({ field, form, meta }) => (
-                              <KTImageInput
-                                isAvatar={false}
-                                name={field.name}
-                                value={field.value}
-                                onChange={(value) => {
-                                  form.setFieldValue(field.name, value);
-                                }}
-                                onBlur={() => {
-                                  form.setFieldTouched(field.name, true);
-                                }}
-                                enableCheckValid
-                                isValid={_.isEmpty(meta.error)}
-                                isTouched={meta.touched}
-                                feedbackText={meta.error}
-                                defaultImage={AppResource.images.imgUpload}
-                                acceptImageTypes={AppConfigs.acceptImages}
-                                onSelectedFile={(file) => {
-                                  console.log(file);
-                                  //   Utils.validateImageFile(file);
-                                  form.setFieldValue('image', file);
-                                }}
-                                onRemovedFile={() => {
-                                  form.setFieldValue('image', null);
-                                }}
-                                additionalClassName=""
-                              />
-                            )}
-                          </FastField>
-                        }
-                      />
-                    </div>
-                  </div>
-                </div>
-              </Modal.Body>
-
-              <Modal.Footer>
-                <div className="w-100 d-flex row">
-                  <Button
-                    className="font-weight-bold flex-grow-1 col mr-3"
-                    variant="primary"
-                    onClick={() => {
-                      console.log("submit");
-                      formikProps.handleSubmit();
-                    }}
-                  >
-                    {t('Save')}
-                  </Button>
-
-                  <Button
-                    className="font-weight-bold flex-grow-1 col"
-                    variant="secondary"
-                    onClick={handleClose}
-                  >
-                    {t('Close')}
-                  </Button>
-                </div>
-              </Modal.Footer>
-            </Modal>
-          </>
-        )}
-      </Formik>
-    </div>
+            </>
+          ) : (
+            <p>No details available</p>
+          )}
+        </>
+      )}
+    </Modal>
   );
-}
+};
 
 export default ModalEditRevenue;
