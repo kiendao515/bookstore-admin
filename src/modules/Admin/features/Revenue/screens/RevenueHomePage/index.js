@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import collectionApi from 'api/collectionApi';
-import ModalEditCollection from '../../Components/ModalEditRevenue';
+import ModalEditRevenue from '../../Components/ModalEditRevenue';
 import { thunkGetListRevenue } from '../../revenueSlice';
 import DateRangePickerInput from 'general/components/Form/DateRangePicker';
 import KTFormSelect from 'general/components/OtherKeenComponents/Forms/KTFormSelect';
@@ -36,6 +36,7 @@ function RevenueHomePage(props) {
   const [toggledClearEmployees, setToggledClearEmployees] = useState(true);
   const { revenue,  isGettingRevenue, pagination } = useSelector((state) => state.revenue);
   const [bookStores, setBookStores] = useState([]);
+  const [storeId, setStoreId]= useState(null)
   const needToRefreshData = useRef(revenue?.length === 0);
   const refLoading = useRef(false);
   const columns = useMemo(() => {
@@ -404,7 +405,7 @@ function RevenueHomePage(props) {
                 value={Global.gFiltersRevenueList.store_id}
                 onChange={(newValue) => {
                   console.log(newValue);
-                  
+                  setStoreId(newValue)
                   needToRefreshData.current = true;
                   Global.gFiltersRevenueList = {
                     ...filters,
@@ -492,7 +493,7 @@ function RevenueHomePage(props) {
         </div>
       </div>
 
-      <ModalEditCollection
+      <ModalEditRevenue
         show={modalEmployeeEditShowing}
         onClose={() => {
           setModalEmployeeEditShowing(false);
@@ -501,6 +502,7 @@ function RevenueHomePage(props) {
           setSelectedCollectionItem(null);
         }}
         collectionItem={selectedCollectionItem}
+        storeId = {storeId}
         onRefreshCollectionList={() => {
           setSelectedCollectionItem(null);
           getEmployeeList();
