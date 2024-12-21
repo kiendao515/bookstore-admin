@@ -21,7 +21,9 @@ import { thunkGetListRevenue } from '../../revenueSlice';
 import DateRangePickerInput from 'general/components/Form/DateRangePicker';
 import KTFormSelect from 'general/components/OtherKeenComponents/Forms/KTFormSelect';
 import bookApi from 'api/bookApi';
-
+import { Button } from 'antd';
+import * as XLSX from 'xlsx';
+import revenueApi from 'api/revenueApi';
 RevenueHomePage.propTypes = {};
 
 const sTag = '[RevenueHomePage]';
@@ -34,9 +36,12 @@ function RevenueHomePage(props) {
   const [filters, setFilters] = useState(Global.gFiltersRevenueList);
   const [selectedEmployees, setSelectedEmployees] = useState([]);
   const [toggledClearEmployees, setToggledClearEmployees] = useState(true);
-  const { revenue,  isGettingRevenue, pagination } = useSelector((state) => state.revenue);
+  const { revenue, isGettingRevenue, pagination } = useSelector((state) => state.revenue);
   const [bookStores, setBookStores] = useState([]);
-  const [storeId, setStoreId]= useState(null)
+  const [storeId, setStoreId] = useState(null)
+  const [storeName, setStoreName] = useState(null)
+  const [from, setFrom] = useState(null)
+  const [to, setTo] = useState(null)
   const needToRefreshData = useRef(revenue?.length === 0);
   const refLoading = useRef(false);
   const columns = useMemo(() => {
@@ -147,40 +152,6 @@ function RevenueHomePage(props) {
           );
         },
       },
-      {
-        name: '',
-        center: 'true',
-        width: '200px',
-        cell: (row) => (
-          <div className="d-flex align-items-center">
-            <KTTooltip text={t('Edit')}>
-              <a
-                className="btn btn-icon btn-sm btn-primary mr-2"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleEditCollection(row);
-                }}
-              >
-                <i className="fa-solid fa-pen-to-square p-0 icon-1x" />
-              </a>
-            </KTTooltip>
-
-            <KTTooltip text={t('Delete')}>
-              <a
-                className="btn btn-icon btn-sm btn-danger btn-hover-danger mr-2"
-                onClick={(e) => {
-                  e.preventDefault();
-                  console.log(row);
-
-                  handleDeleteCollection(row);
-                }}
-              >
-                <i className="fa-solid fa-trash p-0 icon-1x" />
-              </a>
-            </KTTooltip>
-          </div>
-        ),
-      },
     ];
   }, []);
   const [selectedCollectionItem, setSelectedCollectionItem] = useState(null);
@@ -193,7 +164,7 @@ function RevenueHomePage(props) {
     refLoading.current = true;
     try {
       console.log(filters);
-      
+
       const res = unwrapResult(await dispatch(thunkGetListRevenue(filters)));
     } catch (error) {
       console.log(`${sTag} get employee list error: ${error.message}`);
@@ -272,7 +243,7 @@ function RevenueHomePage(props) {
   useEffect(() => {
     if (!refLoading.current && (needToRefreshData.current || Global.gNeedToRefreshRevenueList)) {
       console.log("okeoke");
-      
+
       Global.gNeedToRefreshRevenueList = false;
       getEmployeeList()
     }
@@ -311,7 +282,104 @@ function RevenueHomePage(props) {
       }
     });
   }
+  const handleExportToExcel = (storeName, from, to) => {
+    if (revenue.length === 0) {
+      ToastHelper.showError(t('Không có dữ liệu để xuất.'));
+      return;
+    }
 
+    // Format khoảng thời gian
+    const formatDate = (date) => {
+      const d = new Date(date);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+
+    const formattedFrom = formatDate(from);
+    const formattedTo = formatDate(to);
+
+
+    const sanitizedStoreName = storeName?.replace(/[\\/:"*?<>|]/g, '_'); // Loại bỏ ký tự không hợp lệ
+    const fileName = `${sanitizedStoreName}_${formattedFrom}_to_${formattedTo}.xlsx`;
+
+    const formattedData = revenue.map((row) => ({
+      Tên: row?.book?.name || '',
+      Tồn_kho: row?.inventory || 0,
+      Đã_bán: row?.sold || 0,
+      Chưa_chốt: row?.not_settle || 0,
+      Đã_chốt: row?.settle || 0,
+      Tiền_chưa_chốt: row?.not_settle_amount || 0,
+      Tiền_đã_chốt: row?.settle_amount || 0,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(formattedData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Revenue Report');
+
+    // Xuất file Excel với tên file đã format
+    XLSX.writeFile(workbook, fileName);
+  };
+
+  const handleSettleRevenue = async () => {
+    try {
+      const totalRevenue = revenue.reduce((sum, row) => sum + row?.not_settle_amount || 0, 0); // Tổng doanh thu
+      const commissionPercentage = revenue[0]?.commission_percentage || 0; // Phần trăm hoa hồng
+      const commissionAmount = (totalRevenue * commissionPercentage) / 100; // Tiền hoa hồng
+      const totalAmountForSeller = totalRevenue - commissionAmount; // Tổng tiền gửi nhà bán
+
+      Swal.fire({
+        title: t('Bạn có chắc muốn chốt doanh thu không?'),
+        html: `
+          <p>${t('Tổng doanh thu')}: <strong>${totalRevenue.toLocaleString()} VNĐ</strong></p>
+          <p>${t('Hoa hồng')}: <strong>${commissionPercentage}%</strong></p>
+          <p>${t('Tổng tiền gửi nhà bán')}: <strong>${totalAmountForSeller.toLocaleString()} VNĐ</strong></p>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: t('Đồng ý'),
+        cancelButtonText: t('Hủy'),
+        customClass: {
+          confirmButton: 'btn btn-primary font-weight-bolder',
+          cancelButton: 'btn btn-light font-weight-bolder',
+        },
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          const booksToSettle = revenue.filter(item => item.not_settle !== 0);
+          const bookIds = booksToSettle.map(item => item.book.id);
+          const res = await revenueApi.confirmStoreRevenue(storeId, bookIds); // Thay bằng API thực tế
+          if (res.result) {
+            ToastHelper.showSuccess(t('Chốt doanh thu thành công.'));
+            getEmployeeList(); // Tải lại dữ liệu
+          } else {
+            ToastHelper.showError(t('Chốt doanh thu thất bại.'));
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Settle revenue error:', error);
+      ToastHelper.showError(t('Có lỗi xảy ra khi chốt doanh thu.'));
+    }
+  };
+
+  const conditionalRowStyles = [
+    {
+      when: (row) => row.sold > 0 && row.not_settle > 0,
+      style: {
+        backgroundColor: '#fff3cd', // Màu vàng cho sách đã bán nhưng chưa chốt
+      },
+    },
+    {
+      when: (row) => row.settle > 0,
+      style: {
+        backgroundColor: '#d4edda', // Màu xanh cho sách đã chốt
+      },
+    },
+    {
+      when: (row) => row.sold === 0 && row.not_settle === 0 && row.settle === 0,
+      style: {
+        backgroundColor: 'inherit', // Màu bình thường cho sách chưa bán, chưa chốt
+      },
+    },
+  ];
   // MARK: --- Hooks ---
   useEffect(() => {
     if (!refLoading.current && (needToRefreshData.current || Global.gNeedToRefreshRevenueList)) {
@@ -345,6 +413,18 @@ function RevenueHomePage(props) {
                 <i className="far fa-ban"></i>
                 {`${t('Delete')} (${selectedEmployees.length})`}
               </a>
+              <Button
+                className="btn btn-success font-weight-bold mr-2"
+                onClick={()=>handleExportToExcel(storeName, from, to)}
+              >
+                {t('Xuất file Excel')}
+              </Button>
+              <Button
+                className="btn btn-primary font-weight-bold"
+                onClick={handleSettleRevenue}
+              >
+                {t('Chốt doanh thu')}
+              </Button>
             </div>
           </div>
 
@@ -370,6 +450,8 @@ function RevenueHomePage(props) {
                     console.log("run here");
 
                     needToRefreshData.current = true;
+                    setFrom(dateRange.startDate.toISOString())
+                    setTo(dateRange.endDate.toISOString())
                     Global.gFiltersRevenueList = {
                       ...filters,
                       from: dateRange.startDate.toISOString(),
@@ -394,28 +476,38 @@ function RevenueHomePage(props) {
               }}
             />
             <KTFormSelect
-                name="store"
-                isCustom
-                options={[
+              name="store"
+              isCustom
+              options={[
+                { name: 'All', value: '' },
+                ...bookStores.map((item) => {
+                  return { name: item.name, value: item.id.toString() };
+                }),
+              ]}
+              value={Global.gFiltersRevenueList.store_id}
+              onChange={(newValue) => {
+                const selectedOption = [
                   { name: 'All', value: '' },
-                  ...bookStores.map((item) => {
-                    return { name: item.name, value: item.id.toString() };
-                  }),
-                ]}
-                value={Global.gFiltersRevenueList.store_id}
-                onChange={(newValue) => {
-                  console.log(newValue);
-                  setStoreId(newValue)
-                  needToRefreshData.current = true;
-                  Global.gFiltersRevenueList = {
-                    ...filters,
-                    store_id: newValue,
-                  };
-                  setFilters({
-                    ...Global.gFiltersRevenueList,
-                  });
-                }}
-              />
+                  ...bookStores.map((item) => ({
+                    name: item.name,
+                    value: item.id.toString(),
+                  })),
+                ].find((option) => option.value === newValue); 
+
+                const selectedStoreName = selectedOption ? selectedOption.name : ''; 
+                setStoreName(selectedStoreName); // Lưu storeName
+                console.log(newValue);
+                setStoreId(newValue)
+                needToRefreshData.current = true;
+                Global.gFiltersRevenueList = {
+                  ...filters,
+                  store_id: newValue,
+                };
+                setFilters({
+                  ...Global.gFiltersRevenueList,
+                });
+              }}
+            />
           </div>
         </div>
 
@@ -427,6 +519,7 @@ function RevenueHomePage(props) {
             columns={columns}
             data={revenue}
             customStyles={customDataTableStyle}
+            conditionalRowStyles={conditionalRowStyles} // Áp dụng điều kiện tô màu
             responsive={true}
             noHeader
             selectableRows={true}
@@ -502,7 +595,7 @@ function RevenueHomePage(props) {
           setSelectedCollectionItem(null);
         }}
         collectionItem={selectedCollectionItem}
-        storeId = {storeId}
+        storeId={storeId}
         onRefreshCollectionList={() => {
           setSelectedCollectionItem(null);
           getEmployeeList();

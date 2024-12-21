@@ -26,6 +26,10 @@ const revenueApi = {
   getDetailBookRevenue:(storeId, bookId)=>{
     const url = `/book-stores/statistic/detail?book_id=${bookId}&store_id=${storeId}`
     return axiosClient.get(url);
+  },
+  confirmStoreRevenue:(storeId, ids)=>{
+    const url = `/book-stores/statistic/confirm?store_id=${storeId}`
+    return axiosClient.post(url,ids);
   }
 };
 

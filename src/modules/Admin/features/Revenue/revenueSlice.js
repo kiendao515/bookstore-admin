@@ -47,6 +47,8 @@ const revenueSlice = createSlice({
           count: size,
           currentPage: page + 1,
         };
+      }else{
+        state.revenue = [];
       }
     });
   },

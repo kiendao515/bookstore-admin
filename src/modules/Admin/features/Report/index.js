@@ -91,7 +91,7 @@ const Dashboard = () => {
       <Content style={{ padding: '24px', margin: 0 }}>
         <Row gutter={[16, 16]}>
           <Col span={18}>
-            <h1>Doanh thu: {Utils.formatNumber(statistics?.ready_to_confirm?.amount)}đ</h1>
+            <h1>Doanh thu: {Utils.formatNumber(statistics?.done?.amount)}đ</h1>
           </Col>
           <Col span={6}>
             <DateRangePickerInput
@@ -120,7 +120,7 @@ const Dashboard = () => {
               label="Chờ xác nhận"
               growth={statistics?.ready_to_confirm?.percent_change}
               value={statistics?.ready_to_confirm?.quantity}
-              amount={`$${Utils.formatNumber(statistics?.ready_to_confirm?.amount)}`}
+              amount={`${Utils.formatNumber(statistics?.ready_to_confirm?.amount)} đ`}
             />
           </Col>
           <Col span={8}>
@@ -130,7 +130,7 @@ const Dashboard = () => {
               label="Chờ gói hàng"
               growth={statistics?.ready_to_package?.percent_change}
               value={statistics?.ready_to_package?.quantity}
-              amount={`$${Utils.formatNumber(statistics?.ready_to_package?.amount)}`}
+              amount={`${Utils.formatNumber(statistics?.ready_to_package?.amount)} đ`}
             />
           </Col>
           <Col span={8}>
@@ -140,7 +140,7 @@ const Dashboard = () => {
               label="Sẵn sàng gửi"
               growth={statistics?.ready_to_ship?.percent_change}
               value={statistics?.ready_to_ship?.quantity}
-              amount={`$${Utils.formatNumber(statistics?.ready_to_ship?.amount)}`}
+              amount={`${Utils.formatNumber(statistics?.ready_to_ship?.amount)} đ`}
             />
           </Col>
         </Row>
@@ -152,7 +152,7 @@ const Dashboard = () => {
               label="Đang gửi"
               growth={statistics?.shipping?.percent_change}
               value={statistics?.shipping?.quantity}
-              amount={`$${Utils.formatNumber(statistics?.shipping?.amount)}`}
+              amount={`${Utils.formatNumber(statistics?.shipping?.amount)} đ`}
             />
           </Col>
           <Col span={8}>
@@ -162,7 +162,7 @@ const Dashboard = () => {
               label="Thành công"
               growth={statistics?.done?.percent_change}
               value={statistics?.done?.quantity}
-              amount={`$${Utils.formatNumber(statistics?.done?.amount)}`}
+              amount={`${Utils.formatNumber(statistics?.done?.amount)} đ`}
             />
           </Col>
           <Col span={8}>
@@ -172,7 +172,26 @@ const Dashboard = () => {
               label="Hủy đơn"
               growth={statistics?.cancel?.percent_change}
               value={statistics?.cancel?.quantity}
-              amount={`$${Utils.formatNumber(statistics?.cancel?.amount)}`}
+              amount={`${Utils.formatNumber(statistics?.cancel?.amount)} đ`}
+            />
+          </Col>
+        </Row>
+        <Row gutter={[16, 16]} style={{ margintop: 20 }}>
+          <Col span={24}>
+            <CardAreaChart
+              fill={false}
+              additionalClassName=""
+              fullChartLabels={revenueByDate?.map((item) => item.date)} // Sử dụng 'date' thay vì 'label'
+              loading={loading}
+              title="Doanh thu theo ngày"
+              chartLabels={revenueByDate?.map((item) => Utils.formatDateTime(item.date, 'DD/MM'))} // Cập nhật theo 'date'
+              chartSeries={[
+                {
+                  name: "Doanh thu",
+                  data: revenueByDate?.map((item) => item.revenue), // Sử dụng 'revenue' thay vì 'value'
+                },
+              ]}
+              chartColors={['#4CAF50']}  // Màu xanh cho biểu đồ doanh thu
             />
           </Col>
         </Row>
@@ -198,25 +217,7 @@ const Dashboard = () => {
             />
           </Col>
         </Row>
-        <Row gutter={[16, 16]} style={{ margintop: 20 }}>
-          <Col span={12}>
-            <CardAreaChart
-              fill={false}
-              additionalClassName=""
-              fullChartLabels={revenueByDate?.map((item) => item.date)} // Sử dụng 'date' thay vì 'label'
-              loading={loading}
-              title="Doanh thu theo ngày"
-              chartLabels={revenueByDate?.map((item) => Utils.formatDateTime(item.date, 'DD/MM'))} // Cập nhật theo 'date'
-              chartSeries={[
-                {
-                  name: "Doanh thu",
-                  data: revenueByDate?.map((item) => item.revenue), // Sử dụng 'revenue' thay vì 'value'
-                },
-              ]}
-              chartColors={['#4CAF50']}  // Màu xanh cho biểu đồ doanh thu
-            />
-          </Col>
-        </Row>
+    
       </Content>
     </Layout>
   );

@@ -70,6 +70,8 @@ const OfflineOrderHistoryPopUp = ({ togglePopUp, setTogglePopUp, reload }) => {
     ];
 
     const dataSource = useMemo(() => {
+        console.log(offlineOrders);
+        
         return (
             offlineOrders?.data?.map((order, index) => ({
                 key: order?.id,
@@ -77,7 +79,7 @@ const OfflineOrderHistoryPopUp = ({ togglePopUp, setTogglePopUp, reload }) => {
                 index: index + 1,
                 created_at: moment(order?.created_at).format('DD/MM/YYYY HH:mm:ss'),
                 quantity: order?.quantity,
-                total: order?.total_price,
+                total: order?.total_book_price,
             })) || []
         );
     }, [offlineOrders]);

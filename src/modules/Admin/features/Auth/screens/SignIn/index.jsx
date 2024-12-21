@@ -92,14 +92,14 @@ function SignInScreen(props) {
                                     width: '80%'
                                 }}
                                 alt='logo'
-                                src={AppResource.icons.keens.logo2}
+                                src={AppResource.icons.icLogoICorpLight}
                             // style={{
                             //     filter: 'invert(96%) sepia(38%) saturate(59%) hue-rotate(118deg) brightness(109%) contrast(100%)',
                             // }}
                             />
                             <div className='font-size-h2 font-weight-boldest text-center text-white' style={{
                                 width: '80%'
-                            }}>{t('AdminText')}</div>
+                            }}>{t('Trang quản trị Hộp')}</div>
                         </div>
                     </div>
                 </div>
