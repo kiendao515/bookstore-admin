@@ -46,6 +46,7 @@ function BookHomeScreen(props) {
   const { book, isGettingBookList, pagination } = useSelector((state) => state.book);
   const [showCamera, setShowCamera] = useState(false)
   const [imageUrl, setImageUrl] = useState(null)
+  const [isbn, setIsbn] = useState(null)
 
   const needToRefreshData = useRef(book?.length === 0);
   const refLoading = useRef(false);
@@ -148,7 +149,7 @@ function BookHomeScreen(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
             >
-            {Utils.formatDateTime(row?.created_at,'DD/MM/YYYY HH:mm',false)}
+              {Utils.formatDateTime(row?.created_at, 'DD/MM/YYYY HH:mm', false)}
             </div>
           );
         },
@@ -186,7 +187,7 @@ function BookHomeScreen(props) {
         ),
       },
     ];
-  }, [categories, books,filters]);
+  }, [categories, books, filters]);
   const [selectedOrderItem, setSelectedOrderItem] = useState(null);
   const [modalOrderEditShowing, setModalOrderEditShowing] = useState(false);
   const [selectedInventoryItem, setSelectedInventoryItem] = useState(null);
@@ -389,55 +390,55 @@ function BookHomeScreen(props) {
               }}
             />
             <div className="mt-4 mr-4 d-flex flex-wrap align-items-center">
-                <DateRangePickerInput
-                  className=""
-                  initialLabel="7 ngày gần đây"
-                  initialEndDate={moment()}
-                  initialStartDate={moment().subtract(6, 'days')}
-                  getDateRange={(dateRange) => {
-                    console.log(dateRange);
-                    
-                    switch (dateRange.label) {
-                      case 'Tất cả':
-                        needToRefreshData.current = true;
-                        Global.gFilterBookList = {
-                          ...filters
-                        };
-                        setFilters({
-                          ...filters
-                        });
-                        break;
-                      default:
-                        console.log("run here");
-                        
-                        needToRefreshData.current = true;
-                        Global.gFilterBookList = {
-                          ...filters,
-                          start_at :dateRange.startDate.toISOString(),
-                          end_at : dateRange.endDate.toISOString()
-                        };
-                        setFilters({
-                          ...filters,
-                          start_at: dateRange.startDate.toISOString(),
-                          end_at: dateRange.endDate.toISOString()
-                        });
-                    }
-                  }}
-                  customRange={{
-                    // 'Hôm qua': [
-                    //   moment().subtract(1, 'day').startOf('day'),
-                    //   moment().subtract(1, 'day').endOf('day'),
-                    // ],
-                    'Tuần này': [moment().startOf('week'), moment()],
-                    '7 ngày gần đây': [moment().subtract(6, 'days'), moment()],
-                    '30 ngày gần đây': [moment().subtract(29, 'days'), moment()],
-                    'Tháng trước': [
-                      moment().subtract(1, 'month').startOf('month'),
-                      moment().subtract(1, 'month').endOf('month'),
-                    ],
-                    'Tháng này': [moment().startOf('month'), moment()],
-                  }}
-                />
+              <DateRangePickerInput
+                className=""
+                initialLabel="7 ngày gần đây"
+                initialEndDate={moment()}
+                initialStartDate={moment().subtract(6, 'days')}
+                getDateRange={(dateRange) => {
+                  console.log(dateRange);
+
+                  switch (dateRange.label) {
+                    case 'Tất cả':
+                      needToRefreshData.current = true;
+                      Global.gFilterBookList = {
+                        ...filters
+                      };
+                      setFilters({
+                        ...filters
+                      });
+                      break;
+                    default:
+                      console.log("run here");
+
+                      needToRefreshData.current = true;
+                      Global.gFilterBookList = {
+                        ...filters,
+                        start_at: dateRange.startDate.toISOString(),
+                        end_at: dateRange.endDate.toISOString()
+                      };
+                      setFilters({
+                        ...filters,
+                        start_at: dateRange.startDate.toISOString(),
+                        end_at: dateRange.endDate.toISOString()
+                      });
+                  }
+                }}
+                customRange={{
+                  // 'Hôm qua': [
+                  //   moment().subtract(1, 'day').startOf('day'),
+                  //   moment().subtract(1, 'day').endOf('day'),
+                  // ],
+                  'Tuần này': [moment().startOf('week'), moment()],
+                  '7 ngày gần đây': [moment().subtract(6, 'days'), moment()],
+                  '30 ngày gần đây': [moment().subtract(29, 'days'), moment()],
+                  'Tháng trước': [
+                    moment().subtract(1, 'month').startOf('month'),
+                    moment().subtract(1, 'month').endOf('month'),
+                  ],
+                  'Tháng này': [moment().startOf('month'), moment()],
+                }}
+              />
               {/* <label className="mr-2 mb-0" htmlFor="store">
                 {_.capitalize(t('Store'))}
               </label>
@@ -510,7 +511,10 @@ function BookHomeScreen(props) {
               {showCamera &&
                 <WebcamComponent
                   setShowCamera={setShowCamera}
-                  setImageUrl={setImageUrl} />
+                  setImageUrl={setImageUrl}
+                  setIsbn={setIsbn}
+                  setShowEditModel={setModalOrderEditShowing}
+                />
               }
             </div>
           </div>
@@ -608,7 +612,8 @@ function BookHomeScreen(props) {
         }}
         bookStores={bookStores}
         categories={categories}
-        collection = {collection}
+        collection={collection}
+        isbn={isbn}
       />
       <ModalEditBookInventory
         show={modalInventoryEditShowing}

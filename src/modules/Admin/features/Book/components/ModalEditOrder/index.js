@@ -69,7 +69,7 @@ function ModalOrderEdit(props) {
   // MARK: --- Params ---
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { show, onClose, onRefreshOrderList, orderItem, onExistDone, onSelectInventory, bookStores, categories, collection } = props;
+  const { show, onClose, onRefreshOrderList, orderItem, onExistDone, onSelectInventory, bookStores, categories, collection, isbn } = props;
   const isEditMode = !_.isNull(orderItem);
   const { book, isGettingBookList, pagination } = useSelector((state) => state.book);
   // const [categories, setCategories] = useState([])
@@ -91,9 +91,6 @@ function ModalOrderEdit(props) {
     setTextResult(text);
   };
 
-  useEffect(() => {
-    convertImageToText();
-  }, [selectedImage])
 
   // MARK: --- Functions ---
   function handleClose() {
@@ -490,7 +487,7 @@ function ModalOrderEdit(props) {
           id: orderItem ? orderItem.id : '',
           name: orderItem ? orderItem.name : '',
           author_name: orderItem ? orderItem.author_name : '',
-          isbn: orderItem ? orderItem.isbn : '',
+          isbn: orderItem ? orderItem.isbn : isbn ? isbn : '',
           number_of_page: orderItem ? orderItem.number_of_page : '',
           publish_year: orderItem ? orderItem.publish_year : '',
           publisher: orderItem ? orderItem.publisher : '',
