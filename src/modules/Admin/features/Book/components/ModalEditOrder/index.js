@@ -408,7 +408,13 @@ function ModalOrderEdit(props) {
   }
   const [selectedOrderItem, setSelectedOrderItem] = useState(null);
   const [modalOrderEditShowing, setModalOrderEditShowing] = useState(false);
-
+  useEffect(() => {
+    if (show && bookStores?.length > 0) {
+      const firstStoreId = bookStores[bookStores?.length-1]?.id?.toString(); 
+      setStoreId(firstStoreId); 
+      getListBookInventory(firstStoreId); 
+    }
+  }, [show, bookStores]);
   async function getListBookInventory() {
     // refLoading.current = true;
     try {
@@ -1047,7 +1053,8 @@ function ModalOrderEdit(props) {
                                             };
                                           })
                                         )}
-                                        value={field.value?.toString()}
+
+                                        value={storeId || field.value?.toString()}
                                         onChange={(newValue) => {
                                           form.setFieldValue(field.name, newValue);
                                           setStoreId(newValue)
