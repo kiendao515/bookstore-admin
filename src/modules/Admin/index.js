@@ -12,6 +12,7 @@ import OrderHomePage from './features/Order/screens/OrderHomePage';
 import Dashboard from './features/Report';
 import OfflineOrderPage from './features/OfflineOrder/screens/OfflineOrderPage';
 import RevenueHomePage from './features/Revenue/screens/RevenueHomePage';
+import ConfigHomePage from './features/WebContent/screens/ConfigHomePage';
 
 function Admin(props) {
   // MARK: --- Props ---
@@ -31,6 +32,7 @@ function Admin(props) {
           <Route path="offline-order/:id" element={<OfflineOrderPage />} />
           <Route path="offline-order" element={<OfflineOrderPage />} />
           <Route path="report/*" element={<RevenueHomePage />} />
+          <Route path="config/*" element={<ConfigHomePage/>}/>
           <Route
             path="*"
             element={

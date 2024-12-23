@@ -88,6 +88,22 @@ function KT01Sidebar(props) {
         icon: "fad fa-file-chart-line",
         path: '/order',
       },
+      {
+        type: 'item',
+        text: t("Bán hàng offline"),
+        icon: 'fas fa-qrcode',
+        path: '/offline-order',
+      },
+      {
+        type: 'section',
+        text: t("Quản lí cấu hình"),
+      },
+      {
+        type: 'item',
+        text: t("Cấu hình"),
+        icon: "fad fa-file-chart-line",
+        path: '/config',
+      },
       // {
       //   type: 'item',
       //   text: t("Esim"),

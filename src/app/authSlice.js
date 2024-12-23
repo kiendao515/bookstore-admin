@@ -18,6 +18,8 @@ export const thunkGetCurrentUserInfo = createAsyncThunk(
   'auth/getCurrentUserInfo',
   async (params, thunkAPI) => {
     const res = await authApi.getCurrentUserInfo(params);
+    console.log("res", res);
+    
     return res;
   }
 );
@@ -38,6 +40,7 @@ const authSlice = createSlice({
       role: "",
       date_of_birth: '',
       phone_number: '',
+      role:''
     },
     isAuth: false,
   },
@@ -51,6 +54,7 @@ const authSlice = createSlice({
         role: "",
         date_of_birth: '',
         phone_number: '',
+        role:''
       },
         state.isAuth = false;
     },
@@ -94,6 +98,7 @@ const authSlice = createSlice({
       if (res) {
         const { result, data } = res;
         if (result && data) {
+          console.log(data);
           state.user = data;
           if (data.token) {
             localStorage.setItem(PreferenceKeys.accessToken, data.token);

@@ -7,6 +7,7 @@ import bookReducer from "../modules/Admin/features/Book/bookSlice";
 import collectionReducer from "../modules/Admin/features/Collection/collectionSlice"
 import orderReducer from "../modules/Admin/features/Order/orderSlice"
 import revenueReducer from '../modules/Admin/features/Revenue/revenueSlice'
+import configReducer from '../modules/Admin/features/WebContent/configSlice'
 const { configureStore } = require('@reduxjs/toolkit');
 
 // root reducer
@@ -18,7 +19,8 @@ const rootReducer = {
   book : bookReducer,
   collection : collectionReducer,
   order: orderReducer,
-  revenue: revenueReducer
+  revenue: revenueReducer,
+  config: configReducer
 };
 
 // app store

@@ -24,6 +24,8 @@ const Global = {
   gNeedToRefreshOrderList: false,
   gNeedToRefreshRevenueList: false,
   gFiltersRevenueList: { from: '', to: '',store_id:''},
+  gNeedToRefreshConfigList: false,
+  gFilterConfigList: { page:0,size:30},
 };
 
 export default Global;  
