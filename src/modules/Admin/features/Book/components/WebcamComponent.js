@@ -43,7 +43,7 @@ function WebcamComponent({ setShowCamera, setIsbn, setShowEditModel }) {
                 formData.append("image", file);
 
                 // Send API request
-                const response = await axios.post("http://localhost:8000/api/v1/ocr/", formData, {
+                const response = await axios.post("https://hopsach.webhop.me/py/v1/ocr/", formData, {
                     headers: {
                         "Content-Type": "multipart/form-data", // Important for multipart request
                     }
