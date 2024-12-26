@@ -122,7 +122,7 @@ const authSlice = createSlice({
         state.isAuth = false;
       }
       UserHelper.signOut();
-      // window.location.href = '/sign-in';
+      window.location.href = '/login';
     },
   },
 });

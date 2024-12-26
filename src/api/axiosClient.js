@@ -45,8 +45,8 @@ axiosClient.interceptors.response.use(
     let errorMessage = null;
     const response = error.response;
     if (response && (response.status === 403 || response.status === 401)) {
-      // UserHelper.signOut();
-      // window.location.href = '/sign-in';
+      UserHelper.signOut();
+      window.location.href = '/login';
       return;
     }
     if (response && response.data) {

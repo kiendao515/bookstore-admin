@@ -16,25 +16,25 @@ function DropdownAccountMenu(props) {
   function handleSignOut(e) {
     e.preventDefault();
     UserHelper.signOut()
-    // dispatch(thunkSignOut());
-    // Swal.fire({
-    //   title: t('Confirm'),
-    //   text: t('MessageConfirmSignOut'),
-    //   icon: 'question',
-    //   showCancelButton: true,
-    //   confirmButtonText: t('Yes'),
-    //   cancelButtonText: t('Cancel'),
-    //   customClass: {
-    //     confirmButton: 'btn btn-danger font-weight-bolder',
-    //     cancelButton: 'btn btn-light font-weight-bolder',
-    //   },
-    // }).then(async function (result) {
-    //   if (result.value) {
-    //     // dang xuat
-    //     dispatch(thunkSignOut());
-    //     // UserHelper.signOut();
-    //   }
-    // });
+    dispatch(thunkSignOut());
+    Swal.fire({
+      title: t('Confirm'),
+      text: t('MessageConfirmSignOut'),
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: t('Yes'),
+      cancelButtonText: t('Cancel'),
+      customClass: {
+        confirmButton: 'btn btn-danger font-weight-bolder',
+        cancelButton: 'btn btn-light font-weight-bolder',
+      },
+    }).then(async function (result) {
+      if (result.value) {
+        // dang xuat
+        dispatch(thunkSignOut());
+        // UserHelper.signOut();
+      }
+    });
   }
 
   return (
