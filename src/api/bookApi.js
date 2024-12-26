@@ -28,7 +28,7 @@ const bookApi = {
     return axios.post(url, params);
   },
   getBookInfoByISBN:(params)=>{
-    const url = `https://crawl-book-info.onrender.com/api/book/${params}`;
+    const url = `https://hopsach.webhop.me/js/book/${params}`;
     return axios.get(url)
   },
   getStores: (params) => {
