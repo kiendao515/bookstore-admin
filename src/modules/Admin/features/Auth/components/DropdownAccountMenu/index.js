@@ -16,7 +16,7 @@ function DropdownAccountMenu(props) {
   function handleSignOut(e) {
     e.preventDefault();
     UserHelper.signOut()
-    dispatch(thunkSignOut());
+    // dispatch(thunkSignOut());
     Swal.fire({
       title: t('Confirm'),
       text: t('MessageConfirmSignOut'),
@@ -31,8 +31,9 @@ function DropdownAccountMenu(props) {
     }).then(async function (result) {
       if (result.value) {
         // dang xuat
-        dispatch(thunkSignOut());
-        // UserHelper.signOut();
+        // dispatch(thunkSignOut());
+        UserHelper.signOut();
+        window.location.href = '/login';
       }
     });
   }

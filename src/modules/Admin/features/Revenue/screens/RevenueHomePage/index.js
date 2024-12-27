@@ -44,6 +44,7 @@ function RevenueHomePage(props) {
   const [to, setTo] = useState(null)
   const needToRefreshData = useRef(revenue?.length === 0);
   const refLoading = useRef(false);
+  const currentAccount = useSelector((state) => state.auth.user);
   const columns = useMemo(() => {
     return [
       {
@@ -190,7 +191,7 @@ function RevenueHomePage(props) {
     const res = await bookApi.getStores();
     const { success, data } = res;
     if (success === true) {
-      setBookStores(data);
+      setBookStores(data.filter((d) => d.account_id === currentAccount.id));
     }
   }
 
@@ -415,7 +416,7 @@ function RevenueHomePage(props) {
               </a>
               <Button
                 className="btn btn-success font-weight-bold mr-2"
-                onClick={()=>handleExportToExcel(storeName, from, to)}
+                onClick={() => handleExportToExcel(storeName, from, to)}
               >
                 {t('Xuất file Excel')}
               </Button>
@@ -492,9 +493,9 @@ function RevenueHomePage(props) {
                     name: item.name,
                     value: item.id.toString(),
                   })),
-                ].find((option) => option.value === newValue); 
+                ].find((option) => option.value === newValue);
 
-                const selectedStoreName = selectedOption ? selectedOption.name : ''; 
+                const selectedStoreName = selectedOption ? selectedOption.name : '';
                 setStoreName(selectedStoreName); // Lưu storeName
                 console.log(newValue);
                 setStoreId(newValue)

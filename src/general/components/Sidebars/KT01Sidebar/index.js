@@ -15,9 +15,11 @@ function KT01Sidebar(props) {
   const router = useRouter();
   const pathName = router.pathname;
   const { t } = useTranslation();
-  const currentAccount = useSelector((state) => state.auth.current);
+  const currentAccount = useSelector((state) => state.auth.user);
+  console.log(currentAccount);
+
   const menuItems = useMemo(() => {
-    return [
+    return currentAccount?.role === "ADMIN" ? [
       { type: 'section', text: t("Thống kê") },
       {
         type: 'item',
@@ -31,27 +33,13 @@ function KT01Sidebar(props) {
         icon: 'fas fa-qrcode',
         path: "/report"
       },
-      { type: 'section', text: t("Bán hàng") },
-      {
-        type: 'item',
-        text: t("Bán hàng offline"),
-        icon: 'fas fa-qrcode',
-        path: '/offline-order',
-      },
+
       { type: 'section', text: t("Quản lý sách") },
       {
         type: 'item',
         text: t("Category"),
         icon: 'fas fa-id-badge',
         path: '/category',
-        // subMenuItems: [
-        //   {
-        //     type: 'item',
-        //     text: t("Collection"),
-        //     icon: 'fas fa-analytics',
-        //     path: '/subscriber/',
-        //   },
-        // ],
       },
       {
         type: 'item',
@@ -104,25 +92,15 @@ function KT01Sidebar(props) {
         icon: "fad fa-file-chart-line",
         path: '/config',
       },
-      // {
-      //   type: 'item',
-      //   text: t("Esim"),
-      //   icon: "fas fa-sim-card",
-      //   path: '/e-contract/notifications',
-      //   subMenuItems: [{
-      //       type: 'item',
-      //       text: t("TransactionStatistic"),
-      //       icon: 'fas fa-analytics',
-      //       path: '/consolidateinfo/detail',
-      //     },
-      //     {
-      //       type: 'item',
-      //       text: t("TopError"),
-      //       icon: 'fas fa-analytics',
-      //       path: '/subscriber/app-infor',
-      //     },
-      //   ]
-      // },
+    ] : [
+      { type: 'section', text: t("Thống kê") },
+      {
+        type: 'item',
+        text: t("Báo cáo tồn kho"),
+        icon: 'fas fa-qrcode',
+        path: "/report"
+      },
+
     ];
   }, [currentAccount]);
 
