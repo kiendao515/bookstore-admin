@@ -191,7 +191,7 @@ function RevenueHomePage(props) {
     const res = await bookApi.getStores();
     const { success, data } = res;
     if (success === true) {
-      setBookStores(data.filter((d) => d.account_id === currentAccount.id));
+      setBookStores(currentAccount.role == "STORE" ? data.filter((d) => d.account_id === currentAccount.id) : data);
     }
   }
 

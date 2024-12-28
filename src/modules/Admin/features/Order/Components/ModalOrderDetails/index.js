@@ -25,8 +25,8 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
     const columns = [
         {
             title: "Tên",
-            dataIndex: "bookName",
-            key: "bookName",
+            dataIndex: "book_name",
+            key: "book_name",
         },
         {
             title: "Tình trạng",
@@ -57,11 +57,13 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
         setLoading(true);
         try {
             const response = await orderApi.getTraceOrder(orderDetail.shipping_code);
-            if (response.data.success) {
-                const combinedLogs = [...response.data.data?.PickLog, ...response.data.data?.DeliverLog].sort(
-                    (a, b) => new Date(b.created) - new Date(a.created)
-                );
-                setOrderUpdate(combinedLogs);
+            if (response.result) {
+                if(response.data.data){
+                    const combinedLogs = [...response.data.data?.PickLog, ...response.data.data?.DeliverLog].sort(
+                        (a, b) => new Date(b.created) - new Date(a.created)
+                    );
+                    setOrderUpdate(combinedLogs);
+                }
             } else {
                 console.error("Lỗi khi tải dữ liệu chi tiết đơn hàng");
             }

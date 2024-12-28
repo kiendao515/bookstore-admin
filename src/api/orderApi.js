@@ -15,12 +15,8 @@ const orderApi = {
     return axiosClient.get(url)
   },
   getTraceOrder: (id) => {
-    const url = `https://web.giaohangtietkiem.vn/api/v1/package/package-detail`;
-    return axios.get(url + `?alias=` + id, {
-      headers: {
-        Authorization: `Bearer ${process.env.REACT_APP_GHTK_WEB_TOKEN}`
-      }
-    });
+    const url = `/shipping?id=`+id;
+    return axiosClient.get(url)
   },
   createGHTKOrder: (body) => {
     const url = `/shipping/order/create`;
