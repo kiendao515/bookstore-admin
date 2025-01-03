@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import { setPaginationPerPage, thunkGetListCollection, thunkGetListOrder } from '../../orderSlice';
 import collectionApi from 'api/collectionApi';
-import { Tabs } from 'antd';
+import { Radio, Tabs } from 'antd';
 import ModalOrderDetails from '../../Components/ModalOrderDetails';
 import ModalCreateOrder from '../../Components/ModelCreateOrder';
 import ModalMultiOrder from '../../Components/ModalMultiOrder';
@@ -53,6 +53,12 @@ function OrderHomePage(props) {
   };
   const needToRefreshData = useRef(order?.length === 0);
   const refLoading = useRef(false);
+  const [value, setValue] = useState(1);
+
+  const onChange = (e) => {
+    setValue(e.target.value);
+    setFilters({ ...filters, type: e.target.value });
+  };
   const columns = useMemo(() => {
     return [
       {
@@ -215,7 +221,7 @@ function OrderHomePage(props) {
   }, []);
   const [selectedOrderItem, setSelectedOrderItem] = useState([]);
   const [modalOrderEditShowing, setModalOrderEditShowing] = useState(false);
-  const [modalMultiOrder, setModalMultiOrder]= useState(false)
+  const [modalMultiOrder, setModalMultiOrder] = useState(false)
   const [modalEmployeeResetPasswordShowing, setModalEmployeeResetPasswordShowing] = useState(false);
   const [modalOrderDetailsVisible, setModalOrderDetailsVisible] = useState(false);
   const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
@@ -404,6 +410,12 @@ function OrderHomePage(props) {
               }}
             />
           </div>
+          <div d-flex flex-wrap>
+            <Radio.Group onChange={onChange} value={value}>
+              <Radio value={1}>Đơn lẻ</Radio>
+              <Radio value={2}>Đơn gom</Radio>
+            </Radio.Group>
+          </div>
         </div>
 
         {/* card body */}
@@ -493,10 +505,10 @@ function OrderHomePage(props) {
         orderDetails={selectedOrderDetails}
       />
       <ModalMultiOrder
-        show = {modalMultiOrder} 
-        onClose={()=>{
+        show={modalMultiOrder}
+        onClose={() => {
           setModalMultiOrder(false)
-        }} 
+        }}
         orderInfo={order}
       />
       <ModalCreateOrder

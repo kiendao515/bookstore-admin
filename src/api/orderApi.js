@@ -22,6 +22,10 @@ const orderApi = {
     const url = `/shipping/order/create`;
     return axiosClient.post(url, body, null)
   },
+  createGHTKCombinedOrder: (body) => {
+    const url = `/shipping/order/combine/create`;
+    return axiosClient.post(url, body, null)
+  },
   printOrder: (id) => {
     const url = `/shipping/label?orderId=` + id;
     return axiosClient.get(url);

@@ -158,6 +158,7 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
                 address: orderDetail?.address,
                 customer_name: orderDetail?.customer_name,
                 customer_phone: orderDetail?.customer_phone,
+                shipping_code: orderDetail?.shipping_code,
                 note: orderDetail?.note,
                 weight: weight,
                 total_amount: orderDetail?.total_amount,
@@ -234,6 +235,9 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
                                     <Descriptions column={1}>
                                         <Descriptions.Item label="Mã đơn hàng">
                                             <Text strong>{orderDetail.order_code}</Text>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label="Mã vận đơn GHTK">
+                                            <Text strong>{orderDetail.shipping_code}</Text>
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Trạng thái">
                                             <Select

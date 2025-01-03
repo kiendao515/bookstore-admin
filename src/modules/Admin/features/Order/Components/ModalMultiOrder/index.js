@@ -8,86 +8,54 @@ const { Title } = Typography;
 
 const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
   const { t } = useTranslation();
-  const [dataSource, setDataSource] = useState([]); 
-  const [pickupOptions, setPickupOptions] = useState([]); 
+  const [dataSource, setDataSource] = useState([]);
   const [orderDetails, setOrderDetails] = useState(null);
 
-  // Nhóm đơn hàng theo customer_name
   useEffect(() => {
+    orderInfo = orderInfo.filter((order) => order.related_order_id != null && order.status === "READY_TO_PACKAGE");
     const groupedOrders = orderInfo.reduce((acc, order) => {
-      const accountId = order.account?.id;  
-      if (!acc[accountId]) {
-        acc[accountId] = [];
+      const rootOrderId = order.related_order_id || order.order_code;
+      if (!acc[rootOrderId]) {
+        acc[rootOrderId] = [];
       }
-      acc[accountId].push({
-        ...order,
-        key: order.id || order.account?.id, 
-        pick_address: "",
-        weight: order.weight || 0,
-      });
+      acc[rootOrderId].push(order);
       return acc;
     }, {});
-
-    // Chuyển nhóm thành mảng
-    const groupedOrdersArray = Object.keys(groupedOrders).map((accountId) => ({
-      accountId,
-      orders: groupedOrders[accountId],
-    }));
-
-    setDataSource(groupedOrdersArray); 
+  
+    const groupedOrdersArray = Object.keys(groupedOrders).map((rootOrderId) => {
+      const orders = groupedOrders[rootOrderId];
+      const firstOrder = orders[0]; // Lấy bản ghi đầu tiên
+      return {
+        rootOrderId,
+        customer_name: firstOrder?.customer_name || "",
+        customer_phone: firstOrder?.customer_phone || "",
+        address: firstOrder?.address || "",
+        note: firstOrder?.note || "",
+        weight: firstOrder?.weight || "",
+        orders,
+      };
+    });
+  
+    setDataSource(groupedOrdersArray);
   }, [orderInfo]);
 
-  // Lấy các địa chỉ lấy hàng
-  useEffect(() => {
-    const fetchPickupOptions = async () => {
-      try {
-        const data = await orderApi.getPickingAddress();
-        if (data.result) {
-          const pickupList = data.data.map((item) => ({
-            id: `${item.pick_tel}-${item.pick_name}-${item.address}`,
-            name: `${item.pick_tel}-${item.pick_name}-${item.address}`,
-          }));
-          setPickupOptions(pickupList);
-        } else {
-          console.error("Lỗi khi lấy dữ liệu từ API:", data.message);
-        }
-      } catch (error) {
-        console.error("Error fetching pickup options:", error);
-      }
-    };
-    fetchPickupOptions();
-  }, []);
-
-  const handleFieldChange = (value, key, column) => {
-    const newData = [...dataSource];
-    const accountIndex = newData.findIndex((item) => key === item.accountId);
-    if (accountIndex > -1) {
-      const orderIndex = newData[accountIndex].orders.findIndex(order => order.key === key);
-      if (orderIndex > -1) {
-        newData[accountIndex].orders[orderIndex][column] = value;  // Cập nhật giá trị của đơn hàng trong nhóm
-        setDataSource(newData);
-      }
-    }
-  };
-
-  // Xử lý đăng đơn
   const submitOrder = async (orders) => {
+    console.log(orders);
+    
     try {
-      const ordersToSubmit = orders.map((order) => ({
-        order_code: order.order_code,
-        address: order.address,
-        customer_name: order.customer_name,
-        customer_phone: order.customer_phone,
-        note: order.note,
-        weight: order.weight,
-        total_amount: order.total_amount,
-        payment_type: order.payment_type,
-        pickup_method: order.pickup_method,
-        pick_address: order.pick_address,
-      }));
-
-      // Gửi các đơn đến API
-      const response = await orderApi.createGHTKOrder(ordersToSubmit);
+      const ordersToSubmit = {
+        order_code: orders[0].rootOrderId,
+        address: orders[0].address,
+        customer_name: orders[0].customer_name,
+        customer_phone: orders[0].customer_phone,
+        note: orders[0].note,
+        weight: orders[0].weight,
+        total_amount: orders[0].total_amount,
+        payment_type: orders[0].payment_type,
+        pickup_method: orders[0].pickup_method,
+        pick_address: orders[0].pick_address,
+      };
+      const response = await orderApi.createGHTKCombinedOrder(ordersToSubmit);
       if (response.result) {
         message.success(t("Đăng đơn hàng thành công"));
         setOrderDetails(response.data);
@@ -103,7 +71,7 @@ const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
   // Xử lý in thông tin đơn hàng
   const printGroupOrder = async (orders) => {
     console.log(dataSource);
-    
+
     try {
       const response = await orderApi.printOrder({ orders });
       if (response.success) {
@@ -123,30 +91,53 @@ const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
     { title: t("Tên khách hàng"), dataIndex: "customer_name", editable: true },
     { title: t("Số điện thoại"), dataIndex: "customer_phone", editable: true },
     { title: t("Ghi chú giao hàng"), dataIndex: "note", editable: true },
-    { title: t("Khối lượng"), dataIndex: "weight", editable: true },
     { title: t("Giá trị hàng"), dataIndex: "total_amount", editable: false },
   ];
+  const handleFieldChange = (value, key, column) => {
+    const newData = [...dataSource];
+    const index = newData.findIndex((item) => key === item.key);
 
-  // Component chỉnh sửa ô bảng
-  const EditableCell = ({ title, editable, children, column, record, ...restProps }) => (
-    <td {...restProps}>
-      {editable ? (
-        <Form.Item
-        style={{ margin: 0 }}
-        name={column}
-        initialValue={record[column]}
-        rules={[{ required: true, message: `${title} is required.` }]}
-      >
+    if (index > -1) {
+      newData[index] = { ...newData[index], [column]: value };
+      setDataSource(newData);
+    }
+  };
+
+  const EditableCell = ({ editable, children, record, column, ...restProps }) => {
+      const inputNode = (
         <Input
-          defaultValue={children}
+          defaultValue={record ? record[column]: ""}
           onBlur={(e) => handleFieldChange(e.target.value, record.key, column)}
         />
-      </Form.Item>
-      ) : (
-        children
-      )}
-    </td>
-  );
+      );
+  
+      return (
+        <td {...restProps}>
+          {editable ? (
+            <Form.Item style={{ margin: 0 }}>
+              {inputNode}
+            </Form.Item>
+          ) : (
+            children
+          )}
+        </td>
+      );
+    };
+  const columns = [
+    { title: t("Mã đơn gốc"), dataIndex: "rootOrderId", editable: false },
+    { title: t("Địa chỉ"), dataIndex: "address", editable: false },
+    { title: t("Tên khách hàng"), dataIndex: "customer_name", editable: true },
+    { title: t("Số điện thoại"), dataIndex: "customer_phone", editable: true },
+    { title: t("Ghi chú giao hàng"), dataIndex: "note", editable: true },
+    { title: t("Khối lượng"), dataIndex: "weight", editable: true },
+  ].map((col) => ({
+    ...col,
+    onCell: (record) => ({
+      record,
+      editable: col.editable,
+      column: col.dataIndex,
+    }),
+  }));
 
   const mergedColumns = editableColumns.map((col) => ({
     ...col,
@@ -156,6 +147,8 @@ const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
       column: col.dataIndex,
     }),
   }));
+  console.log(dataSource.length == 0, orderInfo);
+  
 
   return (
     <Modal
@@ -173,28 +166,43 @@ const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
         <div key={group.accountId}>
           <Title level={5}>{t("Đơn hàng của")} {group.orders[0]?.customer_name}</Title>
           <Table
-            rowKey="key"
+            rowKey="order_code"
             components={{
               body: {
                 cell: EditableCell,
               },
             }}
-            columns={mergedColumns}
-            dataSource={group.orders}
+            expandable={{
+              expandedRowRender: (record) => (
+                <Table
+                  rowKey="order_code"
+                  columns={mergedColumns}
+                  dataSource={record.orders}
+                  pagination={false}
+                  scroll={{ x: true }}
+                  bordered
+                />
+              ),
+              rowExpandable: (record) => record.orders.length > 1, // Chỉ mở rộng nếu có đơn hàng con
+            }}
+            columns={columns}
+            dataSource={dataSource}
             pagination={false}
             scroll={{ x: true }}
             bordered
           />
+
           <Button
             key={`submit-${group.accountId}`}
             type="primary"
-            onClick={() => submitOrder(group.orders)}
+            onClick={() => submitOrder(dataSource)}
+            disabled={dataSource.length == 0}
           >
             {t("Đăng đơn")}
           </Button>
           <Button
             key={`print-${group.accountId}`}
-            onClick={() => printGroupOrder(group.orders)}
+            onClick={() => printGroupOrder(dataSource)}
           >
             {t("In đơn hàng")}
           </Button>
