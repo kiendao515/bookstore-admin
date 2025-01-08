@@ -62,6 +62,21 @@ function OrderHomePage(props) {
   const columns = useMemo(() => {
     return [
       {
+        name: t('Mã đơn hàng'),
+        sortable: false,
+        center: 'true',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-bold d-flex align-items-center"
+            >
+              {row?.order_code}
+            </div>
+          )
+        },
+      },
+      {
         name: t('Tên người nhận'),
         sortable: false,
         center: 'true',
@@ -330,14 +345,98 @@ function OrderHomePage(props) {
       }
     });
   }
-
-  // MARK: --- Hooks ---
+  const conditionalRowStyles = [
+    {
+      when: row => !row.related_order_id,
+      style: {
+        // backgroundColor: "#E3F2FD",
+        userSelect: "none",
+        color: "#0D47A1"
+      },
+    },
+    {
+      when: row => row.related_order_id === row.order_code,
+      style: {
+        backgroundColor: "#C8E6C9",
+        color: "white",
+        userSelect: "none",
+      },
+    },
+    {
+      when: row => row.related_order_id && row.related_order_id !== row.order_code,
+      style: {
+        // backgroundColor: "#FFF9C4",
+        color: "black",
+        userSelect: "none",
+      },
+    },
+  ];
   useEffect(() => {
     if (!refLoading.current && (needToRefreshData.current || Global.gNeedToRefreshOrderList)) {
       getEmployeeList();
       Global.gNeedToRefreshOrderList = false;
     }
   }, [filters]);
+  const prepareGroupedData = (data) => {
+    return data.map((order) => {
+      if (!order.related_order_id) {
+        return { ...order, type: "single" }; 
+      } else if (order.related_order_id === order.order_code) {
+        return { ...order, type: "root_combined" };
+      } else {
+        return { ...order, type: "child_combined" };
+      }
+    });
+  };
+  const ExpandedComponent = ({ data }) => {
+    if (data.type === "root_combined") {
+      const childOrders = order.filter(
+        (o) => o.related_order_id === data.order_code && o.related_order_id !== o.order_code
+      );
+  
+      return (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "10px",
+            backgroundColor: "#f9f9f9",
+            borderBottom: "1px solid #ddd",
+          }}
+        >
+          <div>
+            <strong>Danh sách đơn con:</strong>{" "}
+            {childOrders.map((child) => (
+              <span key={child.order_code} style={{ marginRight: "10px" }}>
+                Mã đơn: {child.order_code} | Người nhận: {child.customer_name} | Tổng tiền: {child.total_amount}
+              </span>
+            ))}
+          </div>
+          <button
+            onClick={() => handleShowOrderDetails(data)}
+            style={{
+              padding: "5px 10px",
+              backgroundColor: "#007bff",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+          >
+            Xem chi tiết
+          </button>
+        </div>
+      );
+    }
+  
+    return null;
+  };
+  
+
+
+  const groupedOrderData = useMemo(() => prepareGroupedData(order), [order]);
+
 
   return (
     <div>
@@ -428,15 +527,16 @@ function OrderHomePage(props) {
             </Tabs>
           </div>
           <DataTable
-            // fixedHeader
-            // fixedHeaderScrollHeight="60vh"
             columns={columns}
-            data={order}
+            data={groupedOrderData}
             customStyles={customDataTableStyle}
             responsive={true}
             noHeader
-            selectableRows={true}
             striped
+            conditionalRowStyles={conditionalRowStyles}
+            expandableRows
+            expandableRowExpanded={(row) => row.type === "root_combined"}
+            expandableRowsComponent={ExpandedComponent}
             noDataComponent={
               <div className="pt-12">
                 <Empty
@@ -452,7 +552,7 @@ function OrderHomePage(props) {
             onSelectedRowsChange={handleSelectedEmployeesChanged}
             clearSelectedRows={toggledClearEmployees}
             onRowClicked={(row) => {
-              handleEditCollection(row);
+              handleShowOrderDetails(row)
             }}
             pointerOnHover
             highlightOnHover

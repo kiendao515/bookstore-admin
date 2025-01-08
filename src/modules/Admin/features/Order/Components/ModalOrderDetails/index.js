@@ -56,16 +56,19 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
     const fetchOrderDetails = async () => {
         setLoading(true);
         try {
-            const response = await orderApi.getTraceOrder(orderDetail.shipping_code);
-            if (response.result) {
-                if(response.data.data){
-                    const combinedLogs = [...response.data.data?.PickLog, ...response.data.data?.DeliverLog].sort(
-                        (a, b) => new Date(b.created) - new Date(a.created)
-                    );
-                    setOrderUpdate(combinedLogs);
+            if(orderDetails?.shipping_code != null){
+                const response = await orderApi.getTraceOrder(orderDetail.shipping_code);
+                if (response.result) {
+                    if(response.data.data){
+                        const combinedLogs = [...response.data.data?.PickLog, ...response.data.data?.DeliverLog].sort(
+                            (a, b) => new Date(b.created) - new Date(a.created)
+                        );
+                        setOrderUpdate(combinedLogs);
+                    }
+                } else {
+                    message.error("Lỗi khi tải dữ liệu chi tiết đơn hàng");
+                    console.error("Lỗi khi tải dữ liệu chi tiết đơn hàng");
                 }
-            } else {
-                console.error("Lỗi khi tải dữ liệu chi tiết đơn hàng");
             }
         } catch (error) {
             console.error("Lỗi gọi API:", error);
@@ -235,6 +238,9 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
                                     <Descriptions column={1}>
                                         <Descriptions.Item label="Mã đơn hàng">
                                             <Text strong>{orderDetail.order_code}</Text>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label="Tùy chọn gom đơn">
+                                            <Text strong>{orderDetail?.related_order_id != null ? orderDetail?.related_order_id : "Đơn lẻ"}</Text>
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Mã vận đơn GHTK">
                                             <Text strong>{orderDetail.shipping_code}</Text>
