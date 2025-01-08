@@ -365,7 +365,7 @@ function OrderHomePage(props) {
     {
       when: row => row.related_order_id && row.related_order_id !== row.order_code,
       style: {
-        // backgroundColor: "#FFF9C4",
+        backgroundColor: "#FFF9C4",
         color: "black",
         userSelect: "none",
       },
@@ -378,16 +378,18 @@ function OrderHomePage(props) {
     }
   }, [filters]);
   const prepareGroupedData = (data) => {
-    return data.map((order) => {
-      if (!order.related_order_id) {
-        return { ...order, type: "single" }; 
-      } else if (order.related_order_id === order.order_code) {
-        return { ...order, type: "root_combined" };
-      } else {
-        return { ...order, type: "child_combined" };
-      }
-    });
+    return data
+      .filter((order) => !order.related_order_id || order.related_order_id === order.order_code) // Exclude child orders
+      .map((order) => {
+        if (!order.related_order_id) {
+          return { ...order, type: "single" }; // Single order
+        } else if (order.related_order_id === order.order_code) {
+          return { ...order, type: "root_combined" }; // Root combined order
+        }
+      });
   };
+  
+  // Expanded row component for child orders
   const ExpandedComponent = ({ data }) => {
     if (data.type === "root_combined") {
       const childOrders = order.filter(
@@ -397,41 +399,50 @@ function OrderHomePage(props) {
       return (
         <div
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
             padding: "10px",
             backgroundColor: "#f9f9f9",
-            borderBottom: "1px solid #ddd",
+            border: "1px solid #ddd",
+            borderRadius: "5px",
           }}
         >
-          <div>
-            <strong>Danh sách đơn con:</strong>{" "}
-            {childOrders.map((child) => (
-              <span key={child.order_code} style={{ marginRight: "10px" }}>
-                Mã đơn: {child.order_code} | Người nhận: {child.customer_name} | Tổng tiền: {child.total_amount}
-              </span>
-            ))}
-          </div>
-          <button
-            onClick={() => handleShowOrderDetails(data)}
-            style={{
-              padding: "5px 10px",
-              backgroundColor: "#007bff",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-          >
-            Xem chi tiết
-          </button>
+          <strong>Đơn gom cùng:</strong>
+          <table style={{ width: "100%", marginTop: "10px", borderCollapse: "collapse" }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: "left", padding: "5px", borderBottom: "1px solid #ddd" }}>Mã đơn</th>
+                <th style={{ textAlign: "left", padding: "5px", borderBottom: "1px solid #ddd" }}>Người nhận</th>
+                <th style={{ textAlign: "left", padding: "5px", borderBottom: "1px solid #ddd" }}>Số điện thoại</th>
+                <th style={{ textAlign: "left", padding: "5px", borderBottom: "1px solid #ddd" }}>Địa chỉ</th>
+                <th style={{ textAlign: "left", padding: "5px", borderBottom: "1px solid #ddd" }}>Tổng tiền</th>
+                <th style={{ textAlign: "left", padding: "5px", borderBottom: "1px solid #ddd" }}>Phí giao hàng</th>
+                <th style={{ textAlign: "left", padding: "5px", borderBottom: "1px solid #ddd" }}>Phương thức</th>
+                <th style={{ textAlign: "left", padding: "5px", borderBottom: "1px solid #ddd" }}>Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody>
+              {childOrders.map((child) => (
+                <tr key={child.order_code}>
+                  <td style={{ padding: "5px", borderBottom: "1px solid #ddd" }}>{child.order_code}</td>
+                  <td style={{ padding: "5px", borderBottom: "1px solid #ddd" }}>{child.customer_name}</td>
+                  <td style={{ padding: "5px", borderBottom: "1px solid #ddd" }}>{child.customer_phone}</td>
+                  <td style={{ padding: "5px", borderBottom: "1px solid #ddd" }}>{child.address}</td>
+                  <td style={{ padding: "5px", borderBottom: "1px solid #ddd" }}>{child.total_amount}</td>
+                  <td style={{ padding: "5px", borderBottom: "1px solid #ddd" }}>{child.shipping_fee}</td>
+                  <td style={{ padding: "5px", borderBottom: "1px solid #ddd" }}>
+                    {child.payment_type ? "Chuyển khoản" : "COD"}
+                  </td>
+                  <td style={{ padding: "5px", borderBottom: "1px solid #ddd" }}>{Utils.handleOrderStatus(child.status)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       );
     }
   
-    return null;
+    return null; // For other types, no expansion is rendered
   };
+  
   
 
 
