@@ -187,26 +187,15 @@ function AccountHomePage(props) {
         center: 'true',
         cell: (row) => (
           <div className="d-flex align-items-center">
-            {/* <KTTooltip text={t('Edit')}>
+            <KTTooltip text={t('Sửa')}>
               <a
-                className="btn btn-icon btn-sm btn-primary btn-hover-primary mr-2"
+                className="btn btn-icon btn-sm btn-primary mr-2"
                 onClick={(e) => {
                   e.preventDefault();
                   handleEditAccount(row);
                 }}
               >
                 <i className="fa-regular fa-user-pen p-0 icon-1x" />
-              </a>
-            </KTTooltip> */}
-            <KTTooltip text={t('Xem')}>
-              <a
-                className="btn btn-icon btn-sm btn-success btn-hover-success"
-                onClick={(e)=>{
-                  e.preventDefault();
-
-                }}
-              >
-                <i class="fa-regular fa-eye icon-1x"></i>
               </a>
             </KTTooltip>
 
@@ -221,25 +210,6 @@ function AccountHomePage(props) {
                 <i className="far fa-trash p-0 icon-1x" />
               </a>
             </KTTooltip>
-            {/* <KTTooltip text={t('ResetPassword')}>
-              <a
-                className="btn btn-icon btn-sm btn-warning btn-hover-warning mr-2"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleResetPasswordAccount(row);
-                }}
-              >
-                <i className="fa-regular fa-key p-0 icon-1x" />
-              </a>
-            </KTTooltip> */}
-            {/* <KTTooltip text={t('Call')}>
-              <a
-                className="btn btn-icon btn-sm btn-success btn-hover-success"
-                href={`tel:${row.phone}`}
-              >
-                <i className="far fa-phone p-0 icon-1x" />
-              </a>
-            </KTTooltip> */}
           </div>
         ),
       },
@@ -389,17 +359,6 @@ function AccountHomePage(props) {
               >
                 <i className="far fa-ban"></i>
                 {`${t('Delete')} (${selectedAccounts.length})`}
-              </a>
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setModalAccountEditShowing(true);
-                }}
-                className="btn btn-primary font-weight-bold d-flex align-items-center ml-2"
-              >
-                <i className="far fa-plus"></i>
-                {t('NewAccount')}
               </a>
             </div>
           </div>

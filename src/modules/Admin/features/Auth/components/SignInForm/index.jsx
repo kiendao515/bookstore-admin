@@ -27,8 +27,8 @@ function SignInForm(props) {
         password: '',
     }
     const validationSchema = Yup.object().shape({
-        email: Yup.string().email(t('EmailNotValid')).required(t('EmailIsRequired')),
-        password: Yup.string().trim().required(t('PasswordIsRequired')),//.min(6, t('PasswordLengthMin')),
+        email: Yup.string().email(t('Email không đúng định dạng')).required(t('Bạn chưa nhập email')),
+        password: Yup.string().trim().required(t('Bạn chưa nhập mật khẩu')),//.min(6, t('PasswordLengthMin')),
     });
     const { onSubmit, onSignInGoogle } = props;
     const { isSigningIn } = useSelector(state => state.auth);
@@ -49,14 +49,11 @@ function SignInForm(props) {
 
                             {/* begin: Title */}
                             <div className="pb-5 pb-lg-15">
-                                <h3 className="font-weight-bolder text-white font-size-h2 font-size-h1-lg">{t('Admin')}</h3>
-                                <div className="text-white-50 font-weight-bold font-size-h5">{`${t('AdminPage')}`}
-                                    {/* <a href="#" className="text-primary font-weight-bolder ml-2">{t('Register')}</a> */}
-                                </div>
+                                <h3 className="font-weight-bolder font-size-h2 font-size-h1-lg">{t('Chào mừng tới trang quản trị Hộp')}</h3>
                             </div>
                             {/* end: Title */}
 
-                            <Field
+                            <Field                              
                                 name="email"
                                 component={BigInputField}
                                 type="email"
@@ -71,13 +68,13 @@ function SignInForm(props) {
                                 label={t('Password')}
                                 placeholder={`${t('Password')}...`}
                                 appendLabelElement={(
-                                    <a href='#' className='text-white font-size-lg font-weight-bolder mb-2' style={{
+                                    <a href='#' className='font-size-lg font-weight-bolder mb-2' style={{
                                         textDecorationLine: 'underline'
                                     }} onClick={(e) => {
                                         e.preventDefault();
                                         setShowModalForgotPassword(true);
                                     }}>
-                                        {`${t('ForgotPassword')}?`}
+                                        {`${t('Quên mật khẩu')}?`}
                                     </a>
                                 )}
                             />
@@ -86,12 +83,8 @@ function SignInForm(props) {
                                 <button
                                     type="submit"
                                     className={`btn btn-primary font-weight-bolder font-size-h6 py-4 my-3 px-10 hover-opacity-80 d-flex flex-row align-items-center`}
-                                    style={{
-                                        backgroundColor: AppResource.colors.feature,
-                                        border: 0
-                                    }}
                                 >
-                                    {isSigningIn && (<ClipLoader color='#fff' className='mr-3' size={20} />)} {t('SignIn')}
+                                    {isSigningIn && (<ClipLoader color='#fff' className='mr-3' size={20} />)} {t('Đăng nhập')}
                                 </button>
                             </div>
                         </Form>

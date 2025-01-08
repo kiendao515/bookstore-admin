@@ -71,10 +71,7 @@ function SignInScreen(props) {
 
     // MARK: --- Hooks ---
     return (
-        <div className="d-flex flex-column flex-root min-vh-100" style={{
-            backgroundImage: `url(${AppResource.images.imgBgAuth})`,
-            backgroundSize: 'cover'
-        }}>
+        <div className="d-flex flex-column flex-root min-vh-100">
             {/* begin::Sign In */}
             <div className="login login-3 wizard d-flex flex-column flex-lg-row flex-column-fluid bg-transparent">
                 {/* begin::Aside */}
@@ -97,9 +94,6 @@ function SignInScreen(props) {
                             //     filter: 'invert(96%) sepia(38%) saturate(59%) hue-rotate(118deg) brightness(109%) contrast(100%)',
                             // }}
                             />
-                            <div className='font-size-h2 font-weight-boldest text-center text-white' style={{
-                                width: '80%'
-                            }}>{t('Trang quản trị Hộp')}</div>
                         </div>
                     </div>
                 </div>
@@ -107,53 +101,6 @@ function SignInScreen(props) {
 
                 {/* begin::Content */}
                 <div className="login-content flex-row-fluid d-flex flex-column p-10 bg-transparent">
-                    {/* begin::Top */}
-                    <div className="text-right d-flex justify-content-center align-items-center">
-                        <div className="top-signin text-right d-flex justify-content-end pb-lg-0">
-                            <span className="font-weight-bold text-white font-size-h5">{`${t('ChangeLanguage')}`}</span>
-                            {/* <a href="#" className="font-weight-bold text-primary font-size-h5 ml-2" id="kt_login_signup">{t('Help')}</a> */}
-                        </div>
-                        {/* Language */}
-                        <div className="">
-                            {/* Languages */}
-                            <Dropdown
-                                isOpen={languageMenuVisible}
-                                toggle={toggleLanguageMenu}
-                                className="ml-2"
-                            >
-                                <DropdownToggle caret={false} className="border-0 p-0 bg-transparent">
-                                    <div className="topbar-item" data-toggle="dropdown" data-offset="10px,0px" aria-expanded={`${languageMenuVisible ? 'true' : 'false'}`}>
-                                        <a href='#' className="btn btn-icon btn-bg-white btn-hover-primary btn-icon-primary btn-circle btn-dropdown" onClick={toggleLanguageMenu}>
-                                            <img className="h-20px w-20px rounded-circle" src={currentAppLanguageItem.icon} alt="" />
-                                        </a>
-                                    </div>
-                                </DropdownToggle>
-                                <DropdownMenu className='py-4'>
-                                    {
-                                        AppData.languages.map((item, index) => {
-                                            return (
-                                                <DropdownItem
-                                                    key={index}
-                                                    active={item.code === currentAppLanguageItem.code}
-                                                    onClick={() => {
-                                                        handleChangedLanguage(item.code);
-                                                    }}
-                                                >
-                                                    <span className="symbol symbol-20 mr-3">
-                                                        <img src={item.icon} alt="" />
-                                                    </span>
-                                                    <span className="navi-text">{t(item.title)}</span>
-                                                </DropdownItem>
-                                            );
-                                        })
-                                    }
-                                </DropdownMenu>
-                            </Dropdown>
-                        </div>
-                    </div>
-                    {/* end::Top */}
-
-                    {/* begin::Wrapper */}
                     <div className="d-flex flex-row-fluid flex-center justify-content-center justify-content-lg-start">
                         {/* begin::Sign In */}
                         <div className="login-form">

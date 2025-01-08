@@ -40,7 +40,7 @@ function BigInputField(props) {
     return (
         <div className="form-group fv-plugins-icon-container">
             <div className='d-flex flex-row align-items-center justify-content-between'>
-                <label className="font-size-h6 font-weight-bolder text-white mb-2" htmlFor={name}>{label}</label>
+                <label className="font-size-h6 font-weight-bolder mb-2" htmlFor={name}>{label}</label>
                 {appendLabelElement && appendLabelElement}
             </div>
 
@@ -67,7 +67,7 @@ function BigInputField(props) {
             </div>
 
             <div className="fv-plugins-message-container">
-                <div className="fv-help-block text-white">{errors[name]}</div>
+                <div className="fv-help-block">{errors[name]}</div>
             </div>
         </div>
     );
