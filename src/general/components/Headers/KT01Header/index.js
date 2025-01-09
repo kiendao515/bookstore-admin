@@ -129,7 +129,7 @@ function KT01Header(props) {
   const [newOrder, setNewOrder] = useState(null);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   useEffect(() => {
-    const socket = new SockJS(process.env.REACT_APP_BASE_URL + 'socket');
+    const socket = new SockJS(process.env.REACT_APP_BASE_URL + '/socket');
     const stompClient = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
