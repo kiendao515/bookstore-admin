@@ -155,6 +155,7 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
         }
     };
     const handleCreateGHTKOrder = async () => {
+        setLoading(true);
         try {
             const ordersToSubmit = [{
                 order_code: orderDetail?.order_code,
@@ -182,6 +183,8 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
             console.log(error);
 
             message.error("Lỗi kết nối khi đăng đơn hàng", error);
+        }finally {
+            setLoading(false);
         }
     };
 
