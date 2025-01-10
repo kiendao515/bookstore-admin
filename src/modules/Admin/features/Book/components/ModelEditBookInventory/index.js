@@ -143,17 +143,10 @@ function ModalEditBookInventory(props) {
             ? Utils.getFullUrl(bookInventoryItem.cover_image)
             : AppResource.images.imgDefaultAvatar
         }}
-        // validationSchema={Yup.object({
-        //   name: Yup.string().required(t('Required')),
-        //   fullname: Yup.string().required(t('Required')),
-        //   password: isEditMode
-        //     ? null
-        //     : Yup.string()
-        //         .required(t('Required'))
-        //         .min(6, t('ThePasswordMustContainAtLeast6Characters'))
-        //         .matches(/^\S*$/, t('ThePasswordMustNotContainWhitespace')),
-        //   phone: Yup.string().required(t('Required')),
-        // })}
+        validationSchema={Yup.object({
+          price: Yup.number().required(t('Required')),
+          quantity: Yup.number().required(t('Required')),
+        })}
         enableReinitialize
         onSubmit={(values) => {
           console.log(values);

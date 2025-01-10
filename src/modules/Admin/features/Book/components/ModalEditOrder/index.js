@@ -77,20 +77,8 @@ function ModalOrderEdit(props) {
   const [storeId, setStoreId] = useState([])
   const [loading, setLoading] = useState(false);
   const [selectedOrders, setSelectedOrders] = useState([]);
-  const [toggledClearOrders, setToggledClearOrders] = useState(true);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [textResult, setTextResult] = useState("")
   const [selectedInventoryItem, setSelectedInventoryItem] = useState(null);
   const [modalInventoryEditShowing, setModalInventoryEditShowing] = useState(false);
-
-  const convertImageToText = async () => {
-    const worker = await createWorker('eng');
-    if (!selectedImage) return;
-    const { data: { text } } = await worker.recognize(selectedImage);
-    console.log(text);
-    setTextResult(text);
-  };
-
 
   // MARK: --- Functions ---
   function handleClose() {
@@ -234,7 +222,7 @@ function ModalOrderEdit(props) {
   }
   async function fetchBookInfoByISBN(isbn, form) {
     try {
-      const res = await bookApi.getBookInfoByISBN(isbn); // Giả sử API của bạn là `getBookInfoByISBN`
+      const res = await bookApi.getBookInfoByISBN(isbn);
       if (res && res?.data) {
         form.setFieldValue('name', res?.data?.title || '');
         form.setFieldValue('author_name', res?.data?.author || '');
@@ -295,7 +283,6 @@ function ModalOrderEdit(props) {
               }}
               enableCheckValid
               rows={5}
-              placeholder={`${_.capitalize(t(''))}...`}
               type={KTFormInputType.number}
             />
           );
@@ -314,7 +301,6 @@ function ModalOrderEdit(props) {
                 setBookInventory(updatedInventory);
               }}
               rows={5}
-              placeholder={`${_.capitalize(t(''))}...`}
               type={KTFormInputType.number}
             />
           );
@@ -334,39 +320,38 @@ function ModalOrderEdit(props) {
               }}
               enableCheckValid
               rows={5}
-              placeholder={`${_.capitalize(t(''))}...`}
               type={KTFormInputType.text}
             />
           );
         },
       },
-      {
-        name: t('Ảnh'),
-        sortable: false,
-        cell: (row, index) => {
-          return (
-            <KTImageInput
-              isAvatar={false}
-              name={row.image}
-              onChange={async (file) => {
-                const updatedInventory = [...bookInventory];
-                updatedInventory[index] = { ...row, cover_image: file };
-                setBookInventory(updatedInventory);
-              }}
-              value={row.coverImage}
-              onSelectedFile={async (file) => {
-                let file1 = await Utils.uploadFile(file)
-                const updatedInventory = [...bookInventory];
-                updatedInventory[index] = { ...row, cover_image: file1 };
-                setBookInventory(updatedInventory);
-              }}
-              enableCheckValid
-              acceptImageTypes={AppConfigs.acceptImages}
-              additionalClassName=""
-            />
-          );
-        },
-      },
+      // {
+      //   name: t('Ảnh'),
+      //   sortable: false,
+      //   cell: (row, index) => {
+      //     return (
+      //       <KTImageInput
+      //         isAvatar={false}
+      //         name={row.image}
+      //         onChange={async (file) => {
+      //           const updatedInventory = [...bookInventory];
+      //           updatedInventory[index] = { ...row, cover_image: file };
+      //           setBookInventory(updatedInventory);
+      //         }}
+      //         value={row.coverImage}
+      //         onSelectedFile={async (file) => {
+      //           let file1 = await Utils.uploadFile(file)
+      //           const updatedInventory = [...bookInventory];
+      //           updatedInventory[index] = { ...row, cover_image: file1 };
+      //           setBookInventory(updatedInventory);
+      //         }}
+      //         enableCheckValid
+      //         acceptImageTypes={AppConfigs.acceptImages}
+      //         additionalClassName=""
+      //       />
+      //     );
+      //   },
+      // },
     ];
 
     if (isEditMode) {
@@ -397,22 +382,11 @@ function ModalOrderEdit(props) {
     setSelectedOrders(selectedOrders);
   }
 
-  function clearSelectedOrders() {
-    setSelectedOrders([]);
-    setToggledClearOrders(!toggledClearOrders);
-  }
-
-  function handleEditOrder(order) {
-    setSelectedOrderItem(order);
-    setModalOrderEditShowing(true);
-  }
-  const [selectedOrderItem, setSelectedOrderItem] = useState(null);
-  const [modalOrderEditShowing, setModalOrderEditShowing] = useState(false);
   useEffect(() => {
     if (show && bookStores?.length > 0) {
-      const firstStoreId = bookStores[bookStores?.length-1]?.id?.toString(); 
-      setStoreId(firstStoreId); 
-      getListBookInventory(firstStoreId); 
+      const firstStoreId = bookStores[bookStores?.length - 1]?.id?.toString();
+      setStoreId(firstStoreId);
+      getListBookInventory(firstStoreId);
     }
   }, [show, bookStores]);
   async function getListBookInventory() {
@@ -499,7 +473,7 @@ function ModalOrderEdit(props) {
           publisher: orderItem ? orderItem.publisher : '',
           tags: orderItem ? orderItem.tags : '',
           cover_image: orderItem ? orderItem.cover_image : '',
-          imageLink: orderItem ? Utils.getFullUrl(orderItem.cover_image) : '',
+          coverImage: orderItem ? Utils.getFullUrl(orderItem.cover_image) : '',
           category_id: orderItem ? orderItem?.category?.id : '',
           store_id: orderItem ? orderItem?.store_id : '',
           description: orderItem ? orderItem?.description : '',
@@ -610,6 +584,7 @@ function ModalOrderEdit(props) {
                                         onBlur={() => {
                                           fetchBookInfoByISBN(field.value, form)
                                         }}
+
                                         enableCheckValid
                                         isValid={_.isEmpty(meta.error)}
                                         isTouched={meta.touched}
@@ -946,7 +921,7 @@ function ModalOrderEdit(props) {
                                 }
                                 inputName="cover_image"
                                 inputElement={
-                                  <FastField name="cover_image">
+                                  <FastField name="coverImage">
                                     {({ field, form, meta }) => (
                                       <KTImageInput
                                         isAvatar={false}
@@ -954,7 +929,6 @@ function ModalOrderEdit(props) {
                                         value={field.value}
                                         onChange={(value) => {
                                           form.setFieldValue(field.name, value);
-                                          setSelectedImage(value)
                                         }}
                                         onBlur={() => {
                                           form.setFieldTouched(field.name, true);
@@ -963,7 +937,7 @@ function ModalOrderEdit(props) {
                                         isValid={_.isEmpty(meta.error)}
                                         isTouched={meta.touched}
                                         feedbackText={meta.error}
-                                        defaultImage={field.value ?? AppResource.images.imgUpload}
+                                        defaultImage={AppResource.images.imgUpload}
                                         acceptImageTypes={AppConfigs.acceptImages}
                                         onSelectedFile={(file) => {
                                           console.log(file);
@@ -1092,10 +1066,6 @@ function ModalOrderEdit(props) {
                                   <Loading showBackground={false} message={`${t('Loading')}...`} />
                                 }
                                 onSelectedRowsChange={handleSelectedOrdersChanged}
-                                // onRowClicked={(row) => {
-                                //   // handleEditOrder(row);
-                                //   handleSelectInventory(row);
-                                // }}
                                 pointerOnHover
                                 highlightOnHover
                                 selectableRowsHighlight
@@ -1113,12 +1083,12 @@ function ModalOrderEdit(props) {
                   {loading ? (
                     <Spinner animation="border" size="sm" /> // Hiển thị loading spinner
                   ) : (
-                    t('Save')
+                    t('Lưu')
                   )}
 
                 </Button>
                 <Button variant="secondary" onClick={handleClose}>
-                  {t('Close')}
+                  {t('Đóng')}
                 </Button>
               </Modal.Footer>
             </Modal>

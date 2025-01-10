@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Webcam from 'react-webcam';
 import ToastHelper from 'general/helpers/ToastHelper';
 import axios from 'axios';
+import { Button, Modal, Spin } from 'antd';
 const videoConstraints = {
     facingMode: "user"
 };
@@ -26,7 +27,7 @@ function base64ToFile(base64String, fileName) {
 
 function WebcamComponent({ setShowCamera, setIsbn, setShowEditModel }) {
     const webcamRef = React.useRef(null);
-
+    const [loading, setLoading] = useState(false);
     const capture = React.useCallback(
         async () => {
             const imageSrc = webcamRef.current.getScreenshot();
@@ -36,6 +37,7 @@ function WebcamComponent({ setShowCamera, setIsbn, setShowEditModel }) {
             }
 
             try {
+                setLoading(true);
                 // Prepare the Base64 string
                 const base64Image = imageSrc;
                 const file = base64ToFile(base64Image, "image.png");
@@ -43,7 +45,7 @@ function WebcamComponent({ setShowCamera, setIsbn, setShowEditModel }) {
                 formData.append("image", file);
 
                 // Send API request
-                const response = await axios.post("https://hopsach.webhop.me/py/v1/ocr/", formData, {
+                const response = await axios.post("https://hopsach.sytes.net/py/v1/ocr/", formData, {
                     headers: {
                         "Content-Type": "multipart/form-data", // Important for multipart request
                     }
@@ -63,42 +65,37 @@ function WebcamComponent({ setShowCamera, setIsbn, setShowEditModel }) {
             } catch (error) {
                 ToastHelper.showError('Chưa lấy được thông tin isbn');
             }
+            setLoading(false);
             setShowCamera(false);
         },
         [webcamRef]
     );
     return (
-        <div style={{
-            width: "100%",
-            marginTop: "20px",
-            display: 'flex',
-            justifyContent: 'center',
-        }}>
-            <div style={{
-                width: "700px",
-                height: "500px",
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '4px',
-            }}>
-                <Webcam
-                    audio={false}
-                    height="80%"
-                    ref={webcamRef}
-                    screenshotFormat="image/jpeg"
-                    width="100%"
-                    videoConstraints={videoConstraints}
-                />
-                <a
-                    href="#"
-                    onClick={capture}
-                    className="btn btn-primary font-weight-bold d-flex align-items-center ml-2"
-                >
-                    Chụp ảnh
-                </a>
-            </div>
+        <Modal
+      title="Chụp ảnh ISBN"
+      visible={true}
+      onCancel={() => setShowCamera(false)}
+      footer={null}
+      centered
+      width={800}
+    >
+      <Spin spinning={loading}>
+        <div style={{ textAlign: "center", marginBottom: 20 }}>
+          <Webcam
+            audio={false}
+            ref={webcamRef}
+            screenshotFormat="image/jpeg"
+            width="100%"
+            videoConstraints={videoConstraints}
+          />
         </div>
+        <div style={{ textAlign: "center" }}>
+          <Button type="primary" onClick={capture} disabled={loading}>
+            Chụp ảnh
+          </Button>
+        </div>
+      </Spin>
+    </Modal>
     )
 }
 
