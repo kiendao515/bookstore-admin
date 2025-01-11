@@ -45,7 +45,7 @@ const authApi = {
    * @param {string} email email
    */
   requestResetPassword: (email) => {
-    const url = '/auth/send-reset-password';
+    const url = '/auth/send-reset-password-admin';
     return axiosClient.post(url, {
       email: email,
     });
@@ -58,13 +58,9 @@ const authApi = {
    * @param {string} newPassword mat khau moi
    * @returns
    */
-  resetPassword: (email, code, newPassword) => {
+  resetPassword: (data) => {
     const url = '/auth/reset-password';
-    return axiosClient.post(url, {
-      email: email,
-      resetPasswordToken: code,
-      newPassword: newPassword,
-    });
+    return axiosClient.post(url, data);
   },
 
   /**

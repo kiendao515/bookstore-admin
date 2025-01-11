@@ -11,13 +11,16 @@ import reportWebVitals from './reportWebVitals';
 import { I18nextProvider } from 'react-i18next';
 import React from 'react';
 import './i18n';
-
+import { QueryClient, QueryClientProvider } from 'react-query';
+const queryClient = new QueryClient();
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <Provider store={store}>
-    <I18nextProvider>
-      <App />
-    </I18nextProvider>
+    <QueryClientProvider client={queryClient}>
+      <I18nextProvider>
+        <App />
+      </I18nextProvider>
+    </QueryClientProvider>
   </Provider>
 );
 

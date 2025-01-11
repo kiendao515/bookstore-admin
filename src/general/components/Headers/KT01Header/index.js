@@ -147,7 +147,7 @@ function KT01Header(props) {
         notification.open({
           duration:10000,
           message: 'Đơn hàng mới',
-          description: `Có một đơn hàng mới: ${order.order_code}`,
+          description: `Bạn có đơn hàng mới: ${order.orderCode} với số tiền ${order.totalAmount}đ`,
           icon: <BellOutlined style={{ color: '#108ee9' }} />,
         });
       });

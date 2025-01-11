@@ -49,9 +49,6 @@ function App() {
         {/* Suspense */}
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
-            {/* <Route path="/*" element={<Navigate to="/admin" />} /> */}
-
-            {/* hop dong dien tu */}
             <Route
               path="/*"
               element={

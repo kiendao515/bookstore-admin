@@ -13,6 +13,7 @@ import Dashboard from './features/Report';
 import OfflineOrderPage from './features/OfflineOrder/screens/OfflineOrderPage';
 import RevenueHomePage from './features/Revenue/screens/RevenueHomePage';
 import ConfigHomePage from './features/WebContent/screens/ConfigHomePage';
+import ResetPasswordForm from './features/Auth/components/ResetPasswordForm';
 
 function Admin(props) {
   // MARK: --- Props ---
@@ -33,6 +34,7 @@ function Admin(props) {
           <Route path="offline-order" element={<OfflineOrderPage />} />
           <Route path="report/*" element={<RevenueHomePage />} />
           <Route path="config/*" element={<ConfigHomePage/>}/>
+          <Route path="reset-password/*" element={<ResetPasswordForm/>} />
           <Route
             path="*"
             element={

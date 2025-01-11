@@ -49,18 +49,18 @@ function ModalForgotPassword(props) {
                 }}
                 validationSchema={
                     Yup.object({
-                        email: Yup.string().required(t('EmailIsRequired')).email(t('EmailNotValid')),
+                        email: Yup.string().required(t('Nhập thông tin email')).email(t('Email không hợp lệ')),
                         code: Yup.string().when('hasCode', {
                             is: hasCode => hasCode === true,
-                            then: Yup.string().required(t('CodeIsRequired'))
+                            then: Yup.string().required(t('Nhập mã otp'))
                         }),
                         newPassword: Yup.string().when('hasCode', {
                             is: hasCode => hasCode === true,
-                            then: Yup.string().required(t('NewPasswordIsRequired')).min(6, t('Short_Password')),
+                            then: Yup.string().required(t('Mật khẩu mới')).min(6, t('Mật khẩu ngắn')),
                         }),
                         reNewPassword: Yup.string().when('hasCode', {
                             is: hasCode => hasCode === true,
-                            then: Yup.string().required(t('ReNewPasswordIsRequired')).oneOf([Yup.ref('newPassword')], t('NewPasswordNotMatch')),
+                            then: Yup.string().required(t('Nhập lại mật khẩu mới')).oneOf([Yup.ref('Mật khẩu mới')], t('Mật khẩu mới không khớp')),
                         }),
                     })
                 }
@@ -130,7 +130,7 @@ function ModalForgotPassword(props) {
                                     <i className='fad fa-user text-primary fa-6x' />
                                     {
                                         !formikProps.values.hasCode ? (
-                                            <p className='mt-2 text-center'>{t('ForgotPasswordStep1')}</p>
+                                            <p className='mt-2 text-center'>{t('Quên mật khẩu')}</p>
                                         ) : (
                                             <p className='mt-2 text-center'>{t('ForgotPasswordStep2')}</p>
                                         )
@@ -287,7 +287,7 @@ function ModalForgotPassword(props) {
                                     <Button className={`font-weight-bold flex-grow-1 col ml-3`} variant="primary" onClick={() => {
                                         formikProps.handleSubmit();
                                     }}>
-                                        {!formikProps.values.hasCode ? t('GetCode') : t('ChangePassword')}
+                                        {!formikProps.values.hasCode ? t('Lấy mã otp') : t('Thay đổi mật khẩu')}
                                     </Button>
                                 </div>
                             </Modal.Footer>
