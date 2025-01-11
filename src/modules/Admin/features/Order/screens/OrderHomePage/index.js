@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import { setPaginationPerPage, thunkGetListCollection, thunkGetListOrder } from '../../orderSlice';
 import collectionApi from 'api/collectionApi';
-import { Radio, Tabs } from 'antd';
+import { Checkbox, Radio, Tabs } from 'antd';
 import ModalOrderDetails from '../../Components/ModalOrderDetails';
 import ModalCreateOrder from '../../Components/ModelCreateOrder';
 import ModalMultiOrder from '../../Components/ModalMultiOrder';
@@ -56,9 +56,14 @@ function OrderHomePage(props) {
   const [value, setValue] = useState(1);
 
   const onChange = (e) => {
-    setValue(e.target.value);
-    setFilters({ ...filters, type: e.target.value });
-  };
+    const newValue = e.target.checked ? 2 : 1;
+    setValue(newValue);
+    setFilters((prevFilters) => {
+      const updatedFilters = { ...prevFilters, type: newValue };
+      return updatedFilters;
+    })
+  }
+
   const columns = useMemo(() => {
     return [
       {
@@ -388,14 +393,14 @@ function OrderHomePage(props) {
         }
       });
   };
-  
+
   // Expanded row component for child orders
   const ExpandedComponent = ({ data }) => {
     if (data.type === "root_combined") {
       const childOrders = order.filter(
         (o) => o.related_order_id === data.order_code && o.related_order_id !== o.order_code
       );
-  
+
       return (
         <div
           style={{
@@ -439,11 +444,11 @@ function OrderHomePage(props) {
         </div>
       );
     }
-  
+
     return null; // For other types, no expansion is rendered
   };
-  
-  
+
+
 
 
   const groupedOrderData = useMemo(() => prepareGroupedData(order), [order]);
@@ -491,9 +496,9 @@ function OrderHomePage(props) {
                   e.preventDefault();
                   setModalMultiOrder(true);
                 }}
-                className="btn btn-primary font-weight-bold d-flex align-items-center ml-2"
+                className="btn btn-success font-weight-bold d-flex align-items-center ml-2"
               >
-                <i className="fa-solid fa-plus"></i>
+                <i class="fa-solid fa-merge"></i>
                 {t('Gom đơn')}
               </a>
             </div>
@@ -520,12 +525,23 @@ function OrderHomePage(props) {
               }}
             />
           </div>
-          <div d-flex flex-wrap>
-            <Radio.Group onChange={onChange} value={value}>
-              <Radio value={1}>Đơn lẻ</Radio>
-              <Radio value={2}>Đơn gom</Radio>
-            </Radio.Group>
-          </div>
+          <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px", 
+                padding: "10px", // Add padding for cleaner appearance
+                
+              }}
+            >
+              <Checkbox
+                checked={value === 2}
+                onChange={onChange}
+              />
+              <span style={{ color: "#333" }}>
+                Đơn gom
+              </span>
+            </div>
         </div>
 
         {/* card body */}
