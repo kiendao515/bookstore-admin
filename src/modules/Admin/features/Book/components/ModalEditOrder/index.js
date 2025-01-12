@@ -32,6 +32,7 @@ import KTFormTextArea from 'general/components/OtherKeenComponents/Forms/KTFormT
 import { createWorker } from 'tesseract.js';
 import KTUploadFiles from 'general/components/OtherKeenComponents/FileUpload/KTUploadFiles';
 import ReactQuill from 'react-quill';
+import PrintBarcodeDialog from '../PrintBarcodeDialog';
 
 
 ModalOrderEdit.propTypes = {
@@ -79,6 +80,8 @@ function ModalOrderEdit(props) {
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [selectedInventoryItem, setSelectedInventoryItem] = useState(null);
   const [modalInventoryEditShowing, setModalInventoryEditShowing] = useState(false);
+  const [togglePrint, setTogglePrint] = useState(false);
+  const [barcode, setBarcode] = useState("");
 
   // MARK: --- Functions ---
   function handleClose() {
@@ -241,7 +244,7 @@ function ModalOrderEdit(props) {
   const columns = useMemo(() => {
     const baseColumns = [
       {
-        name: "Barcode",
+        name: "Mã vạch",
         sortable: false,
         cell: (row) => {
           return (
@@ -289,7 +292,7 @@ function ModalOrderEdit(props) {
         },
       },
       {
-        name: t('NumberOfBook'),
+        name: t('Tồn kho'),
         sortable: true,
         cell: (row, index) => {
           return (
@@ -355,22 +358,33 @@ function ModalOrderEdit(props) {
     ];
 
     if (isEditMode) {
-      baseColumns.push({
-        name: '',
-        center: true,
-        width: '100px',
-        cell: (row) => (
-          <div className="d-flex align-items-center">
-            <a
-              href="#"
-              className="btn btn-primary font-weight-bold d-flex align-items-center ml-2"
-              onClick={() => saveBookInventory(row)}
-            >
-              Lưu
-            </a>
-          </div>
-        ),
-      });
+      baseColumns.push(
+        {
+          name: '',
+          center: true,
+          width: '150px',
+          cell: (row) => (
+            <div className="d-flex align-items-center">
+              <a
+                href="#"
+                className="btn btn-primary font-weight-bold d-flex align-items-center ml-2"
+                onClick={() => saveBookInventory(row)}
+              >
+                Lưu
+              </a>
+              <a
+                className="btn btn-success font-weight-bold d-flex align-items-center ml-2"
+                onClick={() => {
+                  console.log(row);
+                  setBarcode(row.barcode)
+                  setTogglePrint(true)
+                }}
+              >
+                In
+              </a>
+            </div>
+          ),
+        });
     }
 
     return baseColumns;
@@ -512,7 +526,7 @@ function ModalOrderEdit(props) {
               <Modal.Body>
                 <Tab.Container defaultActiveKey="generalInfo">
                   <Row>
-                    <Col sm={3}>
+                    <Col sm={2}>
                       <Nav variant="pills" className="flex-column">
                         <Nav.Item>
                           <Nav.Link eventKey="generalInfo">{t('Thông tin cơ bản')}</Nav.Link>
@@ -522,7 +536,7 @@ function ModalOrderEdit(props) {
                         </Nav.Item>
                       </Nav>
                     </Col>
-                    <Col sm={9}>
+                    <Col sm={10}>
                       <Tab.Content>
                         <Tab.Pane eventKey="generalInfo">
                           <div className='row'>
@@ -1109,6 +1123,15 @@ function ModalOrderEdit(props) {
           // getListBookInventory();
         }}
       />
+      {
+        togglePrint && (
+          <PrintBarcodeDialog
+            toggle={togglePrint}
+            setToggle={setTogglePrint}
+            barcode={barcode}
+          />
+        )
+      }
     </div>
   );
 }

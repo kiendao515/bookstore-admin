@@ -31,7 +31,15 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
         {
             title: "Tình trạng",
             dataIndex: "type",
-            key: "type",
+            render: (type) => {
+                if (type === "OLD") {
+                    return "Cũ";
+                } else if (type === "NEW") {
+                    return "Mới";
+                } else if (type === "GOOD") {
+                    return "Tốt";
+                }
+            },
         },
         {
             title: "Giá tiền",
@@ -56,10 +64,10 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
     const fetchOrderDetails = async () => {
         setLoading(true);
         try {
-            if(orderDetails?.shipping_code != null){
+            if (orderDetail?.shipping_code != null) {
                 const response = await orderApi.getTraceOrder(orderDetail.shipping_code);
                 if (response.result) {
-                    if(response.data.data){
+                    if (response.data.data) {
                         const combinedLogs = [...response.data.data?.PickLog, ...response.data.data?.DeliverLog].sort(
                             (a, b) => new Date(b.created) - new Date(a.created)
                         );
@@ -95,7 +103,7 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
             fetchOrderDetails();
             fetchDetailOrder();
         }
-    }, [visible,status]);
+    }, [visible, status]);
 
     const [visibleImage, setVisibleImage] = useState(false);
     const [imageSrc, setImageSrc] = useState("");
@@ -183,7 +191,7 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
             console.log(error);
 
             message.error("Lỗi kết nối khi đăng đơn hàng", error);
-        }finally {
+        } finally {
             setLoading(false);
         }
     };
@@ -263,22 +271,22 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
                                             </Select>
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Ngày tạo">
-                                            {orderDetail.created_at}
+                                            {Utils.formatDateTime(orderDetail.created_at)}
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Hình thức thanh toán">
-                                            {orderDetail.payment_type ? "Chuyển khoản" : "Thanh toán khi nhận hàng"}
+                                            {orderDetail.payment_type ? "Thanh toán trực tuyến" : "Thanh toán khi nhận hàng"}
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Ghi chú">
                                             {orderDetail.note || "Không có"}
                                         </Descriptions.Item>
-                                        <Descriptions.Item label="Cân nặng">
+                                        {orderDetail.status == "READY_TO_PACKAGE" && (<Descriptions.Item label="Cân nặng">
                                             <Input
-                                                value={weight}
+                                                value={orderDetail.weight ?? weight}
                                                 onChange={handleWeightChange}
                                                 placeholder="Nhập cân nặng"
                                                 suffix="kg"
                                             />
-                                        </Descriptions.Item>
+                                        </Descriptions.Item>)}
                                     </Descriptions>
                                 </Card>
                             </Col>
@@ -324,7 +332,7 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
                                     bordered={false}
                                     style={{ marginBottom: "20px" }}
                                 >
-                                    <div style={{ maxHeight: "200px", overflowY: "auto", padding: "10px" }}>
+                                    <div style={{ maxHeight: "300px", overflowY: "auto", padding: "10px" }}>
                                         {orderUpdate?.length > 0 ? (
                                             <Timeline>
                                                 {orderUpdate.map((log, index) => (
