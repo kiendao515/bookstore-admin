@@ -7,8 +7,8 @@ import { PrinterOutlined } from "@ant-design/icons";
 const PrintBarcodeDialog = (props) => {
   const { toggle, setToggle, barcode } = props;
   const [quantity, setQuantity] = useState(1);
-  const contentRef = useRef(null);
-console.log("open print dialog");
+  const componentRef = useRef(null);
+
 
   const reactToPrintFn = useReactToPrint({
     pageStyle: `
@@ -23,7 +23,7 @@ console.log("open print dialog");
         }
       }
     `,
-    content: () => contentRef.current,
+    contentRef: componentRef,
   });
 
   const cmToPx = (cm) => cm * 37.795;
@@ -52,7 +52,7 @@ console.log("open print dialog");
         onChange={(e) => setQuantity(Number(e.target.value))}
         style={{ marginBottom: "20px" }}
       />
-      <div style={{ display: "none" }} ref={contentRef}>
+      <div style={{visibility:'hidden' }} ref={componentRef}>
         <Row gutter={[16, 16]}>
           {Array.from({ length: quantity }).map((_, index) => (
             <Col span={8} key={index} style={{ textAlign: "center" }}>
@@ -83,7 +83,7 @@ console.log("open print dialog");
           type="primary"
           icon={<PrinterOutlined />}
           onClick={()=>{
-            console.log("contentRef:", contentRef.current);
+            console.log("contentRef:", componentRef);
             reactToPrintFn();
           }}
           style={{ marginRight: "10px" }}
