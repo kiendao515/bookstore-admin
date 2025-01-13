@@ -231,9 +231,9 @@ function ModalOrderEdit(props) {
       try {
         const res = await bookApi.getBookInfoByISBN(isbn);
         if (res && res?.data) {
-          form.setFieldValue('name', res?.data?.title || '');
+          form.setFieldValue('name', res?.data?.title.replace(/:.*/, '').trim() || '');
           form.setFieldValue('author_name', res?.data?.author || '');
-          form.setFieldValue('publisher', res?.data?.publisher || '');
+          form.setFieldValue('publisher', res?.data?.publisher.replace(/^[^:]*:\s*/, '') || '');
           form.setFieldValue('publish_year', res?.data?.publish_year || '');
           form.setFieldValue('number_of_page', res?.data?.page || '');
           form.setFieldValue('tags', res?.data?.tags || '')

@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Modal, Table, Button, Input, Form, Select, Typography, message } from "antd";
 import { useTranslation } from "react-i18next";
 import orderApi from "api/orderApi";
+import { Spinner } from "react-bootstrap";
 
 const { Title } = Typography;
 
@@ -10,7 +11,7 @@ const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
   const { t } = useTranslation();
   const [dataSource, setDataSource] = useState([]);
   const [orderDetails, setOrderDetails] = useState(null);
-
+  const [loading, setLoading] = useState(false)
   useEffect(() => {
     orderInfo = orderInfo.filter((order) => order.related_order_id != null && order.status === "READY_TO_PACKAGE");
     const groupedOrders = orderInfo.reduce((acc, order) => {
@@ -21,7 +22,7 @@ const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
       acc[rootOrderId].push(order);
       return acc;
     }, {});
-  
+
     const groupedOrdersArray = Object.keys(groupedOrders).map((rootOrderId) => {
       const orders = groupedOrders[rootOrderId];
       const firstOrder = orders[0]; // Lấy bản ghi đầu tiên
@@ -35,14 +36,15 @@ const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
         orders,
       };
     });
-  
+
     setDataSource(groupedOrdersArray);
   }, [orderInfo]);
 
   const submitOrder = async (orders) => {
     console.log(orders);
-    
+
     try {
+      setLoading(true)
       const ordersToSubmit = {
         order_code: orders[0].rootOrderId,
         address: orders[0].address,
@@ -65,6 +67,8 @@ const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
       }
     } catch (error) {
       message.error(t("Lỗi kết nối khi đăng đơn hàng"));
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -104,25 +108,25 @@ const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
   };
 
   const EditableCell = ({ editable, children, record, column, ...restProps }) => {
-      const inputNode = (
-        <Input
-          defaultValue={record ? record[column]: ""}
-          onBlur={(e) => handleFieldChange(e.target.value, record.key, column)}
-        />
-      );
-  
-      return (
-        <td {...restProps}>
-          {editable ? (
-            <Form.Item style={{ margin: 0 }}>
-              {inputNode}
-            </Form.Item>
-          ) : (
-            children
-          )}
-        </td>
-      );
-    };
+    const inputNode = (
+      <Input
+        defaultValue={record ? record[column] : ""}
+        onBlur={(e) => handleFieldChange(e.target.value, record.key, column)}
+      />
+    );
+
+    return (
+      <td {...restProps}>
+        {editable ? (
+          <Form.Item style={{ margin: 0 }}>
+            {inputNode}
+          </Form.Item>
+        ) : (
+          children
+        )}
+      </td>
+    );
+  };
   const columns = [
     { title: t("Mã đơn gốc"), dataIndex: "rootOrderId", editable: false },
     { title: t("Địa chỉ"), dataIndex: "address", editable: false },
@@ -147,18 +151,14 @@ const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
       column: col.dataIndex,
     }),
   }));
-  console.log(dataSource.length == 0, orderInfo);
-  
+  console.log(dataSource);
+
 
   return (
     <Modal
       visible={show}
       onCancel={onClose}
-      footer={[
-        <Button key="cancel" onClick={onClose}>
-          {t("Đóng")}
-        </Button>,
-      ]}
+      footer={false}
       width={"100%"}
     >
       <Title level={4}>{t("Đơn gom chung")}</Title>
@@ -177,7 +177,7 @@ const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
                 <Table
                   rowKey="order_code"
                   columns={mergedColumns}
-                  dataSource={record.orders}
+                  dataSource={record.orders.filter(item => item.order_code !== item.related_order_id)}
                   pagination={false}
                   scroll={{ x: true }}
                   bordered
@@ -192,20 +192,33 @@ const ModalMultiOrder = ({ show, onClose, orderInfo }) => {
             bordered
           />
 
-          <Button
-            key={`submit-${group.accountId}`}
-            type="primary"
-            onClick={() => submitOrder(dataSource)}
-            disabled={dataSource.length == 0}
+          <div
+            style={{
+              display: 'flex',
+              "flex-direction": 'row-reverse',
+              gap: '10px',
+            }}
           >
-            {t("Đăng đơn")}
-          </Button>
-          <Button
-            key={`print-${group.accountId}`}
-            onClick={() => printGroupOrder(dataSource)}
-          >
-            {t("In đơn hàng")}
-          </Button>
+            <Button
+              key={`submit-${group.accountId}`}
+              type="primary"
+              onClick={() => submitOrder(dataSource)}
+              disabled={dataSource.length === 0}
+            >
+              {loading ? (
+                <Spinner animation="border" size="sm" /> // Hiển thị loading spinner
+              ) : (
+                t('Đăng đơn')
+              )}
+            </Button>
+            {/* <Button
+              key={`print-${group.accountId}`}
+              onClick={() => printGroupOrder(dataSource)}
+            >
+              {t("In đơn hàng")}
+            </Button> */}
+          </div>
+
         </div>
       ))}
 

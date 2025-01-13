@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Modal, Table, Button, Input, Form, Select, Typography, message } from "antd";
 import { useTranslation } from "react-i18next";
 import orderApi from "api/orderApi";
+import { Spinner } from "react-bootstrap";
 
 const { Title } = Typography;
 
@@ -11,6 +12,7 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
   const [dataSource, setDataSource] = useState([]);
   const [pickupOptions, setPickupOptions] = useState([]);
   const [orderDetails, setOrderDetails] = useState(null);
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const updatedOrderInfo = orderInfo.map((order, index) => ({
@@ -51,6 +53,7 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
 
   const submitOrder = async () => {
     try {
+      setLoading(true)
       const ordersToSubmit = dataSource.map((order) => ({
         order_code: order.order_code,
         address: order.address,
@@ -74,6 +77,8 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
       }
     } catch (error) {
       message.error(t("Lỗi kết nối khi đăng đơn hàng"));
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -81,7 +86,7 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
   const EditableCell = ({ editable, children, record, column, ...restProps }) => {
     const inputNode = (
       <Input
-        defaultValue={record ? record[column]: ""}
+        defaultValue={record ? record[column] : ""}
         onBlur={(e) => handleFieldChange(e.target.value, record.key, column)}
       />
     );
@@ -124,8 +129,12 @@ const EditableTable = ({ show, onClose, orderInfo }) => {
         <Button key="cancel" onClick={onClose}>
           {t("Đóng")}
         </Button>,
-        <Button key="submit" type="primary" onClick={submitOrder} disabled={dataSource.length==0}>
-          {t("Đăng đơn")}
+        <Button key="submit" type="primary" onClick={submitOrder} disabled={dataSource.length == 0}>
+          {loading ? (
+            <Spinner animation="border" size="sm" /> // Hiển thị loading spinner
+          ) : (
+            t('Đăng đơn')
+          )}
         </Button>,
       ]}
       width={"100%"}

@@ -72,16 +72,16 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
                             (a, b) => new Date(b.created) - new Date(a.created)
                         );
                         setOrderUpdate(combinedLogs);
-                    }else{
+                    } else {
                         console.log("rune here");
-                        
+
                         setOrderUpdate([])
                     }
                 } else {
                     message.error("Lỗi khi tải dữ liệu chi tiết đơn hàng");
                     console.error("Lỗi khi tải dữ liệu chi tiết đơn hàng");
                 }
-            }else{
+            } else {
                 setOrderUpdate([])
             }
         } catch (error) {
@@ -141,7 +141,7 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
             }
         } catch (error) {
             message.error("Lỗi kết nối khi in đơn hàng");
-        } finally{
+        } finally {
             setLoading(false)
         }
     };
@@ -347,7 +347,11 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
                                             <Timeline>
                                                 {orderUpdate.map((log, index) => (
                                                     <Timeline.Item key={index}>
-                                                        <Text strong>{log.created}</Text>: {log.desc}
+                                                        <Text strong>{moment(log.created).format("DD/MM/YYYY HH:mm:ss")}</Text>
+                                                        <div
+                                                            dangerouslySetInnerHTML={{ __html: log.desc }}
+                                                            style={{ color: "#333" }}
+                                                        />
                                                         {(log.image || log.deliveryImage) && (
                                                             <div>
                                                                 <a
