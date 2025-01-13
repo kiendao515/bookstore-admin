@@ -86,7 +86,12 @@ const ModalEditRevenue = ({
       afterClose={onExistDone}
     >
       {loading ? (
-        <Spin size="large" />
+        <Spin  style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+        }} size="large" />
       ) : (
         <>
           {bookDetail ? (

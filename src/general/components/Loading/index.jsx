@@ -16,8 +16,8 @@ function Loading(props) {
     const { message, showBackground } = props;
 
     return (
-        <div className={`blockui ${!showBackground ? 'bg-light-primary shadow-none' : ''}`}>
-            <span className={`${!showBackground ? 'text-primary' : ''}`}>{`${t(message)}...`}</span>
+        <div className={`blockui ${!showBackground ? 'shadow-none' : ''}`}>
+            <span className={`${!showBackground ? 'text-primary' : ''}`}>{`${t('Loading')}...`}</span>
             <span className="spinner spinner-loader spinner-primary"></span>
         </div>
     );

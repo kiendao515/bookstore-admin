@@ -82,8 +82,26 @@ const Dashboard = () => {
   };
 
   if (loading) {
-    return <Spinner />;
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh', // Chiều cao đầy đủ màn hình
+          width: '100vw',  // Chiều rộng đầy đủ màn hình
+          position: 'fixed', // Đảm bảo nó nằm cố định
+          top: 0, // Bắt đầu từ đỉnh màn hình
+          left: 0, // Bắt đầu từ góc trái màn hình
+          zIndex: 9999, // Hiển thị trên các thành phần khác
+          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Màu nền mờ (tùy chọn)
+        }}
+      >
+        <Spinner size="large" />
+      </div>
+    );
   }
+  
 
   // const { ready_to_confirm, ready_to_package, ready_to_ship, shipping, done, cancel } = statistics;
   return (

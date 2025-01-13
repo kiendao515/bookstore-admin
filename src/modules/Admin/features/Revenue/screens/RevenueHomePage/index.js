@@ -253,54 +253,24 @@ function RevenueHomePage(props) {
   useEffect(() => {
     getListBookStores();
   }, []);
-
-  function handleDeleteCollection(employee) {
-    Swal.fire({
-      title: t('Confirm'),
-      text: t('MessageConfirmDeleteEmployee', { name: employee?.name }),
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: t('Yes'),
-      cancelButtonText: t('Cancel'),
-      customClass: {
-        confirmButton: 'btn btn-danger font-weight-bolder',
-        cancelButton: 'btn btn-light font-weight-bolder',
-      },
-    }).then(async function (result) {
-      if (result.value) {
-        try {
-          const res = await collectionApi.deleteCollection(employee);
-          const { result } = res;
-          if (result == true) {
-            Global.gNeedToRefreshCollectionList = true;
-            ToastHelper.showSuccess(t('Success'));
-            Global.gFiltersCollectionList = { ...filters };
-            setFilters({ ...filters });
-          }
-        } catch (error) {
-          console.log(`Delete employee error: ${error?.message}`);
-        }
-      }
-    });
-  }
-  const handleExportToExcel = (storeName, from, to) => {
+  const handleExportToExcel = (storeName) => {
     if (revenue.length === 0) {
       ToastHelper.showError(t('Không có dữ liệu để xuất.'));
       return;
     }
 
     // Format khoảng thời gian
-    const formatDate = (date) => {
-      const d = new Date(date);
-      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    };
+    // const formatDate = (date) => {
+    //   const d = new Date(date);
+    //   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    // };
 
-    const formattedFrom = formatDate(from);
-    const formattedTo = formatDate(to);
+    // const formattedFrom = formatDate(from);
+    // const formattedTo = formatDate(to);
 
 
     const sanitizedStoreName = storeName?.replace(/[\\/:"*?<>|]/g, '_'); // Loại bỏ ký tự không hợp lệ
-    const fileName = `${sanitizedStoreName}_${formattedFrom}_to_${formattedTo}.xlsx`;
+    const fileName = `${sanitizedStoreName}.xlsx`;
 
     const formattedData = revenue.map((row) => ({
       Tên: row?.book?.name || '',
@@ -401,22 +371,11 @@ function RevenueHomePage(props) {
             </div>
 
             {/* header toolbar */}
-            <div className="card-toolbar">
-              <a
-                href="#"
-                className={`${selectedEmployees.length === 0 ? 'd-none' : 'd-flex'
-                  } btn btn-light-danger font-weight-bold align-items-center`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleDeleteMultiEmployees();
-                }}
-              >
-                <i className="far fa-ban"></i>
-                {`${t('Delete')} (${selectedEmployees.length})`}
-              </a>
+            {
+              currentAccount?.role === "ADMIN" ? <div className="card-toolbar">
               <Button
-                className="btn btn-success font-weight-bold mr-2"
-                onClick={() => handleExportToExcel(storeName, from, to)}
+                className='btn btn-success font-weight-bold mr-2'
+                onClick={() => handleExportToExcel(storeName)}
               >
                 {t('Xuất file Excel')}
               </Button>
@@ -426,7 +385,8 @@ function RevenueHomePage(props) {
               >
                 {t('Chốt doanh thu')}
               </Button>
-            </div>
+            </div> : null
+            }
           </div>
 
           <div className="d-flex flex-wrap">

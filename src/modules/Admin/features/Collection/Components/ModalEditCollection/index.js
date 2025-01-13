@@ -243,7 +243,7 @@ function ModalEditCollection(props) {
                       />
                     </div>
 
-                    <div className="col-6">
+                    <div className="col-12">
                       <KTFormGroup
                         label={
                           <>
@@ -299,7 +299,7 @@ function ModalEditCollection(props) {
                       formikProps.handleSubmit();
                     }}
                   >
-                    {t('Save')}
+                    {t('Lưu')}
                   </Button>
 
                   <Button
@@ -307,7 +307,7 @@ function ModalEditCollection(props) {
                     variant="secondary"
                     onClick={handleClose}
                   >
-                    {t('Close')}
+                    {t('Đóng')}
                   </Button>
                 </div>
               </Modal.Footer>

@@ -295,7 +295,7 @@ function CollectionHomePage(props) {
                 className="btn btn-primary font-weight-bold d-flex align-items-center ml-2"
               >
                 <i className="fa-solid fa-plus"></i>
-                {t('NewCollection')}
+                {t('Thêm mới bộ sưu tập')}
               </a>
             </div>
           </div>

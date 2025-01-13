@@ -67,19 +67,26 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
             if (orderDetail?.shipping_code != null) {
                 const response = await orderApi.getTraceOrder(orderDetail.shipping_code);
                 if (response.result) {
-                    if (response.data.data) {
+                    if (response?.data?.data) {
                         const combinedLogs = [...response.data.data?.PickLog, ...response.data.data?.DeliverLog].sort(
                             (a, b) => new Date(b.created) - new Date(a.created)
                         );
                         setOrderUpdate(combinedLogs);
+                    }else{
+                        console.log("rune here");
+                        
+                        setOrderUpdate([])
                     }
                 } else {
                     message.error("Lỗi khi tải dữ liệu chi tiết đơn hàng");
                     console.error("Lỗi khi tải dữ liệu chi tiết đơn hàng");
                 }
+            }else{
+                setOrderUpdate([])
             }
         } catch (error) {
             console.error("Lỗi gọi API:", error);
+            setOrderUpdate([])
         } finally {
             setLoading(false);
         }
@@ -117,6 +124,7 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
     };
 
     const handlePrintOrder = async () => {
+        setLoading(true)
         console.log("In đơn hàng:", orderDetail.order_code);
         try {
             const response = await orderApi.printOrder(orderDetail.order_code);
@@ -133,6 +141,8 @@ function ModalOrderDetails({ visible, onClose, orderDetails }) {
             }
         } catch (error) {
             message.error("Lỗi kết nối khi in đơn hàng");
+        } finally{
+            setLoading(false)
         }
     };
     const handleCancel = () => {

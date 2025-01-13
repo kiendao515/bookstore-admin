@@ -24,7 +24,7 @@ function KT01Sidebar(props) {
       {
         type: 'item',
         text: t("Thống kê"),
-        icon: 'fas fa-qrcode',
+        icon: 'fa-solid fa-chart-simple',
         path: "/"
       },
       {
@@ -38,7 +38,7 @@ function KT01Sidebar(props) {
       {
         type: 'item',
         text: t("Category"),
-        icon: 'fas fa-id-badge',
+        icon: 'fa-solid fa-list',
         path: '/category',
       },
       {
@@ -50,20 +50,20 @@ function KT01Sidebar(props) {
       {
         type: 'item',
         text: t("BookInfo"),
-        icon: "fal fa-file-search",
+        icon: "fa-solid fa-book",
         path: '/book',
       },
       { type: 'section', text: t("AccountManagement") },
       {
         type: 'item',
         text: t("UserAccount"),
-        icon: "fal fa-newspaper",
+        icon: "fa-regular fa-user",
         path: '/account/customer'
       },
       {
         type: 'item',
         text: t("BookStoreAccount"),
-        icon: "fal fa-newspaper",
+        icon: "fa-solid fa-store",
         path: '/account/partner'
       },
       {
@@ -73,13 +73,13 @@ function KT01Sidebar(props) {
       {
         type: 'item',
         text: t("GeneralReport"),
-        icon: "fad fa-file-chart-line",
+        icon: "fa-solid fa-box",
         path: '/order',
       },
       {
         type: 'item',
         text: t("Bán hàng offline"),
-        icon: 'fas fa-qrcode',
+        icon: 'fa-solid fa-cart-shopping',
         path: '/offline-order',
       },
       {
@@ -89,7 +89,7 @@ function KT01Sidebar(props) {
       {
         type: 'item',
         text: t("Cấu hình"),
-        icon: "fad fa-file-chart-line",
+        icon: "fa-solid fa-gear",
         path: '/config',
       },
     ] : [
